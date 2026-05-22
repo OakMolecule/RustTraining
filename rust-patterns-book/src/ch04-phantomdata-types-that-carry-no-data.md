@@ -46,6 +46,7 @@ struct Slice<'a, T> {
 Use `PhantomData` to prevent mixing values from different "sessions" or "contexts":
 
 ```rust
+use std::cell::RefCell;
 use std::marker::PhantomData;
 
 /// A handle that's valid only within a specific arena's lifetime
@@ -55,33 +56,35 @@ struct ArenaHandle<'arena> {
 }
 
 struct Arena {
-    data: Vec<String>,
+    data: RefCell<Vec<String>>,
 }
 
 impl Arena {
     fn new() -> Self {
-        Arena { data: Vec::new() }
+        Arena { data: RefCell::new(Vec::new()) }
     }
 
     /// Allocate a string and return a branded handle
-    fn alloc<'a>(&'a mut self, value: String) -> ArenaHandle<'a> {
-        let index = self.data.len();
-        self.data.push(value);
+    fn alloc(&self, value: String) -> ArenaHandle<'_> {
+        let mut data = self.data.borrow_mut();
+        let index = data.len();
+        data.push(value);
         ArenaHandle { index, _brand: PhantomData }
     }
 
     /// Look up by handle — only accepts handles from THIS arena
-    fn get<'a>(&'a self, handle: ArenaHandle<'a>) -> &'a str {
-        &self.data[handle.index]
+    fn get<'a>(&'a self, handle: ArenaHandle<'a>) -> String {
+        let data = self.data.borrow();
+        data[handle.index].clone()
     }
 }
 
 fn main() {
-    let mut arena1 = Arena::new();
+    let arena1 = Arena::new();
     let handle1 = arena1.alloc("hello".to_string());
 
     // Can't use handle1 with a different arena — lifetimes won't match
-    // let mut arena2 = Arena::new();
+    // let arena2 = Arena::new();
     // arena2.get(handle1); // ❌ Lifetime mismatch
 
     println!("{}", arena1.get(handle1)); // ✅
