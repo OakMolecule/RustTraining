@@ -1,9 +1,9 @@
-# Rust lifetime and borrowing
+# Rust 生命周期与借用 {#rust-lifetime-and-borrowing}
 
-> **What you'll learn:** How Rust's lifetime system ensures references never dangle — from implicit lifetimes through explicit annotations to the three elision rules that make most code annotation-free. Understanding lifetimes here is essential before moving on to smart pointers in the next section.
+> **你将学到：** Rust 生命周期系统如何确保引用永不悬垂——从隐式生命周期、显式标注到三条省略规则（使多数代码无需标注）。理解生命周期后再进入下一节的智能指针。
 
-- Rust enforces a single mutable reference and any number of immutable references
-    - The lifetime of any reference must be at least as long as the original owning lifetime. These are implicit lifetimes and are inferred by the compiler (see https://doc.rust-lang.org/nomicon/lifetime-elision.html)
+- Rust 强制单一可变引用与任意数量不可变引用
+    - 任何引用的生命周期至少与原拥有者生命周期一样长。这些是隐式生命周期，由编译器推断（见 https://doc.rust-lang.org/nomicon/lifetime-elision.html）
 ```rust
 fn borrow_mut(x: &mut u32) {
     *x = 43;
@@ -20,11 +20,11 @@ fn main() {
 }
 ```
 
-# Rust lifetime annotations
-- Explicit lifetime annotations are needed when dealing with multiple lifetimes
-    - Lifetimes are denoted with `'` and can be any identifier (`'a`, `'b`, `'static`, etc.)
-    - The compiler needs help when it can't figure out how long references should live
-- **Common scenario**: Function returns a reference, but which input does it come from?
+# Rust 生命周期标注 {#rust-lifetime-annotations}
+- 处理多个生命周期时需要显式生命周期标注
+    - 生命周期用 `'` 表示，可为任意标识符（`'a`、`'b`、`'static` 等）
+    - 编译器无法推断引用应存活多久时需要帮助
+- **常见场景**：函数返回引用，但来自哪个输入？
 ```rust
 #[derive(Debug)]
 struct Point {x: u32, y: u32}
@@ -56,8 +56,8 @@ fn main() {
 }
 ```
 
-# Rust lifetime annotations
-- Lifetime annotations are also needed for references in data structures
+# Rust 生命周期标注
+- 数据结构中的引用也需要生命周期标注
 ```rust
 use std::collections::HashMap;
 #[derive(Debug)]
@@ -84,11 +84,11 @@ fn main() {
 } 
 ```
 
-# Exercise: First word with lifetimes
+# 练习：带生命周期的 first word
 
-🟢 **Starter** — practice lifetime elision in action
+🟢 **入门** — 实践生命周期省略
 
-Write a function `fn first_word(s: &str) -> &str` that returns the first whitespace-delimited word from a string. Think about why this compiles without explicit lifetime annotations (hint: elision rule #1 and #2).
+编写函数 `fn first_word(s: &str) -> &str`，返回字符串中第一个空白分隔的单词。思考为何无需显式生命周期标注即可编译（提示：省略规则 #1 与 #2）。
 
 <details><summary>Solution (click to expand)</summary>
 
@@ -115,12 +115,12 @@ fn main() {
 
 </details>
 
-# Exercise: Slice storage with lifetimes
+# 练习：带生命周期的切片存储 {#exercise-slice-storage-with-lifetimes}
 
-🟡 **Intermediate** — your first encounter with lifetime annotations
-- Create a structure that stores references to the slice of a ```&str```
-    - Create a long ```&str``` and store references slices from it inside the structure
-    - Write a function that accepts the structure and returns the contained slice
+🟡 **中级** — 首次接触生命周期标注
+- 创建存储 ```&str``` 切片引用的结构体
+    - 创建长 ```&str```，在结构体中存储其切片引用
+    - 编写接受该结构体并返回所含切片的函数
 ```rust
 // TODO: Create a structure to store a reference to a slice
 struct SliceStore {
@@ -168,16 +168,13 @@ fn main() {
 
 ---
 
-## Lifetime Elision Rules Deep Dive
+## 生命周期省略规则深入 {#lifetime-elision-rules-deep-dive}
 
-C programmers often ask: "If lifetimes are so important, why don't most Rust functions
-have `'a` annotations?" The answer is **lifetime elision** — the compiler applies three
-deterministic rules to infer lifetimes automatically.
+C 程序员常问：「生命周期这么重要，为何多数 Rust 函数没有 `'a` 标注？」答案是**生命周期省略**——编译器用三条确定性规则自动推断生命周期。
 
-### The Three Elision Rules
+### 三条省略规则
 
-The Rust compiler applies these rules **in order** to function signatures. If all output
-lifetimes are determined after applying the rules, no annotations are needed.
+Rust 编译器**按顺序**将这些规则应用于函数签名。应用后若所有输出生命周期均已确定，则无需标注。
 
 ```mermaid
 flowchart TD
@@ -195,9 +192,9 @@ flowchart TD
     style ERR fill:#ff6b6b,color:#000
 ```
 
-### Rule-by-Rule Examples
+### 逐条规则示例
 
-**Rule 1** — each input reference gets its own lifetime parameter:
+**规则 1** — 每个输入引用获得独立生命周期参数：
 ```rust
 // What you write:
 fn first_word(s: &str) -> &str { ... }
@@ -207,14 +204,14 @@ fn first_word<'a>(s: &'a str) -> &str { ... }
 // Only one input lifetime → Rule 2 applies
 ```
 
-**Rule 2** — single input lifetime propagates to all outputs:
+**规则 2** — 单一输入生命周期传播到所有输出：
 ```rust
 // After Rule 2:
 fn first_word<'a>(s: &'a str) -> &'a str { ... }
 // ✅ All output lifetimes determined — no annotation needed!
 ```
 
-**Rule 3** — `&self` lifetime propagates to outputs:
+**规则 3** — `&self` 的生命周期传播到输出：
 ```rust
 // What you write:
 impl SliceStore<'_> {
@@ -228,7 +225,7 @@ impl SliceStore<'_> {
 // ✅ No annotation needed — &self lifetime used for output
 ```
 
-**When elision fails** — you must annotate:
+**省略失败时** — 必须标注：
 ```rust
 // Two input references, no &self → Rules 2 and 3 don't apply
 // fn longest(a: &str, b: &str) -> &str  ← WON'T COMPILE
@@ -239,23 +236,20 @@ fn longest<'a>(a: &'a str, b: &'a str) -> &'a str {
 }
 ```
 
-### C Programmer Mental Model
+### C 程序员心智模型
 
-In C, every pointer is independent — the programmer mentally tracks which allocation
-each pointer refers to, and the compiler trusts you completely. In Rust, lifetimes make
-this tracking **explicit and compiler-verified**:
+在 C 中，每个指针独立——程序员在脑中跟踪每个指针指向哪块分配，编译器完全信任你。在 Rust 中，生命周期使这种跟踪**显式且由编译器验证**：
 
-| C | Rust | What happens |
+| C | Rust | 发生什么 |
 |---|------|-------------|
-| `char* get_name(struct User* u)` | `fn get_name(&self) -> &str` | Rule 3 elides: output borrows from `self` |
-| `char* concat(char* a, char* b)` | `fn concat<'a>(a: &'a str, b: &'a str) -> &'a str` | Must annotate — two inputs |
-| `void process(char* in, char* out)` | `fn process(input: &str, output: &mut String)` | No output reference — no lifetime needed |
-| `char* buf; /* who owns this? */` | Compile error if lifetime is wrong | Compiler catches dangling pointers |
+| `char* get_name(struct User* u)` | `fn get_name(&self) -> &str` | 规则 3 省略：输出从 `self` 借用 |
+| `char* concat(char* a, char* b)` | `fn concat<'a>(a: &'a str, b: &'a str) -> &'a str` | 必须标注——两个输入 |
+| `void process(char* in, char* out)` | `fn process(input: &str, output: &mut String)` | 无输出引用——无需生命周期 |
+| `char* buf; /* who owns this? */` | 生命周期错误则编译失败 | 编译器捕获悬垂指针 |
 
-### The `'static` Lifetime
+### `'static` 生命周期
 
-`'static` means the reference is valid for the **entire program duration**. It's the
-Rust equivalent of a C global or string literal:
+`'static` 表示引用在**整个程序运行期间**有效。相当于 C 的全局变量或字符串字面量：
 
 ```rust
 // String literals are always 'static — they live in the binary's read-only section
@@ -270,12 +264,12 @@ fn spawn<F: FnOnce() + Send + 'static>(f: F) { /* ... */ }
 // (either move them in, or use only 'static data)
 ```
 
-### Exercise: Predict the Elision
+### 练习：预测省略结果
 
-🟡 **Intermediate**
+🟡 **中级**
 
-For each function signature below, predict whether the compiler can elide lifetimes.
-If not, add the necessary annotations:
+对下列每个函数签名，预测编译器能否省略生命周期。
+若不能，添加必要标注：
 
 ```rust
 // 1. Can the compiler elide?

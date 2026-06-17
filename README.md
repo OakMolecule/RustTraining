@@ -10,6 +10,15 @@
 
 </div>
 
+## 中文译本声明（版权与署名）
+
+- 本仓库中的中文内容（尤其 `c-cpp-book/`）基于原项目 [microsoft/RustTraining](https://github.com/microsoft/RustTraining) 的文档进行翻译与改编。
+- 中文译文主要由 AI 生成，未经过人工校对与修订。
+- 原作版权归 Microsoft Corporation 所有；文档采用 [CC-BY-4.0](LICENSE-DOCS)，代码采用 [MIT](LICENSE)。
+- 本中文版本为**非官方译本**，仅用于学习与技术交流，不代表 Microsoft 官方立场或发布。
+- 发布与再分发时，请保留原始版权与许可信息，并明确标注“已修改/已翻译”。
+- 使用中如涉及 Microsoft 或第三方商标，请遵循原 README 中的商标条款，避免造成官方背书或合作关系的误解。
+
 # Rust Training Books
 
 Seven training courses covering Rust from different programming backgrounds, plus deep-dives on async, advanced patterns, and engineering practices.

@@ -1,36 +1,36 @@
-# Case Study Overview: C++ to Rust Translation
+# 案例研究概览：C++ 到 Rust 的翻译 {#case-study-overview-c-to-rust-translation}
 
-> **What you'll learn:** Lessons from a real-world translation of ~100K lines of C++ to ~90K lines of Rust across ~20 crates. Five key transformation patterns and the architectural decisions behind them.
+> **你将学到：** 将约 10 万行 C++ 翻译为约 20 个 crate、约 9 万行 Rust 的真实项目经验。五个关键转换模式及其背后的架构决策。
 
-- We translated a large C++ diagnostic system (~100K lines of C++) into a Rust implementation (~20 Rust crates, ~90K lines)
-- This section shows the **actual patterns** used — not toy examples, but real production code
-- The five key transformations:
+- 我们将大型 C++ 诊断系统（约 10 万行 C++）翻译为 Rust 实现（约 20 个 Rust crate、约 9 万行）
+- 本节展示**实际使用的模式** — 不是玩具示例，而是真实生产代码
+- 五个关键转换：
 
-| **#** | **C++ Pattern** | **Rust Pattern** | **Impact** |
+| **#** | **C++ 模式** | **Rust 模式** | **影响** |
 |-------|----------------|-----------------|-----------|
-| 1 | Class hierarchy + `dynamic_cast` | Enum dispatch + `match` | ~400 → 0 dynamic_casts |
-| 2 | `shared_ptr` / `enable_shared_from_this` tree | Arena + index linkage | No reference cycles |
-| 3 | `Framework*` raw pointer in every module | `DiagContext<'a>` with lifetime borrowing | Compile-time validity |
-| 4 | God object  | Composable state structs | Testable, modular |
-| 5 | `vector<unique_ptr<Base>>` everywhere | Trait objects **only** where needed (~25 uses) | Static dispatch default |
+| 1 | 类层次 + `dynamic_cast` | 枚举分发 + `match` | 约 400 → 0 次 `dynamic_cast` |
+| 2 | `shared_ptr` / `enable_shared_from_this` 树 | Arena + 索引链接 | 无引用循环 |
+| 3 | 每个模块中的 `Framework*` 裸指针 | 带生命周期借用的 `DiagContext<'a>` | 编译期有效性 |
+| 4 | God object | 可组合状态结构体 | 可测试、模块化 |
+| 5 | 处处 `vector<unique_ptr<Base>>` | 仅在需要处使用 Trait 对象（约 25 处） | 默认静态分发 |
 
-### Before and After Metrics
+### 前后指标 {#before-and-after-metrics}
 
-| **Metric** | **C++ (Original)** | **Rust (Rewrite)** |
+| **指标** | **C++（原始）** | **Rust（重写）** |
 |------------|---------------------|------------------------|
-| `dynamic_cast` / type downcasts | ~400 | 0 |
-| `virtual` / `override` methods | ~900 | ~25 (`Box<dyn Trait>`) |
-| Raw `new` allocations | ~200 | 0 (all owned types) |
-| `shared_ptr` / reference counting | ~10 (topology lib) | 0 (`Arc` only at FFI boundary) |
-| `enum class` definitions | ~60 | ~190 `pub enum` |
-| Pattern matching expressions | N/A | ~750 `match` |
-| God objects (>5K lines) | 2 | 0 |
+| `dynamic_cast` / 类型向下转型 | 约 400 | 0 |
+| `virtual` / `override` 方法 | 约 900 | 约 25（`Box<dyn Trait>`） |
+| 裸 `new` 分配 | 约 200 | 0（全部为 owned 类型） |
+| `shared_ptr` / 引用计数 | 约 10（拓扑库） | 0（仅在 FFI 边界使用 `Arc`） |
+| `enum class` 定义 | 约 60 | 约 190 个 `pub enum` |
+| 模式匹配表达式 | N/A | 约 750 个 `match` |
+| God object（>5K 行） | 2 | 0 |
 
 ----
 
-# Case Study 1: Inheritance hierarchy → Enum dispatch
+# 案例研究 1：继承层次 → 枚举分发 {#case-study-1-inheritance-hierarchy--enum-dispatch}
 
-## The C++ Pattern: Event Class Hierarchy
+## C++ 模式：事件类层次 {#the-c-pattern-event-class-hierarchy}
 ```cpp
 // C++ original: Every GPU event type is a class inheriting from GpuEventBase
 class GpuEventBase {
@@ -67,7 +67,7 @@ void ProcessEvents(std::vector<std::unique_ptr<GpuEventBase>>& events,
 }
 ```
 
-## The Rust Solution: Enum Dispatch
+## Rust 方案：枚举分发 {#the-rust-solution-enum-dispatch}
 ```rust
 // Example: types.rs — No inheritance, no vtable, no dynamic_cast
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -109,16 +109,16 @@ impl GpuEventManager {
 }
 ```
 
-### Why Not `Vec<Box<dyn GpuEvent>>`?
-- **The Wrong Approach** (literal translation): Put all events in one heterogeneous collection, then downcast — this is what C++ does with `vector<unique_ptr<Base>>`
-- **The Right Approach**: Separate typed Vecs eliminate *all* downcasting. Each consumer asks for exactly the event type it needs
-- **Performance**: Separate Vecs give better cache locality (all degrade events are contiguous in memory)
+### 为何不用 `Vec<Box<dyn GpuEvent>>`？ {#why-not-vecboxdyn-gpuevent}
+- **错误做法**（字面翻译）：把所有事件放进一个异构集合再向下转型 — 这正是 C++ 用 `vector<unique_ptr<Base>>` 做的事
+- **正确做法**：分离的类型化 `Vec` 消除**所有**向下转型。每个消费者只索取它需要的事件类型
+- **性能**：分离的 `Vec` 缓存局部性更好（所有 degrade 事件在内存中连续）
 
 ----
 
-# Case Study 2: shared_ptr tree → Arena/index pattern
+# 案例研究 2：`shared_ptr` 树 → Arena/索引模式 {#case-study-2-shared_ptr-tree--arenaindex-pattern}
 
-## The C++ Pattern: Reference-Counted Tree
+## C++ 模式：引用计数树 {#the-c-pattern-reference-counted-tree}
 ```cpp
 // C++ topology library: PcieDevice uses enable_shared_from_this 
 // because parent and child nodes both need to reference each other
@@ -137,7 +137,7 @@ public:
 // Need weak_ptr to break cycles, but easy to forget
 ```
 
-## The Rust Solution: Arena with Index Linkage
+## Rust 方案：Arena 与索引链接 {#the-rust-solution-arena-with-index-linkage}
 ```rust
 // Example: components.rs — Flat Vec owns all devices
 pub struct PcieDevice {
@@ -169,11 +169,11 @@ impl DeviceTree {
 }
 ```
 
-### Key Insight
-- **No `shared_ptr`, no `weak_ptr`, no `enable_shared_from_this`**
-- **No reference cycles possible** — indices are just `usize` values
-- **Better cache performance** — all devices in contiguous memory
-- **Simpler reasoning** — one owner (the Vec), many viewers (indices)
+### 关键洞察 {#key-insight}
+- **无 `shared_ptr`、无 `weak_ptr`、无 `enable_shared_from_this`**
+- **不可能出现引用循环** — 索引只是 `usize` 值
+- **更好的缓存性能** — 所有设备在连续内存中
+- **更简单的推理** — 单一所有者（`Vec`），多个观察者（索引）
 
 ```mermaid
 graph LR
@@ -200,5 +200,4 @@ graph LR
 ```
 
 ----
-
 

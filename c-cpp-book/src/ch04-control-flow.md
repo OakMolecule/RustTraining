@@ -1,8 +1,8 @@
-# Rust if keyword
+# Rust `if` 关键字 {#rust-if-keyword}
 
-> **What you'll learn:** Rust's control flow constructs — `if`/`else` as expressions, `loop`/`while`/`for`, `match`, and how they differ from C/C++ counterparts. The key insight: most Rust control flow returns values.
+> **你将学到：** Rust 的控制流结构——作为表达式的 `if`/`else`、`loop`/`while`/`for`、`match`，以及它们与 C/C++ 对应物的差异。关键洞察：大多数 Rust 控制流会返回值。
 
-- In Rust, ```if``` is actually an expression, i.e., it can be used to assign values, but it also behaves like a statement. [▶ Try it](https://play.rust-lang.org/)
+- 在 Rust 中，```if``` 实际上是表达式，即可用于赋值，也表现得像语句。[▶ 试一试](https://play.rust-lang.org/)
 
 ```rust
 fn main() {
@@ -19,8 +19,8 @@ fn main() {
 }
 ```
 
-# Rust loops using while and for
-- The ```while``` keyword can be used to loop while an expression is true
+# Rust 使用 `while` 和 `for` 的循环 {#rust-loops-using-while-and-for}
+- ```while``` 关键字可在表达式为真时循环
 ```rust
 fn main() {
     let mut x = 40;
@@ -29,7 +29,7 @@ fn main() {
     }
 }
 ```
-- The ```for``` keyword can be used to iterate over ranges
+- ```for``` 关键字可遍历范围
 ```rust
 fn main() {
     // Will not print 43; use 40..=43 to include last element
@@ -39,8 +39,8 @@ fn main() {
 }
 ```
 
-# Rust loops using loop
-- The ```loop``` keyword creates an infinite loop until a ```break``` is encountered
+# Rust 使用 `loop` 的循环 {#rust-loops-using-loop}
+- ```loop``` 关键字创建无限循环，直到遇到 ```break```
 ```rust
 fn main() {
     let mut x = 40;
@@ -53,12 +53,12 @@ fn main() {
     }
 }
 ```
-- The ```break``` statement can include an optional expression that can be used to assign the value of a ```loop``` expression
-- The ```continue``` keyword can be used to return to the top of the ```loop```
-- Loop labels can be used with ```break``` or ```continue``` and are useful when dealing with nested loops
+- ```break``` 语句可包含可选表达式，用于为 ```loop``` 表达式赋值
+- ```continue``` 关键字可返回 ```loop``` 顶部
+- 循环标签可与 ```break``` 或 ```continue``` 配合使用，在处理嵌套循环时很有用
 
-# Rust expression blocks
-- Rust expression blocks are simply a sequence of expressions enclosed in ```{}```. The evaluated value is simply the last expression in the block
+# Rust 表达式块 {#rust-expression-blocks}
+- Rust 表达式块是放在 ```{}``` 中的一串表达式。求值结果为块中最后一个表达式
 ```rust
 fn main() {
     let x = {
@@ -69,7 +69,7 @@ fn main() {
     println!("{x}");
 }
 ```
-- Rust style is to use this to omit the ```return``` keyword in functions
+- Rust 风格是用此省略函数中的 ```return``` 关键字
 ```rust
 fn is_secret_of_life(x: u32) -> bool {
     // Same as if x == 42 {true} else {false}
@@ -79,5 +79,4 @@ fn main() {
     println!("{}", is_secret_of_life(42));
 }
 ```
-
 

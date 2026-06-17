@@ -1,33 +1,33 @@
-# Rust memory management
+# Rust 内存管理 {#rust-memory-management}
 
-> **What you'll learn:** Rust's ownership system — the single most important concept in the language. After this chapter you'll understand move semantics, borrowing rules, and the `Drop` trait. If you grasp this chapter, the rest of Rust follows naturally. If you're struggling, re-read it — ownership clicks on the second pass for most C/C++ developers.
+> **你将学到：** Rust 的所有权系统——语言中最重要的概念。读完本章你将理解移动语义、借用规则与 `Drop` Trait。掌握本章，Rust 其余部分会自然跟上。若感到吃力，请重读——多数 C/C++ 开发者在第二遍阅读时才会豁然开朗。
 
-- Memory management in C/C++ is a source of bugs:
-    - In C: memory is allocated with `malloc()` and freed with `free()`. No checks against dangling pointers, use-after-free, or double-free
-    - In C++: RAII (Resource Acquisition Is Initialization) and smart pointers help, but `std::move(ptr)` compiles even after the move — use-after-move is UB
-- Rust makes RAII **foolproof**:
-    - Move is **destructive** — the compiler refuses to let you touch the moved-from variable
-    - No Rule of Five needed (no copy ctor, move ctor, copy assign, move assign, destructor)
-    - Rust gives complete control of memory allocation, but enforces safety at **compile time**
-    - This is done by a combination of mechanisms including ownership, borrowing, mutability and lifetimes
-    - Rust runtime allocations can happen both on the stack and the heap
+- C/C++ 的内存管理是 bug 来源：
+    - C：用 `malloc()` 分配、`free()` 释放。无悬垂指针、释放后使用、双重释放等检查
+    - C++：RAII（Resource Acquisition Is Initialization，资源获取即初始化）与智能指针有帮助，但 `std::move(ptr)` 在移动后仍可编译——移动后使用是 UB
+- Rust 让 RAII **防呆**：
+    - 移动是**破坏性的**——编译器拒绝让你再碰已移动变量
+    - 无需 Rule of Five（无拷贝构造、移动构造、拷贝赋值、移动赋值、析构）
+    - Rust 完全控制内存分配，但在**编译期**强制安全
+    - 通过所有权、借用、可变性与生命周期等机制组合实现
+    - Rust 运行时分配可在栈与堆上进行
 
-> **For C++ developers — Smart Pointer Mapping:**
+> **面向 C++ 开发者——智能指针对照：**
 >
-> | **C++** | **Rust** | **Safety Improvement** |
+> | **C++** | **Rust** | **安全改进** |
 > |---------|----------|----------------------|
-> | `std::unique_ptr<T>` | `Box<T>` | No use-after-move possible |
-> | `std::shared_ptr<T>` | `Rc<T>` (single-thread) | No reference cycles by default |
-> | `std::shared_ptr<T>` (thread-safe) | `Arc<T>` | Explicit thread-safety |
-> | `std::weak_ptr<T>` | `Weak<T>` | Must check validity |
-> | Raw pointer | `*const T` / `*mut T` | Only in `unsafe` blocks |
+> | `std::unique_ptr<T>` | `Box<T>` | 不可能移动后使用 |
+> | `std::shared_ptr<T>` | `Rc<T>`（单线程） | 默认无引用循环 |
+> | `std::shared_ptr<T>`（线程安全） | `Arc<T>` | 显式线程安全 |
+> | `std::weak_ptr<T>` | `Weak<T>` | 必须检查有效性 |
+> | 裸指针 | `*const T` / `*mut T` | 仅在 `unsafe` 代码块中 |
 >
-> For C developers: `Box<T>` replaces `malloc`/`free` pairs. `Rc<T>` replaces manual reference counting. Raw pointers exist but are confined to `unsafe` blocks.
+> 面向 C 开发者：`Box<T>` 替代 `malloc`/`free` 配对。`Rc<T>` 替代手动引用计数。裸指针存在，但限于 `unsafe` 代码块。
 
-# Rust ownership, borrowing and lifetimes
-- Recall that Rust only permits a single mutable reference to a variable and multiple read-only references
-    - The initial declaration of the variable establishes ```ownership```
-    - Subsequent references ```borrow``` from the original owner. The rule is that the scope of the borrow can never exceed the owning scope. In other words, the ```lifetime``` of a borrow cannot exceed the owning lifetime
+# Rust 所有权、借用与生命周期 {#rust-ownership-borrowing-and-lifetimes}
+- 回顾：Rust 只允许一个可变引用与多个只读引用
+    - 变量初始声明建立 ```ownership```（所有权）
+    - 后续引用从原所有者 ```borrow```（借用）。规则是借用作用域不得超过拥有者作用域。即借用的 ```lifetime```（生命周期）不得超过拥有者的生命周期
 ```rust
 fn main() {
     let a = 42; // Owner
@@ -44,10 +44,10 @@ fn main() {
 }
 ```
 
-- Rust can pass parameters to methods using several different mechanisms
-    - By value (copy): Typically types that can be trivially copied (ex: u8, u32, i8, i32)
-    - By reference: This is the equivalent of passing a pointer to the actual value. This is also commonly known as borrowing, and the reference can be immutable (```&```), or mutable (```&mut```) 
-    - By moving: This transfers "ownership" of the value to the function. The caller can no longer reference the original value
+- Rust 可用多种机制向方法传参
+    - 按值（拷贝）：通常是可 trivial 拷贝的类型（如 u8、u32、i8、i32）
+    - 按引用：相当于传指向实际值的指针，亦称借用；引用可为不可变（```&```）或可变（```&mut```）
+    - 按移动：将值的「所有权」转移给函数，调用方不能再引用原值
 ```rust
 fn foo(x: &u32) {
     println!("{x}");
@@ -62,9 +62,9 @@ fn main() {
 }
 ```
 
-- Rust prohibits dangling references from methods
-    - References returned by methods must still be in scope
-    - Rust will automatically ```drop``` a reference when it goes out of scope. 
+- Rust 禁止方法返回悬垂引用
+    - 方法返回的引用必须仍在作用域内
+    - 引用离开作用域时 Rust 会自动 ```drop```
 ```rust
 fn no_dangling() -> &u32 {
     // lifetime of a begins here
@@ -85,8 +85,8 @@ fn main() {
 }
 ```
 
-# Rust move semantics
-- By default, Rust assignment transfers ownership
+# Rust 移动语义 {#rust-move-semantics}
+- 默认情况下，Rust 赋值转移所有权
 ```rust
 fn main() {
     let s = String::from("Rust");    // Allocate a string from the heap
@@ -113,10 +113,10 @@ graph LR
     style S1 fill:#51cf66,color:#000,stroke:#333
     style H2 fill:#91e5a3,color:#000,stroke:#333
 ```
-*After `let s1 = s`, ownership transfers to `s1`. The heap data stays put — only the stack pointer moves. `s` is now invalid.*
+*`let s1 = s` 后，所有权转移到 `s1`。堆数据不动——仅栈上指针移动。`s` 现已无效。*
 
 ----
-# Rust move semantics and borrowing
+# Rust 移动语义与借用
 ```rust
 fn foo(s : String) {
     println!("{s}");
@@ -136,10 +136,10 @@ fn main() {
 }
 ```
 
-# Rust move semantics and ownership
-- It is possible to transfer ownership by moving
-    - It is illegal to reference outstanding references after the move is completed
-    - Consider borrowing if a move is not desirable
+# Rust 移动语义与所有权
+- 可通过移动转移所有权
+    - 移动完成后，再引用仍存在的引用是非法的
+    - 若不希望移动，考虑借用
 ```rust
 struct Point {
     x: u32,
@@ -159,8 +159,8 @@ fn main() {
 }
 ```
 
-# Rust Clone
-- The ```clone()``` method can be used to copy the original memory. The original reference continues to be valid (the downside is that we have 2x the allocation)
+# Rust Clone {#rust-clone}
+- ```clone()``` 方法可复制原内存，原引用仍有效（代价是双倍分配）
 ```rust
 fn main() {
     let s = String::from("Rust");    // Allocate a string from the heap
@@ -183,13 +183,13 @@ graph LR
     style H1 fill:#91e5a3,color:#000,stroke:#333
     style H2 fill:#91e5a3,color:#000,stroke:#333
 ```
-*`clone()` creates a **separate** heap allocation. Both `s` and `s1` are valid — each owns its own copy.*
+*`clone()` 创建**独立**堆分配。`s` 与 `s1` 均有效——各自拥有自己的副本。*
 
-# Rust Copy trait
-- Rust implements copy semantics for built-in types using the ```Copy``` trait
-    - Examples include u8, u32, i8, i32, etc. Copy semantics use "pass by value"
-    - User defined data types can optionally opt into ```copy``` semantics using the ```derive``` macro with to automatically implement the ```Copy``` trait
-    - The compiler will allocate space for the copy following a new assignment
+# Rust `Copy` Trait {#rust-copy-trait}
+- Rust 通过 ```Copy``` Trait 为内置类型实现拷贝语义
+    - 例如 u8、u32、i8、i32 等。拷贝语义使用「按值传递」
+    - 用户定义类型可选用 ```derive``` 宏自动实现 ```Copy``` Trait
+    - 新赋值后编译器会为拷贝分配空间
 ```rust
 // Try commenting this out to see the change in let p1 = p; below
 #[derive(Copy, Clone, Debug)]   // We'll discuss this more later
@@ -203,24 +203,24 @@ fn main() {
 }
 ```
 
-# Rust Drop trait
+# Rust `Drop` Trait {#rust-drop-trait}
 
-- Rust automatically calls the `drop()` method at the end of scope
-    - `drop` is part of a generic trait called `Drop`. The compiler provides a blanket NOP implementation for all types, but types can override it. For example, the `String` type overrides it to release heap-allocated memory
-    - For C developers: this replaces the need for manual `free()` calls — resources are automatically released when they go out of scope (RAII)
-- **Key safety:** You cannot call `.drop()` directly (the compiler forbids it). Instead, use `drop(obj)` which moves the value into the function, runs its destructor, and prevents any further use — eliminating double-free bugs
+- Rust 在作用域结束时自动调用 `drop()` 方法
+    - `drop` 属于名为 `Drop` 的泛型 Trait。编译器为所有类型提供默认空实现，类型可覆盖。例如 `String` 覆盖它以释放堆内存
+    - 面向 C 开发者：替代手动 `free()`——资源在离开作用域时自动释放（RAII）
+- **关键安全：** 不能直接调用 `.drop()`（编译器禁止）。应使用 `drop(obj)`，将值移入函数、运行析构并阻止进一步使用——消除双重释放 bug
 
-> **For C++ developers:** `Drop` maps directly to C++ destructors (`~ClassName()`):
+> **面向 C++ 开发者：** `Drop` 直接对应 C++ 析构函数（`~ClassName()`）：
 >
-> | | **C++ destructor** | **Rust `Drop`** |
+> | | **C++ 析构** | **Rust `Drop`** |
 > |---|---|---|
-> | **Syntax** | `~MyClass() { ... }` | `impl Drop for MyType { fn drop(&mut self) { ... } }` |
-> | **When called** | End of scope (RAII) | End of scope (same) |
-> | **Called on move** | Source left in "valid but unspecified" state — destructor still runs on the moved-from object | Source is **gone** — no destructor call on moved-from value |
-> | **Manual call** | `obj.~MyClass()` (dangerous, rarely used) | `drop(obj)` (safe — takes ownership, calls `drop`, prevents further use) |
-> | **Order** | Reverse declaration order | Reverse declaration order (same) |
-> | **Rule of Five** | Must manage copy ctor, move ctor, copy assign, move assign, destructor | Only `Drop` — compiler handles move semantics, and `Clone` is opt-in |
-> | **Virtual dtor needed?** | Yes, if deleting through base pointer | No — no inheritance, so no slicing problem |
+> | **语法** | `~MyClass() { ... }` | `impl Drop for MyType { fn drop(&mut self) { ... } }` |
+> | **调用时机** | 作用域结束（RAII） | 作用域结束（相同） |
+> | **移动时** | 源处于「有效但未指定」状态——仍对移动源对象调用析构 | 源**已消失**——不对移动源值调用析构 |
+> | **手动调用** | `obj.~MyClass()`（危险，少用） | `drop(obj)`（安全——取得所有权、调用 `drop`、阻止再用） |
+> | **顺序** | 与声明相反 | 与声明相反（相同） |
+> | **Rule of Five** | 须管理拷贝构造、移动构造、拷贝赋值、移动赋值、析构 | 只需 `Drop`——编译器处理移动语义，`Clone` 可选 |
+> | **需要虚析构？** | 通过基指针删除时需要 | 否——无继承，无切片问题 |
 
 ```rust
 struct Point {x: u32, y:u32}
@@ -243,11 +243,11 @@ fn main() {
 }
 ```
 
-# Exercise: Move, Copy and Drop
+# 练习：Move、Copy 与 Drop {#exercise-move-copy-and-drop}
 
-🟡 **Intermediate** — experiment freely; the compiler will guide you
-- Create your own experiments with ```Point``` with and without ```Copy``` in ```#[derive(Debug)]``` in the below make sure you understand the differences. The idea is to get a solid understanding of how move vs. copy works, so make sure to ask
-- Implement a custom ```Drop``` for ```Point``` that sets x and y to 0 in ```drop```. This is a pattern that's useful for releasing locks and other resources for example
+🟡 **中级** — 自由实验；编译器会引导你
+- 用 ```Point``` 自行实验，在 ```#[derive(Debug)]``` 中有无 ```Copy``` 的区别，确保理解移动 vs 拷贝。若有疑问请提问
+- 为 ```Point``` 实现自定义 ```Drop```，在 ```drop``` 中将 x、y 置 0。此模式可用于释放锁等资源
 ```rust
 struct Point{x: u32, y: u32}
 fn main() {

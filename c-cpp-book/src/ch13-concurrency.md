@@ -1,12 +1,12 @@
-# Rust concurrency
+# Rust 并发 {#rust-concurrency}
 
-> **What you'll learn:** Rust's concurrency model — threads, `Send`/`Sync` marker traits, `Mutex<T>`, `Arc<T>`, channels, and how the compiler prevents data races at compile time. No runtime overhead for thread safety you don't use.
+> **你将学到：** Rust 的并发模型——线程、`Send`/`Sync` 标记 Trait、`Mutex<T>`、`Arc<T>`、通道，以及编译器如何在编译期防止数据竞争。未使用的线程安全无运行时开销。
 
-- Rust has built-in support for concurrency, similar to `std::thread` in C++
-    - Key difference: Rust **prevents data races at compile time** through `Send` and `Sync` marker traits
-    - In C++, sharing a `std::vector` across threads without a mutex is UB but compiles fine. In Rust, it won't compile.
-    - `Mutex<T>` in Rust wraps the **data**, not just the access — you literally cannot read the data without locking
-- The `thread::spawn()` can be used to create a separate thread that executes the closure `||` in parallel
+- Rust 内置并发支持，类似 C++ 中的 `std::thread`
+    - 关键差异：Rust 通过 `Send` 和 `Sync` 标记 Trait **在编译期防止数据竞争**
+    - 在 C++ 中，在没有 mutex 的情况下跨线程共享 `std::vector` 是 UB 但能编译通过。在 Rust 中，无法编译。
+    - Rust 中的 `Mutex<T>` 包装的是**数据**，而不只是访问——不锁定就无法读取数据
+- `thread::spawn()` 可用于创建单独线程，并行执行闭包 `||`
 ```rust
 use std::thread;
 use std::time::Duration;
@@ -27,9 +27,9 @@ fn main() {
 }
 ```
 
-# Rust concurrency
-- ```thread::scope()``` can be used in cases where it is necessary to borrow from the environment. This works because ```thread::scope``` waits until the internal thread returns
-- Try executing this exercise without ```thread::scope``` to see the issue
+# Rust 并发
+- 当需要从环境借用时，可使用 ```thread::scope()```。这可行是因为 ```thread::scope``` 会等待内部线程返回
+- 尝试不使用 ```thread::scope``` 执行此练习以了解问题
 ```rust
 use std::thread;
 fn main() {
@@ -44,8 +44,8 @@ fn main() {
 }
 ```
 ----
-# Rust concurrency
-- We can also use ```move``` to transfer ownership to the thread. For `Copy` types like `[i32; 3]`, the `move` keyword copies the data into the closure, and the original remains usable
+# Rust 并发
+- 也可使用 ```move``` 将所有权转移给线程。对于像 `[i32; 3]` 这样的 `Copy` 类型，`move` 关键字将数据复制到闭包中，原变量仍可使用
 ```rust
 use std::thread;
 fn main() {
@@ -60,10 +60,10 @@ fn main() {
 }
 ```
 
-# Rust concurrency
-- ```Arc<T>``` can be used to share *read-only* references between multiple threads
-    - ```Arc``` stands for Atomic Reference Counted. The reference isn't released until the reference count reaches 0
-    - ```Arc::clone()``` simply increases the reference count without cloning the data
+# Rust 并发
+- ```Arc<T>``` 可用于在多个线程间共享*只读*引用
+    - ```Arc``` 表示 Atomic Reference Counted（原子引用计数）。引用直到引用计数为 0 才释放
+    - ```Arc::clone()``` 仅增加引用计数，不克隆数据
 ```rust
 use std::sync::Arc;
 use std::thread;
@@ -80,10 +80,10 @@ fn main() {
 }
 ```
 
-# Rust concurrency
-- ```Arc<T>``` can be combined with ```Mutex<T>``` to provide mutable references.
-    - ```Mutex``` guards the protected data and ensures that only the thread holding the lock has access.
-    - The `MutexGuard` is automatically released when it goes out of scope (RAII). Note: `std::mem::forget` can still leak a guard — so "impossible to forget to unlock" is more accurate than "impossible to leak."
+# Rust 并发
+- ```Arc<T>``` 可与 ```Mutex<T>``` 结合提供可变引用。
+    - ```Mutex``` 保护受保护的数据，确保只有持有锁的线程才能访问。
+    - `MutexGuard` 在超出作用域时自动释放（RAII）。注意：`std::mem::forget` 仍可能泄漏 guard——因此「不可能忘记解锁」比「不可能泄漏」更准确。
 ```rust
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -110,10 +110,10 @@ fn main() {
 }
 ```
 
-# Rust concurrency: RwLock
-- `RwLock<T>` allows **multiple concurrent readers** or **one exclusive writer** — the read/write lock pattern from C++ (`std::shared_mutex`)
-    - Use `RwLock` when reads far outnumber writes (e.g., configuration, caches)
-    - Use `Mutex` when read/write frequency is similar or critical sections are short
+# Rust 并发：RwLock
+- `RwLock<T>` 允许多个并发读者或**一个**独占写者——C++ 中的读写锁模式（`std::shared_mutex`）
+    - 读远多于写时使用 `RwLock`（例如配置、缓存）
+    - 读写频率相近或临界区较短时使用 `Mutex`
 ```rust
 use std::sync::{Arc, RwLock};
 use std::thread;
@@ -147,11 +147,11 @@ fn main() {
 }
 ```
 
-# Rust concurrency: Mutex poisoning
-- If a thread **panics** while holding a `Mutex` or `RwLock`, the lock becomes **poisoned**
-    - Subsequent calls to `.lock()` return `Err(PoisonError)` — the data may be in an inconsistent state
-    - You can recover with `.into_inner()` if you're confident the data is still valid
-    - This has no C++ equivalent — `std::mutex` has no poisoning concept; a panicking thread just leaves the lock held
+# Rust 并发：Mutex 中毒
+- 如果线程在持有 `Mutex` 或 `RwLock` 时 **panic**，锁会变为**中毒**状态
+    - 后续对 `.lock()` 的调用返回 `Err(PoisonError)`——数据可能处于不一致状态
+    - 若确信数据仍有效，可用 `.into_inner()` 恢复
+    - C++ 中没有等价物——`std::mutex` 没有中毒概念；panic 的线程只是让锁保持持有状态
 ```rust
 use std::sync::{Arc, Mutex};
 use std::thread;
@@ -180,10 +180,10 @@ fn main() {
 }
 ```
 
-# Rust concurrency: Atomics
-- For simple counters and flags, `std::sync::atomic` types avoid the overhead of a `Mutex`
-    - `AtomicBool`, `AtomicI32`, `AtomicU64`, `AtomicUsize`, etc.
-    - Equivalent to C++ `std::atomic<T>` — same memory ordering model (`Relaxed`, `Acquire`, `Release`, `SeqCst`)
+# Rust 并发：原子类型
+- 对于简单计数器和标志，`std::sync::atomic` 类型可避免 `Mutex` 的开销
+    - `AtomicBool`、`AtomicI32`、`AtomicU64`、`AtomicUsize` 等
+    - 等价于 C++ 的 `std::atomic<T>`——相同的内存序模型（`Relaxed`、`Acquire`、`Release`、`SeqCst`）
 ```rust
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
@@ -211,18 +211,18 @@ fn main() {
 }
 ```
 
-| Primitive | When to use | C++ equivalent |
+| 原语 | 何时使用 | C++ 等价物 |
 |-----------|-------------|----------------|
-| `Mutex<T>` | General mutable shared state | `std::mutex` + manual data association |
-| `RwLock<T>` | Read-heavy workloads | `std::shared_mutex` |
-| `Atomic*` | Simple counters, flags, lock-free patterns | `std::atomic<T>` |
-| `Condvar` | Wait for a condition to become true | `std::condition_variable` |
+| `Mutex<T>` | 一般可变共享状态 | `std::mutex` + 手动关联数据 |
+| `RwLock<T>` | 读多写少的工作负载 | `std::shared_mutex` |
+| `Atomic*` | 简单计数器、标志、无锁模式 | `std::atomic<T>` |
+| `Condvar` | 等待条件变为真 | `std::condition_variable` |
 
-# Rust concurrency: Condvar
-- `Condvar` (condition variable) lets a thread **sleep until another thread signals** that a condition has changed
-    - Always paired with a `Mutex` — the pattern is: lock, check condition, wait if not ready, act when ready
-    - Equivalent to C++ `std::condition_variable` / `std::condition_variable::wait`
-    - Handles **spurious wakeups** — always re-check the condition in a loop (or use `wait_while`/`wait_until`)
+# Rust 并发：Condvar
+- `Condvar`（条件变量）让线程**休眠直到另一线程发出信号**表明条件已改变
+    - 始终与 `Mutex` 配对——模式是：加锁、检查条件、未就绪则等待、就绪后行动
+    - 等价于 C++ 的 `std::condition_variable` / `std::condition_variable::wait`
+    - 处理**虚假唤醒**——始终在循环中重新检查条件（或使用 `wait_while`/`wait_until`）
 ```rust
 use std::sync::{Arc, Condvar, Mutex};
 use std::thread;
@@ -255,12 +255,12 @@ fn main() {
 }
 ```
 
-> **When to use Condvar vs channels:** Use `Condvar` when threads share mutable state and need to wait for a condition on that state (e.g., "buffer not empty"). Use channels (`mpsc`) when threads need to pass *messages*. Channels are generally easier to reason about.
+> **何时使用 Condvar 与通道：** 当线程共享可变状态并需要等待该状态上的条件时使用 `Condvar`（例如「缓冲区非空」）。当线程需要传递*消息*时使用通道（`mpsc`）。通道通常更易推理。
 
-# Rust concurrency
-- Rust channels can be used to exchange messages between ```Sender``` and ```Receiver```
-    - This uses a paradigm called ```mpsc``` or ```Multi-producer, Single-Consumer```
-    - Both ```send()``` and ```recv()``` can block the thread
+# Rust 并发
+- Rust 通道可用于在 ```Sender``` 和 ```Receiver``` 之间交换消息
+    - 这使用称为 ```mpsc``` 或 ```Multi-producer, Single-Consumer``` 的范式
+    - ```send()``` 和 ```recv()``` 都可能阻塞线程
 ```rust
 use std::sync::mpsc;
 
@@ -279,8 +279,8 @@ fn main() {
 }
 ```
 
-# Rust concurrency
-- Channels can be combined with threads
+# Rust 并发
+- 通道可与线程结合
 ```rust
 use std::sync::mpsc;
 use std::thread;
@@ -313,32 +313,32 @@ fn main() {
 
 
 
-## Why Rust prevents data races: Send and Sync
+## Rust 为何能防止数据竞争：Send 与 Sync {#why-rust-prevents-data-races-send-and-sync}
 
-- Rust uses two marker traits to enforce thread safety at compile time:
-    - `Send`: A type is `Send` if it can be safely **transferred** to another thread
-    - `Sync`: A type is `Sync` if it can be safely **shared** (via `&T`) between threads
-- Most types are automatically `Send + Sync`. Notable exceptions:
-    - `Rc<T>` is **neither** Send nor Sync (use `Arc<T>` for threads)
-    - `Cell<T>` and `RefCell<T>` are **not** Sync (use `Mutex<T>` or `RwLock<T>`)
-    - Raw pointers (`*const T`, `*mut T`) are **neither** Send nor Sync
-- This is why the compiler stops you from using `Rc<T>` across threads -- it literally doesn't implement `Send`
-- `Arc<Mutex<T>>` is the thread-safe equivalent of `Rc<RefCell<T>>`
+- Rust 使用两个标记 Trait 在编译期强制线程安全：
+    - `Send`：若类型可安全**转移**到另一线程，则该类型是 `Send`
+    - `Sync`：若类型可通过 `&T` 在线程间安全**共享**，则该类型是 `Sync`
+- 大多数类型自动是 `Send + Sync`。值得注意的例外：
+    - `Rc<T>` **既非** Send **也非** Sync（在线程中使用 `Arc<T>`）
+    - `Cell<T>` 和 `RefCell<T>` **不是** Sync（使用 `Mutex<T>` 或 `RwLock<T>`）
+    - 裸指针（`*const T`、`*mut T`）**既非** Send **也非** Sync
+- 这就是为什么编译器阻止你跨线程使用 `Rc<T>`——它根本没有实现 `Send`
+- `Arc<Mutex<T>>` 是 `Rc<RefCell<T>>` 的线程安全等价物
 
-> **Intuition** *(Jon Gjengset)*: Think of values as toys.
-> **`Send`** = you can **give your toy away** to another child (thread) — transferring ownership is safe.
-> **`Sync`** = you can **let others play with your toy at the same time** — sharing a reference is safe.
-> An `Rc<T>` has a fragile (non-atomic) reference counter; handing it off or sharing it would corrupt the count, so it is neither `Send` nor `Sync`.
+> **直觉** *（Jon Gjengset）*：把值想象成玩具。
+> **`Send`** = 你可以把玩具**送给**另一个孩子（线程）——转移所有权是安全的。
+> **`Sync`** = 你可以**让别人同时玩**你的玩具——共享引用是安全的。
+> `Rc<T>` 有脆弱（非原子）引用计数；转移或共享它会破坏计数，因此它既非 `Send` 也非 `Sync`。
 
 
-# Exercise: Multi-threaded word count
+# 练习：多线程词频统计 {#exercise-multi-threaded-word-count}
 
-🔴 **Challenge** — combines threads, Arc, Mutex, and HashMap
+🔴 **挑战**——结合线程、Arc、Mutex 和 HashMap
 
-- Given a `Vec<String>` of text lines, spawn one thread per line to count the words in that line
-- Use `Arc<Mutex<HashMap<String, usize>>>` to collect results
-- Print the total word count across all lines
-- **Bonus**: Try implementing this with channels (`mpsc`) instead of shared state
+- 给定 `Vec<String>` 文本行，为每行 spawn 一个线程统计该行词数
+- 使用 `Arc<Mutex<HashMap<String, usize>>>` 收集结果
+- 打印所有行的总词数
+- **Bonus**：尝试用通道（`mpsc`）而非共享状态实现
 
 <details><summary>Solution (click to expand)</summary>
 
@@ -394,5 +394,4 @@ fn main() {
 ```
 
 </details>
-
 

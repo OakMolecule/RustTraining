@@ -1,15 +1,15 @@
-## Logging and Tracing: syslog/printf → `log` + `tracing`
+## 日志与追踪：syslog/printf → `log` + `tracing` {#logging-and-tracing-ecosystem}
 
-> **What you'll learn:** Rust's two-layer logging architecture (facade + backend), the `log` and `tracing` crates, structured logging with spans, and how this replaces `printf`/`syslog` debugging.
+> **你将学到：** Rust 的双层日志架构（门面 + 后端）、`log` 与 `tracing` crate、带 span 的结构化日志，以及如何替代 `printf`/`syslog` 调试。
 
-C++ diagnostic code typically uses `printf`, `syslog`, or custom logging frameworks.
-Rust has a standardized two-layer logging architecture: a **facade** crate (`log` or
-`tracing`) and a **backend** (the actual logger implementation).
+C++ 诊断代码通常使用 `printf`、`syslog` 或自定义日志框架。
+Rust 有标准化的双层日志架构：**门面** crate（`log` 或
+`tracing`）与**后端**（实际日志实现）。
 
-### The `log` facade — Rust's universal logging API
+### `log` 门面 — Rust 通用日志 API
 
-The `log` crate provides macros that mirror syslog severity levels. Libraries use
-`log` macros; binaries choose a backend:
+`log` crate 提供与 syslog 严重级别对应的宏。库使用
+`log` 宏；可执行文件选择后端：
 
 ```rust
 // Cargo.toml
@@ -49,20 +49,20 @@ RUST_LOG=my_crate=trace cargo run # Per-module filtering
 RUST_LOG=my_crate::gpu=debug,warn cargo run  # Mix levels
 ```
 
-### C++ comparison
+### C++ 对比
 
-| C++ | Rust (`log`) | Notes |
+| C++ | Rust（`log`） | 说明 |
 |-----|-------------|-------|
-| `printf("DEBUG: %s\n", msg)` | `debug!("{msg}")` | Format checked at compile time |
-| `syslog(LOG_ERR, "...")` | `error!("...")` | Backend decides where output goes |
-| `#ifdef DEBUG` around log calls | `trace!` / `debug!` compiled out at max_level | Zero-cost when disabled |
-| Custom `Logger::log(level, msg)` | `log::info!("...")` — all crates use same API | Universal facade, swappable backend |
-| Per-file log verbosity | `RUST_LOG=crate::module=level` | Environment-based, no recompile |
+| `printf("DEBUG: %s\n", msg)` | `debug!("{msg}")` | 编译期检查格式 |
+| `syslog(LOG_ERR, "...")` | `error!("...")` | 由后端决定输出位置 |
+| 日志调用外包 `#ifdef DEBUG` | 在 max_level 下 `trace!` / `debug!` 被编译掉 | 禁用时零成本 |
+| 自定义 `Logger::log(level, msg)` | `log::info!("...")` — 所有 crate 同一 API | 通用门面，可换后端 |
+| 按文件控制日志详细度 | `RUST_LOG=crate::module=level` | 基于环境变量，无需重编译 |
 
-### The `tracing` crate — structured logging with spans
+### `tracing` crate — 带 span 的结构化日志
 
-`tracing` extends `log` with **structured fields** and **spans** (timed scopes).
-This is especially useful for diagnostics code where you want to track context:
+`tracing` 在 `log` 基础上扩展了**结构化字段**与 **span**（带时间的作用域）。
+对需要跟踪上下文的诊断代码尤其有用：
 
 ```rust
 // Cargo.toml
@@ -107,16 +107,15 @@ fn main() {
 }
 ```
 
-Output with `tracing-subscriber`:
+使用 `tracing-subscriber` 时的输出：
 ```rust
 2026-02-15T10:30:00.123Z DEBUG ThreadId(01) run_gpu_test{gpu_id=0 data_len=3}: my_crate: Starting GPU test
 2026-02-15T10:30:00.124Z  INFO ThreadId(01) run_gpu_test{gpu_id=0 data_len=3}:ecc_check{gpu_id=0}: my_crate: ECC check passed gpu_id=0 temp_celsius=72.5 ecc_errors=0
 ```
 
-### `#[instrument]` — automatic span creation
+### `#[instrument]` — 自动创建 span
 
-The `#[instrument]` attribute automatically creates a span with the function name
-and its arguments:
+`#[instrument]` 属性自动以函数名及其参数创建 span：
 
 ```rust
 use tracing::instrument;
@@ -138,32 +137,32 @@ fn decode_ipmi_response(raw_buffer: &[u8]) -> Result<Vec<u8>, String> {
 }
 ```
 
-### `log` vs `tracing` — which to use
+### `log` 与 `tracing` — 选哪个
 
-| Aspect | `log` | `tracing` |
+| 方面 | `log` | `tracing` |
 |--------|-------|-----------|
-| **Complexity** | Simple — 5 macros | Richer — spans, fields, instruments |
-| **Structured data** | String interpolation only | Key-value fields: `info!(gpu_id = 0, "msg")` |
-| **Timing / spans** | No | Yes — `#[instrument]`, `span.enter()` |
-| **Async support** | Basic | First-class — spans propagate across `.await` |
-| **Compatibility** | Universal facade | Compatible with `log` (has a `log` bridge) |
-| **When to use** | Simple applications, libraries | Diagnostic tools, async code, observability |
+| **复杂度** | 简单 — 5 个宏 | 更丰富 — span、字段、instrument |
+| **结构化数据** | 仅字符串插值 | 键值字段：`info!(gpu_id = 0, "msg")` |
+| **计时 / span** | 无 | 有 — `#[instrument]`、`span.enter()` |
+| **异步支持** | 基础 | 一等公民 — span 跨 `.await` 传播 |
+| **兼容性** | 通用门面 | 与 `log` 兼容（有 `log` 桥接） |
+| **适用场景** | 简单应用、库 | 诊断工具、异步代码、可观测性 |
 
-> **Recommendation**: Use `tracing` for production diagnostic-style projects (diagnostic tools
-> with structured output). Use `log` for simple libraries where you want minimal
-> dependencies. `tracing` includes a compatibility layer so libraries using `log`
-> macros still work with a `tracing` subscriber.
+> **建议**：生产级诊断类项目（带结构化输出的诊断工具）用 `tracing`。
+> 依赖要少的简单库用 `log`。
+> `tracing` 含兼容层，使用 `log`
+> 宏的库在 `tracing` subscriber 下仍可工作。
 
-### Backend options
+### 后端选项
 
-| Backend Crate | Output | Use Case |
+| 后端 Crate | 输出 | 适用场景 |
 |--------------|--------|----------|
-| `env_logger` | stderr, colored | Development, simple CLI tools |
-| `tracing-subscriber` | stderr, formatted | Production with `tracing` |
-| `syslog` | System syslog | Linux system services |
-| `tracing-journald` | systemd journal | systemd-managed services |
-| `tracing-appender` | Rotating log files | Long-running daemons |
-| `tracing-opentelemetry` | OpenTelemetry collector | Distributed tracing |
+| `env_logger` | stderr，彩色 | 开发、简单 CLI 工具 |
+| `tracing-subscriber` | stderr，格式化 | 生产环境配合 `tracing` |
+| `syslog` | 系统 syslog | Linux 系统服务 |
+| `tracing-journald` | systemd journal | systemd 管理的服务 |
+| `tracing-appender` | 轮转日志文件 | 长期运行的守护进程 |
+| `tracing-opentelemetry` | OpenTelemetry 收集器 | 分布式追踪 |
 
 ----
 

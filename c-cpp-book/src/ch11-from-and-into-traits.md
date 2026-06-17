@@ -1,10 +1,10 @@
-# Rust From and Into traits
+# Rust From 与 Into Trait {#rust-from-and-into-traits}
 
-> **What you'll learn:** Rust's type conversion traits — `From<T>` and `Into<T>` for infallible conversions, `TryFrom` and `TryInto` for fallible ones. Implement `From` and get `Into` for free. Replaces C++ conversion operators and constructors.
+> **你将学到：** Rust 的类型转换 Trait——用于不会失败的转换的 `From<T>` 和 `Into<T>`，用于可能失败的 `TryFrom` 和 `TryInto`。实现 `From` 即可免费获得 `Into`。替代 C++ 转换运算符和构造函数。
 
-- ```From``` and ```Into``` are complementary traits to facilitate type conversion
-- Types normally implement the ```From``` trait.```String::from("Rust")``` converts a ```&str``` into a ```String```.
-When ```From<T> for U``` exists, Rust also provides ```Into<U> for T```, so ```let s: String = "Rust".into();``` works too.
+- ```From``` 和 ```Into``` 是便于类型转换的互补 Trait
+- 类型通常实现 ```From``` Trait。```String::from("Rust")``` 将 ```&str``` 转换为 ```String```。
+当存在 ```From<T> for U``` 时，Rust 还提供 ```Into<U> for T```，因此 ```let s: String = "Rust".into();``` 也能工作。
 ```rust
 struct Point {x: u32, y: u32}
 // Construct a Point from a tuple
@@ -22,8 +22,8 @@ fn main() {
 }
 ```
 
-# Exercise: From and Into
-- Implement a ```From``` trait for ```Point``` to convert into a type called ```TransposePoint```. ```TransposePoint``` swaps the ```x``` and ```y``` elements of ```Point```
+# 练习：From 与 Into {#exercise-from-and-into}
+- 为 ```Point``` 实现 ```From``` Trait，转换为名为 ```TransposePoint``` 的类型。```TransposePoint``` 交换 ```Point``` 的 ```x``` 和 ```y``` 元素
 
 <details><summary>Solution (click to expand)</summary>
 
@@ -54,9 +54,9 @@ fn main() {
 
 </details>
 
-# Rust Default trait
-- ```Default``` can be used to implement default values for a type
-    - Types can use the ```Derive``` macro with ```Default``` or provide a custom implementation
+# Rust Default Trait {#rust-default-trait}
+- ```Default``` 可用于为类型实现默认值
+    - 类型可使用 ```Derive``` 宏配合 ```Default```，或提供自定义实现
 ```rust
 #[derive(Default, Debug)]
 struct Point {x: u32, y: u32}
@@ -75,10 +75,10 @@ fn main() {
 }
 ```
 
-### Rust Default trait
-- ```Default``` trait has several use cases including
-    - Performing a partial copy and using default initialization for rest
-    - Default alternative for ```Option``` types in methods like ```unwrap_or_default()```
+### Rust Default Trait
+- ```Default``` Trait 有多种用途，包括
+    - 执行部分复制，其余用默认初始化
+    - 作为 ```Option``` 类型在 ```unwrap_or_default()``` 等方法中的默认替代
 ```rust
 #[derive(Debug)]
 struct CustomPoint {x: u32, y: u32}
@@ -98,9 +98,9 @@ fn main() {
 }
 ```
 
-### Other Rust type conversions
-- Rust doesn't support implicit type conversions and ```as``` can be used for ```explicit``` conversions
-- ```as``` should be sparingly used because it's subject to loss of data by narrowing and so forth. In general, it's preferable to use ```into()``` or ```from()``` where possible
+### 其他 Rust 类型转换 {#other-rust-type-conversions}
+- Rust 不支持隐式类型转换，```as``` 可用于```显式```转换
+- ```as``` 应谨慎使用，因为它可能因窄化等导致数据丢失。一般而言，尽可能使用 ```into()``` 或 ```from()```
 ```rust
 fn main() {
     let f = 42u8;
@@ -115,5 +115,4 @@ fn main() {
     }
 }
 ```
-
 

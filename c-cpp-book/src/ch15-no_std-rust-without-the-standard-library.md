@@ -1,26 +1,22 @@
-# `no_std` — Rust Without the Standard Library
+# `no_std` — 无标准库的 Rust
 
-> **What you'll learn:** How to write Rust for bare-metal and embedded targets using `#![no_std]` — the `core` and `alloc` crate split, panic handlers, and how this compares to embedded C without `libc`.
+> **你将学到：** 如何使用 `#![no_std]` 为裸机和嵌入式目标编写 Rust——`core` 与 `alloc` crate 的分层、panic handler，以及与无 `libc` 的嵌入式 C 的对比。
 
-If you come from embedded C, you're already used to working without `libc` or with a minimal
-runtime.  Rust has a first-class equivalent: the **`#![no_std]`** attribute.
+如果你来自嵌入式 C，你已经习惯在没有 `libc` 或仅有极简运行时的情况下工作。Rust 有对应的一等公民方案：**`#![no_std]`** 属性。
 
-## What is `no_std`?
+## 什么是 `no_std`？ {#what-is-no_std}
 
-When you add `#![no_std]` to the crate root, the compiler removes the
-implicit `extern crate std;` and links only against **`core`** (and optionally **`alloc`**).
+在 crate 根添加 `#![no_std]` 后，编译器会移除隐式的 `extern crate std;`，仅链接 **`core`**（以及可选的 **`alloc`**）。
 
-| Layer | What it provides | Requires OS / heap? |
+| 层级 | 提供什么 | 需要 OS / 堆？ |
 |-------|-----------------|---------------------|
-| `core` | Primitive types, `Option`, `Result`, `Iterator`, math, `slice`, `str`, atomics, `fmt` | **No** — runs on bare metal |
-| `alloc` | `Vec`, `String`, `Box`, `Rc`, `Arc`, `BTreeMap` | Needs a global allocator, but **no OS** |
-| `std` | `HashMap`, `fs`, `net`, `thread`, `io`, `env`, `process` | **Yes** — needs an OS |
+| `core` | 基本类型、`Option`、`Result`、`Iterator`、数学、`slice`、`str`、原子操作、`fmt` | **否** — 可在裸机上运行 |
+| `alloc` | `Vec`、`String`、`Box`、`Rc`、`Arc`、`BTreeMap` | 需要全局分配器，但**不需要 OS** |
+| `std` | `HashMap`、`fs`、`net`、`thread`、`io`、`env`、`process` | **是** — 需要 OS |
 
-> **Rule of thumb for embedded devs:** if your C project links against `-lc` and
-> uses `malloc`, you can probably use `core` + `alloc`.  If it runs on bare metal
-> without `malloc`, stick with `core` only.
+> **嵌入式开发者经验法则：** 若你的 C 项目链接 `-lc` 并使用 `malloc`，通常可以用 `core` + `alloc`。若在裸机上运行且没有 `malloc`，只用 `core`。
 
-## Declaring `no_std`
+## 声明 `no_std` {#declaring-no_std}
 
 ```rust
 // src/lib.rs  (or src/main.rs for a binary with #![no_main])
@@ -37,7 +33,7 @@ use alloc::vec::Vec;
 use alloc::string::String;
 ```
 
-For a bare-metal binary you also need `#![no_main]` and a panic handler:
+对于裸机二进制，还需要 `#![no_main]` 和 panic handler：
 
 ```rust
 #![no_std]
@@ -53,37 +49,37 @@ fn panic(_info: &PanicInfo) -> ! {
 // Entry point depends on your HAL / linker script
 ```
 
-## What you lose (and alternatives)
+## 你会失去什么（以及替代方案） {#what-you-lose-and-alternatives}
 
-| `std` feature | `no_std` alternative |
+| `std` 功能 | `no_std` 替代 |
 |---------------|---------------------|
-| `println!` | `core::write!` to a UART / `defmt` |
-| `HashMap` | `heapless::FnvIndexMap` (fixed capacity) or `BTreeMap` (with `alloc`) |
-| `Vec` | `heapless::Vec` (stack-allocated, fixed capacity) |
-| `String` | `heapless::String` or `&str` |
+| `println!` | 向 UART 使用 `core::write!` / `defmt` |
+| `HashMap` | `heapless::FnvIndexMap`（固定容量）或 `BTreeMap`（配合 `alloc`） |
+| `Vec` | `heapless::Vec`（栈分配、固定容量） |
+| `String` | `heapless::String` 或 `&str` |
 | `std::io::Read/Write` | `embedded_io::Read/Write` |
-| `thread::spawn` | Interrupt handlers, RTIC tasks |
-| `std::time` | Hardware timer peripherals |
-| `std::fs` | Flash / EEPROM drivers |
+| `thread::spawn` | 中断处理程序、RTIC 任务 |
+| `std::time` | 硬件定时器外设 |
+| `std::fs` | Flash / EEPROM 驱动 |
 
-## Notable `no_std` crates for embedded
+## 嵌入式常用 `no_std` crate {#notable-no_std-crates-for-embedded}
 
-| Crate | Purpose | Notes |
+| Crate | 用途 | 说明 |
 |-------|---------|-------|
-| [`heapless`](https://crates.io/crates/heapless) | Fixed-capacity `Vec`, `String`, `Queue`, `Map` | No allocator needed — all on the stack |
-| [`defmt`](https://crates.io/crates/defmt) | Efficient logging over probe/ITM | Like `printf` but deferred formatting on the host |
-| [`embedded-hal`](https://crates.io/crates/embedded-hal) | Hardware abstraction traits (SPI, I²C, GPIO, UART) | Implement once, run on any MCU |
-| [`cortex-m`](https://crates.io/crates/cortex-m) | ARM Cortex-M intrinsics & register access | Low-level, like CMSIS |
-| [`cortex-m-rt`](https://crates.io/crates/cortex-m-rt) | Runtime / startup code for Cortex-M | Replaces your `startup.s` |
-| [`rtic`](https://crates.io/crates/rtic) | Real-Time Interrupt-driven Concurrency | Compile-time task scheduling, zero overhead |
-| [`embassy`](https://crates.io/crates/embassy-executor) | Async executor for embedded | `async/await` on bare metal |
-| [`postcard`](https://crates.io/crates/postcard) | `no_std` serde serialization (binary) | Replaces `serde_json` when you can't afford strings |
-| [`thiserror`](https://crates.io/crates/thiserror) | Derive macro for `Error` trait | Works in `no_std` since v2; prefer over `anyhow` |
-| [`smoltcp`](https://crates.io/crates/smoltcp) | `no_std` TCP/IP stack | When you need networking without an OS |
+| [`heapless`](https://crates.io/crates/heapless) | 固定容量 `Vec`、`String`、`Queue`、`Map` | 无需分配器 — 全部在栈上 |
+| [`defmt`](https://crates.io/crates/defmt) | 经 probe/ITM 的高效日志 | 类似 `printf`，格式化延迟到主机端 |
+| [`embedded-hal`](https://crates.io/crates/embedded-hal) | 硬件抽象 Trait（SPI、I²C、GPIO、UART） | 实现一次，可在任意 MCU 上运行 |
+| [`cortex-m`](https://crates.io/crates/cortex-m) | ARM Cortex-M  intrinsic 与寄存器访问 | 底层，类似 CMSIS |
+| [`cortex-m-rt`](https://crates.io/crates/cortex-m-rt) | Cortex-M 运行时 / 启动代码 | 替代你的 `startup.s` |
+| [`rtic`](https://crates.io/crates/rtic) | 实时中断驱动并发（Real-Time Interrupt-driven Concurrency） | 编译期任务调度，零开销 |
+| [`embassy`](https://crates.io/crates/embassy-executor) | 嵌入式异步执行器 | 裸机上的 `async/await` |
+| [`postcard`](https://crates.io/crates/postcard) | `no_std` serde 序列化（二进制） | 无法用字符串时替代 `serde_json` |
+| [`thiserror`](https://crates.io/crates/thiserror) | 为 `Error` Trait 派生宏 | v2 起支持 `no_std`；优先于 `anyhow` |
+| [`smoltcp`](https://crates.io/crates/smoltcp) | `no_std` TCP/IP 协议栈 | 无 OS 时需要网络时 |
 
-## C vs Rust: bare-metal comparison
+## C 与 Rust：裸机对比 {#c-vs-rust-bare-metal-comparison}
 
-A typical embedded C blinky:
+典型的嵌入式 C blinky：
 
 ```c
 // C — bare metal, vendor HAL
@@ -103,7 +99,7 @@ int main(void) {
 }
 ```
 
-The Rust equivalent (using `embedded-hal` + a board crate):
+Rust 等价实现（使用 `embedded-hal` + 板级 crate）：
 
 ```rust
 #![no_std]
@@ -130,13 +126,13 @@ fn main() -> ! {
 }
 ```
 
-**Key differences for C devs:**
-- `Peripherals::take()` returns `Option` — ensures the singleton pattern at compile time (no double-init bugs)
-- `.split()` moves ownership of individual pins — no risk of two modules driving the same pin
-- All register access is type-checked — you can't accidentally write to a read-only register
-- The borrow checker prevents data races between `main` and interrupt handlers (with RTIC)
+**C 开发者应关注的关键差异：**
+- `Peripherals::take()` 返回 `Option` — 在编译期保证单例模式（无双初始化 bug）
+- `.split()` 将各引脚的所有权移出 — 不会出现两个模块驱动同一引脚
+- 所有寄存器访问都有类型检查 — 不会误写只读寄存器
+- 借用检查器防止 `main` 与中断处理程序之间的数据竞争（配合 RTIC）
 
-## When to use `no_std` vs `std`
+## 何时使用 `no_std` 与 `std` {#when-to-use-no_std-vs-std}
 
 ```mermaid
 flowchart TD
@@ -149,21 +145,20 @@ flowchart TD
     E --> H[Fixed-size arrays, heapless collections, no allocation]
 ```
 
-# Exercise: `no_std` ring buffer
+# 练习：`no_std` 环形缓冲区 {#exercise-no_std-ring-buffer}
 
-🔴 **Challenge** — combines generics, `MaybeUninit`, and `#[cfg(test)]` in a `no_std` context
+🔴 **挑战** — 在 `no_std` 场景中结合泛型、`MaybeUninit` 与 `#[cfg(test)]`
 
-In embedded systems you often need a fixed-size ring buffer (circular buffer) that
-never allocates.  Implement one using only `core` (no `alloc`, no `std`).
+在嵌入式系统中，你经常需要固定大小的环形缓冲区（循环缓冲区），且从不分配内存。仅用 `core`（不用 `alloc`、不用 `std`）实现一个。
 
-**Requirements:**
-- Generic over element type `T: Copy`
-- Fixed capacity `N` (const generic)
-- `push(&mut self, item: T)` — overwrites oldest element when full
-- `pop(&mut self) -> Option<T>` — returns oldest element
+**要求：**
+- 对元素类型 `T: Copy` 泛型化
+- 固定容量 `N`（const 泛型）
+- `push(&mut self, item: T)` — 满时覆盖最旧元素
+- `pop(&mut self) -> Option<T>` — 返回最旧元素
 - `len(&self) -> usize`
 - `is_empty(&self) -> bool`
-- Must compile with `#![no_std]`
+- 必须能在 `#![no_std]` 下编译
 
 ```rust
 // Starter code
@@ -198,7 +193,7 @@ impl<T: Copy, const N: usize> RingBuffer<T, N> {
 ```
 
 <details>
-<summary>Solution</summary>
+<summary>解答</summary>
 
 ```rust
 #![no_std]
@@ -292,14 +287,11 @@ mod tests {
 }
 ```
 
-**Why this matters for embedded C devs:**
-- `MaybeUninit` is Rust's equivalent of uninitialized memory — the compiler
-  won't insert zero-fills, just like `char buf[N];` in C
-- The `unsafe` blocks are minimal (2 lines) and each has a `// SAFETY:` comment
-- The `const fn new()` means you can create ring buffers in `static` variables
-  without a runtime constructor
-- The tests run on your host with `cargo test` even though the code is `no_std`
+**对嵌入式 C 开发者的意义：**
+- `MaybeUninit` 是 Rust 中未初始化内存的等价物 — 编译器不会插入零填充，就像 C 里的 `char buf[N];`
+- `unsafe` 代码块很少（2 行），且每处都有 `// SAFETY:` 注释
+- `const fn new()` 意味着可在 `static` 变量中创建环形缓冲区，无需运行时构造函数
+- 测试可在主机上用 `cargo test` 运行，尽管代码是 `no_std`
 
 </details>
-
 

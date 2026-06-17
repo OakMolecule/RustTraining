@@ -1,20 +1,20 @@
-# Rust crates and modules
+# Rust crate 与 module {#rust-crates-and-modules}
 
-> **What you'll learn:** How Rust organizes code into modules and crates — privacy-by-default visibility, `pub` modifiers, workspaces, and the `crates.io` ecosystem. Replaces C/C++ header files, `#include`, and CMake dependency management.
+> **你将学到：** Rust 如何用 module 与 crate 组织代码——默认私有的可见性、`pub` 修饰符、workspace，以及 `crates.io` 生态。替代 C/C++ 头文件、`#include` 与 CMake 依赖管理。
 
-- Modules are the fundamental organizational unit of code within crates
-    - Each source file (.rs) is its own module, and can create nested modules using the ```mod``` keyword.
-    - All types in a (sub-) module are **private** by default, and aren't externally visible within the same crate unless they are explicitly marked as ```pub``` (public). The scope of ```pub``` can be further restricted to ```pub(crate)```, etc
-    - Even if a type is public, it doesn't automatically become visible within the scope of another module unless it's imported using the ```use``` keyword. Child submodules can reference types in the parent scope using the ```use super::```
-    - Source files (.rs) aren't automatically included in the crate **unless** they are explicitly listed in ```main.rs``` (executable) or ```lib.rs```
+- module 是 crate 内代码的基本组织单元
+    - 每个源文件（.rs）是一个 module，可用 ```mod``` 创建嵌套 module
+    - （子）module 中所有类型**默认私有**，除非显式标记为 ```pub```（公开），否则同一 crate 内也不对外可见。```pub``` 范围可进一步限制为 ```pub(crate)``` 等
+    - 即使类型公开，也须用 ```use``` 导入才会在另一 module 作用域可见。子 module 可用 ```use super::``` 引用父作用域类型
+    - 源文件（.rs）**不会**自动纳入 crate，除非在 ```main.rs```（可执行）或 ```lib.rs``` 中显式列出
 
-# Exercise: Modules and functions
-- We'll take a look at modifying our [hello world](https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=522d86dbb8c4af71ff2ec081fb76aee7) to call another function
-    - As previously mentioned, function are defined with the ```fn``` keyword. The ```->``` keyword declares that the function returns a value (the default is void) with the type ```u32``` (unsigned 32-bit integer)
-    - Functions are scoped by module, i.e., two functions with exact same name in two modules won't have a name collision
-        - The module scoping extends to all types (for example, a ```struct foo``` in ```mod a { struct foo; }``` is a distinct type (```a::foo```) from ```mod b { struct foo; }``` (```b::foo```))
+# 练习：module 与函数 {#exercise-modules-and-functions}
+- 修改 [hello world](https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=522d86dbb8c4af71ff2ec081fb76aee7) 以调用另一函数
+    - 如前所述，函数用 ```fn``` 定义。```->``` 声明函数返回值（默认为 void），类型为 ```u32```（无符号 32 位整数）
+    - 函数按 module 作用域，即两个 module 中同名函数不会冲突
+        - module 作用域适用于所有类型（例如 ```mod a { struct foo; }``` 中的 ```struct foo``` 与 ```mod b { struct foo; }``` 中的 ```b::foo``` 是不同类型）
 
-**Starter code** — complete the functions:
+**Starter code** — 补全函数：
 ```rust
 mod math {
     // TODO: implement pub fn add(a: u32, b: u32) -> u32
@@ -52,10 +52,10 @@ fn main() {
 </details>
 
 
-## Workspaces and crates (packages)
+## Workspace 与 crate（包） {#workspaces-and-crates-packages}
 
-- Any significant Rust project should use workspaces to organize component crates
-    - A workspace is simply a collection of local crates that will be used to build the target binaries. The `Cargo.toml` at the workspace root should have a pointer to the constituent packages (crates)
+- 任何有意义的 Rust 项目应用 workspace 组织组件 crate
+    - workspace 是用于构建目标二进制的本地 crate 集合。workspace 根目录的 `Cargo.toml` 应指向各成员包（crate）
 
 ```toml
 [workspace]
@@ -77,34 +77,34 @@ workspace_root/
 ```
 
 ---
-## Exercise: Using workspaces and package dependencies
-- We'll create a simple package and use it from our ```hello world``` program`
-- Create the workspace directory
+## 练习：使用 workspace 与包依赖 {#exercise-using-workspaces-and-package-dependencies}
+- 创建简单包并在 ```hello world``` 程序中使用
+- 创建 workspace 目录
 ```bash
 mkdir workspace
 cd workspace
 ```
-- Create a file called Cargo.toml and add the following to it. This creates an empty workspace
+- 创建 Cargo.toml 并添加以下内容，创建空 workspace
 ```toml
 [workspace]
 resolver = "2"
 members = []
 ```
-- Add the packages (```cargo new --lib``` specifies a library instead of an executable`)
+- 添加包（```cargo new --lib``` 指定库而非可执行文件）
 ```bash
 cargo new hello
 cargo new --lib hellolib
 ```
 
-## Exercise: Using workspaces and package dependencies
-- Take a look at the generated Cargo.toml in ```hello``` and ```hellolib```. Notice that both of them have been added to the upper level ```Cargo.toml```
-- The presence of ```lib.rs``` in ```hellolib``` implies a library package (see https://doc.rust-lang.org/cargo/reference/cargo-targets.html for customization options)
-- Adding a dependency on ```hellolib``` in ```Cargo.toml``` for ```hello```
+## 练习：使用 workspace 与包依赖
+- 查看 ```hello``` 与 ```hellolib``` 生成的 Cargo.toml。注意两者都已加入上层 ```Cargo.toml```
+- ```hellolib``` 中存在 ```lib.rs``` 表示库包（定制选项见 https://doc.rust-lang.org/cargo/reference/cargo-targets.html）
+- 在 ```hello``` 的 ```Cargo.toml``` 中添加对 ```hellolib``` 的依赖
 ```toml
 [dependencies]
 hellolib = {path = "../hellolib"}
 ```
-- Using ```add()``` from ```hellolib```
+- 使用 ```hellolib``` 的 ```add()```
 ```rust
 fn main() {
     println!("Hello, world! {}", hellolib::add(21, 21));
@@ -153,39 +153,39 @@ fn main() {
 
 </details>
 
-# Using community crates from crates.io
-- Rust has a vibrant ecosystem of community crates (see https://crates.io/)
-    - The Rust philosophy is to keep the standard library compact and outsource functionality to community crates
-    - There is no hard and fast rule about using community crates, but the rule of thumb should be to ensure that the crate has a decent maturity level (indicated by the version number), and that it's being actively maintained. Reach out to internal sources if in doubt about a crate
-- Every crate published on ```crates.io``` has a major and minor version
-    - Crates are expected to observe the major and minor ```SemVer``` guidelines defined here: https://doc.rust-lang.org/cargo/reference/semver.html
-    - The TL;DR version is that there should be no breaking changes for the same minor version. For example, v0.11 must be compatible with v0.15 (but v0.20 may have breaking changes)
+# 使用 crates.io 社区 crate {#using-community-crates-from-cratesio}
+- Rust 有活跃的社区 crate 生态（见 https://crates.io/）
+    - Rust 哲学是保持标准库精简，将功能外包给社区 crate
+    - 使用社区 crate 无硬性规则，但经验法则是确保 crate 成熟度合理（版本号可反映）且仍在维护。若有疑问可咨询内部资源
+- ```crates.io``` 上每个 crate 有主版本与次版本
+    - crate 应遵循此处定义的 ```SemVer``` 主/次版本指南：https://doc.rust-lang.org/cargo/reference/semver.html
+    - 简言之：同一 minor 版本内不应有破坏性变更。例如 v0.11 须与 v0.15 兼容（v0.20 可有破坏性变更）
 
-# Crates dependencies and SemVer
-- Crates can define dependencies on a specific versions of a crate, specific minor or major version, or don't care. The following examples show the ```Cargo.toml``` entries for declaring a dependency on the ```rand``` crate
-- At least ```0.10.0```, but anything ```< 0.11.0``` is fine
+# Crate 依赖与 SemVer {#crates-dependencies-and-semver}
+- crate 可依赖特定版本、特定 minor/major 版本，或不限制。下列示例为在 ```Cargo.toml``` 中声明对 ```rand``` crate 的依赖
+- 至少 ```0.10.0```，但 ```< 0.11.0``` 的任意版本均可
 ```toml
 [dependencies]
 rand = { version = "0.10.0"}
 ```
-- Only ```0.10.0```, and nothing else
+- 仅 ```0.10.0```，不接受其他版本
 ```toml
 [dependencies]
 rand = { version = "=0.10.0"}
 ```
-- Don't care; ```cargo``` will select the latest version
+- 不限制；```cargo``` 将选择最新版本
 ```toml
 [dependencies]
 rand = { version = "*"}
 ```
-- Reference: https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
+- 参考：https://doc.rust-lang.org/cargo/reference/specifying-dependencies.html
 ----
-# Exercise: Using the rand crate
-- Modify the ```helloworld``` example to print a random number
-- Use ```cargo add rand``` to add a dependency
-- Use ```https://docs.rs/rand/latest/rand/``` as a reference for the API
+# 练习：使用 rand crate {#exercise-using-the-rand-crate}
+- 修改 ```helloworld``` 示例以打印随机数
+- 用 ```cargo add rand``` 添加依赖
+- 以 ```https://docs.rs/rand/latest/rand/``` 为 API 参考
 
-**Starter code** — add this to `main.rs` after running `cargo add rand`:
+**Starter code** — 运行 `cargo add rand` 后在 `main.rs` 中添加：
 ```rust,ignore
 use rand::RngExt;
 
@@ -219,16 +219,16 @@ fn main() {
 
 </details>
 
-# Cargo.toml and Cargo.lock
-- As mentioned previously, Cargo.lock is automatically generated from Cargo.toml
-    - The main idea behind Cargo.lock is to ensure reproducible builds. For example, if ```Cargo.toml``` had specified a version of ```0.10.0```, cargo is free to choose any version that is ```< 0.11.0```
-    - Cargo.lock contains the *specific* version of the rand crate that was used during the build.
-    - The recommendation is to include ```Cargo.lock``` in the git repo to ensure reproducible builds
+# Cargo.toml 与 Cargo.lock {#cargotoml-and-cargolock}
+- 如前所述，Cargo.lock 由 Cargo.toml 自动生成
+    - Cargo.lock 的主要目的是保证可重现构建。例如若 ```Cargo.toml``` 指定 ```0.10.0```，cargo 可选 ```< 0.11.0``` 的任意版本
+    - Cargo.lock 包含构建时使用的 rand crate **具体**版本
+    - 建议将 ```Cargo.lock``` 纳入 git 仓库以保证可重现构建
 
-## Cargo test feature
-- Rust unit tests reside in the same source file (by convention), and are usually grouped into separate module
-    - The test code is never included in the actual binary. This is made possible by the ```cfg``` (configuration) feature. Configurations are useful for creating platform specific code (```Linux``` vs. ```Windows```) for example
-    - Tests can be executed with ```cargo test```. Reference: https://doc.rust-lang.org/reference/conditional-compilation.html
+## Cargo test 功能 {#cargo-test-feature}
+- Rust 单元测试通常与源码同文件（按惯例），常分组为独立 module
+    - 测试代码从不纳入实际二进制。这由 ```cfg```（配置）特性实现。配置可用于平台特定代码（如 ```Linux``` vs ```Windows```）
+    - 测试用 ```cargo test``` 执行。参考：https://doc.rust-lang.org/reference/conditional-compilation.html
 
 ```rust
 pub fn add(left: u64, right: u64) -> u64 {
@@ -246,16 +246,15 @@ mod tests {
 }
 ```
 
-# Other Cargo features
-- ```cargo``` has several other useful features including:
-    - ```cargo clippy``` is a great way of linting Rust code. In general, warnings should be fixed (or rarely suppressed if really warranted)
-    - ```cargo format``` executes the ```rustfmt``` tool to format source code. Using the tool ensures standard formatting of checked-in code and puts an end to debates about style
-    - ```cargo doc``` can be used to generate documentation from the ```///``` style comments. The documentation for all crates on ```crates.io``` was generated using this method
+# 其他 Cargo 功能 {#other-cargo-features}
+- ```cargo``` 还有其他实用功能，包括：
+    - ```cargo clippy``` 是优秀的 Rust 代码 lint 工具。一般应修复警告（或确有理由时极少抑制）
+    - ```cargo format``` 运行 ```rustfmt``` 格式化源码。保证入库代码格式统一，终结风格争论
+    - ```cargo doc``` 可从 ```///``` 风格注释生成文档。```crates.io``` 上所有 crate 文档均用此方法生成
 
-### Build Profiles: Controlling Optimization
+### 构建配置：控制优化
 
-In C, you pass `-O0`, `-O2`, `-Os`, `-flto` to `gcc`/`clang`. In Rust, you configure
-build profiles in `Cargo.toml`:
+C 中向 `gcc`/`clang` 传 `-O0`、`-O2`、`-Os`、`-flto`。Rust 在 `Cargo.toml` 中配置构建配置：
 
 ```toml
 # Cargo.toml — build profile configuration
@@ -272,23 +271,23 @@ codegen-units = 1      # Single codegen unit — slower compile, better optimiza
 panic = "abort"        # No unwind tables (smaller binary)
 ```
 
-| C/GCC Flag | Cargo.toml Key | Values |
+| C/GCC 标志 | Cargo.toml 键 | 取值 |
 |------------|---------------|--------|
-| `-O0` / `-O2` / `-O3` | `opt-level` | `0`, `1`, `2`, `3`, `"s"`, `"z"` |
-| `-flto` | `lto` | `false`, `"thin"`, `"fat"` |
-| `-g` / no `-g` | `debug` | `true`, `false`, `"line-tables-only"` |
-| `strip` command | `strip` | `"none"`, `"debuginfo"`, `"symbols"`, `true`/`false` |
-| — | `codegen-units` | `1` = best opt, slowest compile |
+| `-O0` / `-O2` / `-O3` | `opt-level` | `0`、`1`、`2`、`3`、`"s"`、`"z"` |
+| `-flto` | `lto` | `false`、`"thin"`、`"fat"` |
+| `-g` / 无 `-g` | `debug` | `true`、`false`、`"line-tables-only"` |
+| `strip` 命令 | `strip` | `"none"`、`"debuginfo"`、`"symbols"`、`true`/`false` |
+| — | `codegen-units` | `1` = 最优优化、编译最慢 |
 
 ```bash
 cargo build              # Uses [profile.dev]
 cargo build --release    # Uses [profile.release]
 ```
 
-### Build Scripts (`build.rs`): Linking C Libraries
+### 构建脚本（`build.rs`）：链接 C 库
 
-In C, you use Makefiles or CMake to link libraries and run code generation.
-Rust uses a `build.rs` file at the crate root:
+C 中用 Makefile 或 CMake 链接库并运行代码生成。
+Rust 在 crate 根目录使用 `build.rs`：
 
 ```rust
 // build.rs — runs before compiling the crate
@@ -305,7 +304,7 @@ fn main() {
 }
 ```
 
-You can even compile C source files directly from a Rust crate:
+甚至可从 Rust crate 直接编译 C 源文件：
 
 ```toml
 # Cargo.toml
@@ -328,13 +327,12 @@ fn main() {
 |-----------------|-----------------|
 | `-lfoo` | `println!("cargo::rustc-link-lib=foo")` |
 | `-L/path` | `println!("cargo::rustc-link-search=/path")` |
-| Compile C source | `cc::Build::new().file("foo.c").compile("foo")` |
-| Generate code | Write files to `$OUT_DIR`, then `include!()` |
+| 编译 C 源 | `cc::Build::new().file("foo.c").compile("foo")` |
+| 生成代码 | 写入 `$OUT_DIR`，再 `include!()` |
 
-### Cross-Compilation
+### 交叉编译
 
-In C, cross-compilation requires installing a separate toolchain (`arm-linux-gnueabihf-gcc`)
-and configuring Make/CMake. In Rust:
+C 中交叉编译需安装独立工具链（`arm-linux-gnueabihf-gcc`）并配置 Make/CMake。Rust 中：
 
 ```bash
 # Install a cross-compilation target
@@ -344,24 +342,23 @@ rustup target add aarch64-unknown-linux-gnu
 cargo build --target aarch64-unknown-linux-gnu --release
 ```
 
-Specify the linker in `.cargo/config.toml`:
+在 `.cargo/config.toml` 中指定链接器：
 
 ```toml
 [target.aarch64-unknown-linux-gnu]
 linker = "aarch64-linux-gnu-gcc"
 ```
 
-| C Cross-Compile | Rust Equivalent |
+| C 交叉编译 | Rust 等价 |
 |-----------------|-----------------|
-| `apt install gcc-aarch64-linux-gnu` | `rustup target add aarch64-unknown-linux-gnu` + install linker |
+| `apt install gcc-aarch64-linux-gnu` | `rustup target add aarch64-unknown-linux-gnu` + 安装链接器 |
 | `CC=aarch64-linux-gnu-gcc make` | `.cargo/config.toml` `[target.X] linker = "..."` |
 | `#ifdef __aarch64__` | `#[cfg(target_arch = "aarch64")]` |
-| Separate Makefile targets | `cargo build --target ...` |
+| 独立 Makefile 目标 | `cargo build --target ...` |
 
-### Feature Flags: Conditional Compilation
+### 特性标志：条件编译
 
-C uses `#ifdef` and `-DFOO` for conditional compilation. Rust uses feature flags
-defined in `Cargo.toml`:
+C 用 `#ifdef` 与 `-DFOO` 做条件编译。Rust 在 `Cargo.toml` 中定义特性标志：
 
 ```toml
 # Cargo.toml
@@ -389,17 +386,16 @@ macro_rules! verbose {
 }
 ```
 
-| C Preprocessor | Rust Feature Flags |
+| C 预处理器 | Rust 特性标志 |
 |---------------|-------------------|
 | `gcc -DDEBUG` | `cargo build --features verbose` |
 | `#ifdef DEBUG` | `#[cfg(feature = "verbose")]` |
 | `#define MAX 100` | `const MAX: u32 = 100;` |
 | `#ifdef __linux__` | `#[cfg(target_os = "linux")]` |
 
-### Integration Tests vs Unit Tests
+### 集成测试 vs 单元测试
 
-Unit tests live next to the code with `#[cfg(test)]`. **Integration tests** live in
-`tests/` and test your crate's **public API only**:
+单元测试与代码同处，使用 `#[cfg(test)]`。**集成测试**位于 `tests/`，仅测试 crate 的**公开 API**：
 
 ```rust
 // tests/smoke_test.rs — no #[cfg(test)] needed
@@ -412,20 +408,18 @@ fn parse_valid_config() {
 }
 ```
 
-| Aspect | Unit Tests (`#[cfg(test)]`) | Integration Tests (`tests/`) |
+| 方面 | 单元测试（`#[cfg(test)]`） | 集成测试（`tests/`） |
 |--------|----------------------------|------------------------------|
-| Location | Same file as code | Separate `tests/` directory |
-| Access | Private + public items | **Public API only** |
-| Run command | `cargo test` | `cargo test --test smoke_test` |
+| 位置 | 与代码同文件 | 独立 `tests/` 目录 |
+| 访问 | 私有 + 公开项 | **仅公开 API** |
+| 运行命令 | `cargo test` | `cargo test --test smoke_test` |
 
 
-### Testing Patterns and Strategies
+### 测试模式与策略
 
-C firmware teams typically write tests in CUnit, CMocka, or custom frameworks with a
-lot of boilerplate. Rust's built-in test harness is far more capable. This section
-covers patterns you'll need for production code.
+C 固件团队常用 CUnit、CMocka 或自定义框架，样板很多。Rust 内置测试 harness 能力更强。本节涵盖生产代码所需模式。
 
-#### `#[should_panic]` — Testing Expected Failures
+#### `#[should_panic]` — 测试预期失败
 
 ```rust
 // Test that certain conditions cause panics (like C's assert failures)
@@ -448,7 +442,7 @@ fn test_thermal_shutdown() {
 }
 ```
 
-#### `#[ignore]` — Slow or Hardware-Dependent Tests
+#### `#[ignore]` — 慢速或依赖硬件的测试
 
 ```rust
 // Mark tests that require special conditions (like C's #ifdef HARDWARE_TEST)
@@ -461,7 +455,7 @@ fn test_gpu_ecc_scrub() {
 }
 ```
 
-#### Result-Returning Tests (replacing `unwrap` chains)
+#### 返回 `Result` 的测试（替代 `unwrap` 链）
 
 ```rust
 // Instead of many unwrap() calls that hide the actual failure:
@@ -475,9 +469,9 @@ fn test_config_parsing() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
-#### Test Fixtures with Builder Functions
+#### 用构建函数做测试夹具
 
-C uses `setUp()`/`tearDown()` functions. Rust uses helper functions and `Drop`:
+C 用 `setUp()`/`tearDown()`。Rust 用辅助函数与 `Drop`：
 
 ```rust
 struct TestFixture {
@@ -514,10 +508,10 @@ fn test_with_fixture() {
 }
 ```
 
-#### Mocking Traits for Hardware Interfaces
+#### 用 Trait 模拟硬件接口
 
-In C, mocking hardware requires preprocessor tricks or function pointer swapping.
-In Rust, traits make this natural:
+C 中模拟硬件需预处理器技巧或函数指针替换。
+Rust 中 Trait 很自然：
 
 ```rust
 // Production trait for IPMI communication
@@ -577,9 +571,9 @@ mod tests {
 }
 ```
 
-#### Property-Based Testing with `proptest`
+#### 用 `proptest` 做基于属性的测试
 
-Instead of testing specific values, test **properties** that must always hold:
+不测试具体值，而测试**对所有输入都成立的不变式**：
 
 ```rust
 // Cargo.toml: [dev-dependencies] proptest = "1"
@@ -611,18 +605,17 @@ proptest! {
 }
 ```
 
-#### C vs Rust Testing Comparison
+#### C vs Rust 测试对照
 
-| C Testing | Rust Equivalent |
+| C 测试 | Rust 等价 |
 |-----------|----------------|
-| `CUnit`, `CMocka`, custom framework | Built-in `#[test]` + `cargo test` |
-| `setUp()` / `tearDown()` | Builder function + `Drop` trait |
-| `#ifdef TEST` mock functions | Trait-based dependency injection |
-| `assert(x == y)` | `assert_eq!(x, y)` with auto diff output |
-| Separate test executable | Same binary, conditional compilation with `#[cfg(test)]` |
-| `valgrind --leak-check=full ./test` | `cargo test` (memory safe by default) + `cargo miri test` |
-| Code coverage: `gcov` / `lcov` | `cargo tarpaulin` or `cargo llvm-cov` |
-| Test discovery: manual registration | Automatic — any `#[test]` fn is discovered |
-
+| `CUnit`、`CMocka`、自定义框架 | 内置 `#[test]` + `cargo test` |
+| `setUp()` / `tearDown()` | 构建函数 + `Drop` Trait |
+| `#ifdef TEST` 模拟函数 | 基于 Trait 的依赖注入 |
+| `assert(x == y)` | `assert_eq!(x, y)`，自动 diff 输出 |
+| 独立测试可执行文件 | 同一二进制，`#[cfg(test)]` 条件编译 |
+| `valgrind --leak-check=full ./test` | `cargo test`（默认内存安全）+ `cargo miri test` |
+| 代码覆盖率：`gcov` / `lcov` | `cargo tarpaulin` 或 `cargo llvm-cov` |
+| 测试发现：手动注册 | 自动——任意 `#[test]` 函数都会被发现 |
 
 

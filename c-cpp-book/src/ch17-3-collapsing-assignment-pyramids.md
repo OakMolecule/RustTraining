@@ -1,10 +1,10 @@
-## Collapsing assignment pyramids with closures
+## 用闭包折叠赋值金字塔 {#collapsing-assignment-pyramids-with-closures}
 
-> **What you'll learn:** How Rust's expression-based syntax and closures flatten deeply-nested C++ `if/else` validation chains into clean, linear code.
+> **你将学到：** Rust 基于表达式的语法与闭包如何将 C++ 中深层嵌套的 `if/else` 校验链压平为清晰、线性的代码。
 
-- C++ often requires multi-block `if/else` chains to assign variables, especially when validation or fallback logic is involved. Rust's expression-based syntax and closures collapse these into flat, linear code.
+- C++ 在赋值变量时常需要多分支 `if/else` 链，尤其在涉及校验或回退逻辑时。Rust 基于表达式的语法与闭包将这些压平为扁平、线性的代码。
 
-### Pattern 1: Tuple assignment with `if` expression
+### 模式 1：用 `if` 表达式进行元组赋值
 ```cpp
 // C++ — three variables set across a multi-block if/else chain
 uint32_t fault_code;
@@ -31,7 +31,7 @@ let (fault_code, der_marker, recommended_action) = if is_c44ad {
 };
 ```
 
-### Pattern 2: IIFE (Immediately Invoked Function Expression) for fallible chains
+### 模式 2：IIFE（立即调用函数表达式）处理可失败链
 ```cpp
 // C++ — pyramid of doom for JSON navigation
 std::string get_part_number(const nlohmann::json& root) {
@@ -64,9 +64,9 @@ let part_number = (|| -> Option<String> {
 })()
 .unwrap_or_else(|| "UNKNOWN".to_string());
 ```
-The closure creates an `Option<String>` scope where `?` bails early at any step. The `.unwrap_or_else()` provides the fallback once, at the end.
+闭包创建一个 `Option<String>` 作用域，任一步失败时 `?` 会提前退出。`.unwrap_or_else()` 在末尾一次性提供回退值。
 
-### Pattern 3: Iterator chain replacing manual loop + push_back
+### 模式 3：迭代器链替代手动循环 + push_back
 ```cpp
 // C++ — manual loop with intermediate variables
 std::vector<std::tuple<std::vector<std::string>, std::string, std::string>> gpu_info;
@@ -102,7 +102,7 @@ let gpu_info: Vec<(Vec<String>, String, String, String)> = self
     .collect();
 ```
 
-### Pattern 4: `.filter().collect()` replacing loop + `if (condition) continue`
+### 模式 4：`.filter().collect()` 替代循环 + `if (condition) continue`
 ```cpp
 // C++
 std::vector<TestResult*> failures;
@@ -120,31 +120,31 @@ pub fn failed_tests(&self) -> Vec<&TestResult> {
 }
 ```
 
-### Summary: When to use each pattern
-| **C++ Pattern** | **Rust Replacement** | **Key Benefit** |
+### 小结：何时使用各模式
+| **C++ 模式** | **Rust 替代** | **主要收益** |
 |----------------|---------------------|-----------------|
-| Multi-block variable assignment | `let (a, b) = if ... { } else { };` | All variables bound atomically |
-| Nested `if (contains)` pyramid | IIFE closure with `?` operator | Linear, flat, early-exit |
-| `for` loop + `push_back` | `.iter().map(\|\|).collect()` | No intermediate mut Vec |
-| `for` + `if (cond) continue` | `.iter().filter(\|\|).collect()` | Declarative intent |
-| `for` + `if + break` (find first) | `.iter().find_map(\|\|)` | Search + transform in one pass |
+| 多分支变量赋值 | `let (a, b) = if ... { } else { };` | 所有变量原子绑定 |
+| 嵌套 `if (contains)` 金字塔 | 带 `?` 的 IIFE 闭包 | 线性、扁平、早退 |
+| `for` 循环 + `push_back` | `.iter().map(\|\|).collect()` | 无需中间可变 `Vec` |
+| `for` + `if (cond) continue` | `.iter().filter(\|\|).collect()` | 声明式意图 |
+| `for` + `if + break`（找第一个） | `.iter().find_map(\|\|)` | 一次遍历完成搜索与变换 |
 
 ----
 
-# Capstone Exercise: Diagnostic Event Pipeline
+# 综合练习：诊断事件流水线 {#capstone-exercise-diagnostic-event-pipeline}
 
-🔴 **Challenge** — integrative exercise combining enums, traits, iterators, error handling, and generics
+🔴 **挑战** — 综合练习，涵盖枚举、Trait、迭代器、错误处理与泛型
 
-This integrative exercise brings together enums, traits, iterators, error handling, and generics. You'll build a simplified diagnostic event processing pipeline similar to patterns used in production Rust code.
+本综合练习整合枚举、Trait（特征）、迭代器、错误处理与泛型。你将构建一个简化的诊断事件处理流水线，类似生产 Rust 代码中的模式。
 
-**Requirements:**
-1. Define an `enum Severity { Info, Warning, Critical }` with `Display`, and a `struct DiagEvent` containing `source: String`, `severity: Severity`, `message: String`, and `fault_code: u32`
-2. Define a `trait EventFilter` with a method `fn should_include(&self, event: &DiagEvent) -> bool`
-3. Implement two filters: `SeverityFilter` (only events >= a given severity) and `SourceFilter` (only events from a specific source string)
-4. Write a function `fn process_events(events: &[DiagEvent], filters: &[&dyn EventFilter]) -> Vec<String>` that returns formatted report lines for events that pass **all** filters
-5. Write a `fn parse_event(line: &str) -> Result<DiagEvent, String>` that parses lines of the form `"source:severity:fault_code:message"` (return `Err` for bad input)
+**要求：**
+1. 定义带 `Display` 的 `enum Severity { Info, Warning, Critical }`，以及包含 `source: String`、`severity: Severity`、`message: String`、`fault_code: u32` 的 `struct DiagEvent`
+2. 定义带方法 `fn should_include(&self, event: &DiagEvent) -> bool` 的 `trait EventFilter`
+3. 实现两个过滤器：`SeverityFilter`（仅包含 >= 给定严重级别的事件）和 `SourceFilter`（仅包含来自特定源字符串的事件）
+4. 编写函数 `fn process_events(events: &[DiagEvent], filters: &[&dyn EventFilter]) -> Vec<String>`，返回通过**全部**过滤器的事件的格式化报告行
+5. 编写 `fn parse_event(line: &str) -> Result<DiagEvent, String>`，解析 `"source:severity:fault_code:message"` 形式的行（错误输入返回 `Err`）
 
-**Starter code:**
+**起始代码：**
 ```rust
 use std::fmt;
 
@@ -225,7 +225,7 @@ fn main() {
 }
 ```
 
-<details><summary>Solution (click to expand)</summary>
+<details><summary>解答（点击展开）</summary>
 
 ```rust
 use std::fmt;

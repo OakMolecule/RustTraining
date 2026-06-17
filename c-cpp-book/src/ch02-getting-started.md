@@ -1,44 +1,44 @@
-# Enough talk already: Show me some code
+# 少说多做：给我看代码 {#enough-talk-already-show-me-some-code}
 
-> **What you'll learn:** Your first Rust program — `fn main()`, `println!()`, and how Rust macros differ fundamentally from C/C++ preprocessor macros. By the end you'll be able to write, compile, and run simple Rust programs.
+> **你将学到：** 你的第一个 Rust 程序——`fn main()`、`println!()`，以及 Rust 宏与 C/C++ 预处理器宏的根本差异。学完后你将能编写、编译并运行简单的 Rust 程序。
 
 ```rust
 fn main() {
     println!("Hello world from Rust");
 }
 ```
-- The above syntax should be similar to anyone familiar with C-style languages
-    - All functions in Rust begin with the ```fn``` keyword
-    - The default entry point for executables is ```main()```
-    - The ```println!``` looks like a function, but is actually a **macro**. Macros in Rust are very different from C/C++ preprocessor macros — they are hygienic, type-safe, and operate on the syntax tree rather than text substitution
-- Two great ways to quickly try out Rust snippets:
-    - **Online**: [Rust Playground](https://play.rust-lang.org/) — paste code, hit Run, share results. No install needed
-    - **Local REPL**: Install [`evcxr_repl`](https://github.com/evcxr/evcxr) for an interactive Rust REPL (like Python's REPL, but for Rust):
+- 上述语法对熟悉 C 风格语言的人应该很亲切
+    - Rust 中所有函数以 ```fn``` 关键字开头
+    - 可执行文件的默认入口点是 ```main()```
+    - ```println!``` 看起来像函数，实际上是**宏**。Rust 宏与 C/C++ 预处理器宏截然不同——它们是卫生的、类型安全的，操作语法树而非文本替换
+- 两种快速尝试 Rust 片段的方式：
+    - **在线**：[Rust Playground](https://play.rust-lang.org/)——粘贴代码、点击 Run、分享结果。无需安装
+    - **本地 REPL**：安装 [`evcxr_repl`](https://github.com/evcxr/evcxr) 获得交互式 Rust REPL（类似 Python REPL，但用于 Rust）：
 ```bash
 cargo install --locked evcxr_repl
 evcxr   # Start the REPL, type Rust expressions interactively
 ```
 
-### Rust Local installation
-- Rust can be locally installed using the following methods
-    - Windows: https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe
-    - Linux / WSL: ```curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh```
-- The Rust ecosystem is composed of the following components
-    - ```rustc``` is the standalone compiler, but it's seldom used directly
-    - The preferred tool, ```cargo``` is the Swiss Army knife and is used for dependency management, building, testing, formatting, linting, etc.
-    - The Rust toolchain comes in the ```stable```, ```beta``` and ```nightly``` (experimental) channels, but we'll stick with ```stable```. Use the ```rustup update``` command to upgrade the ```stable``` installation that's released every six weeks
-- We'll also install the ```rust-analyzer``` plug-in for VSCode
+### Rust 本地安装 {#rust-local-installation}
+- 可通过以下方式本地安装 Rust
+    - Windows：https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe
+    - Linux / WSL：```curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh```
+- Rust 生态由以下组件构成
+    - ```rustc``` 是独立编译器，但很少直接使用
+    - 首选工具 ```cargo``` 是瑞士军刀，用于依赖管理、构建、测试、格式化、lint 等
+    - Rust 工具链有 ```stable```、```beta``` 和 ```nightly```（实验性）通道，我们使用 ```stable```。用 ```rustup update``` 升级每六周发布的 ```stable``` 安装
+- 我们还会安装 VSCode 的 ```rust-analyzer``` 插件
 
-# Rust packages (crates)
-- Rust binaries are created using packages (hereby called crates)
-    - A crate may either be standalone, or may have dependency on other crates. The crates for the dependencies can be local or remote. Third-party crates are typically downloaded from a centralized repository called ```crates.io```. 
-    - The ```cargo``` tool automatically handles the downloading of crates and their dependencies. This is conceptually equivalent to linking to C-libraries
-    - Crate dependencies are expressed in a file called ```Cargo.toml```. It also defines the target type for the crate: standalone executable, static library, dynamic library (uncommon)
-    - Reference: https://doc.rust-lang.org/cargo/reference/cargo-targets.html
+# Rust 包（crate） {#rust-packages-crates}
+- Rust 二进制文件通过包（下文称 crate）创建
+    - crate 可独立存在，也可依赖其他 crate。依赖 crate 可以是本地或远程。第三方 crate 通常从名为 ```crates.io``` 的中央仓库下载。
+    - ```cargo``` 工具自动处理 crate 及其依赖的下载。概念上等同于链接 C 库
+    - crate 依赖在名为 ```Cargo.toml``` 的文件中声明。它还定义 crate 的目标类型：独立可执行文件、静态库、动态库（较少见）
+    - 参考：https://doc.rust-lang.org/cargo/reference/cargo-targets.html
 
-## Cargo vs Traditional C Build Systems
+## Cargo 与传统 C 构建系统对比
 
-### Dependency Management Comparison
+### 依赖管理对比
 
 ```mermaid
 graph TD
@@ -99,7 +99,7 @@ graph TD
     style CRATES fill:#91e5a3,color:#000
 ```
 
-### Cargo Project Structure
+### Cargo 项目结构
 
 ```text
 my_project/
@@ -117,7 +117,7 @@ my_project/
     `-- release/        # Release builds (slow compile, fast runtime)
 ```
 
-### Common Cargo Commands
+### 常用 Cargo 命令
 
 ```mermaid
 graph LR
@@ -156,17 +156,16 @@ graph LR
     style RELEASE fill:#ef4444,color:#000
 ```
 
-# Example: cargo and crates
-- In this example, we have a standalone executable crate with no other dependencies
-- Use the following commands to create a new crate called ```helloworld``` 
+# 示例：cargo 与 crate {#example-cargo-and-crates}
+- 本示例是一个无其他依赖的独立可执行 crate
+- 使用以下命令创建名为 ```helloworld``` 的新 crate
 ```bash
 cargo new helloworld
 cd helloworld
 cat Cargo.toml
 ```
-- By default, ```cargo run``` will compile and run the ```debug``` (unoptimized) version of the crate. To execute the ```release``` version, use ```cargo run --release```
-- Note that actual binary file resides under the ```target``` folder under the ```debug``` or ```release``` folder 
-- We might have also noticed a file called ```Cargo.lock``` in the same folder as the source. It is automatically generated and should not be modified by hand
-    - We will revisit the specific purpose of ```Cargo.lock``` later
-
+- 默认 ```cargo run``` 会编译并运行 crate 的 ```debug```（未优化）版本。要运行 ```release``` 版本，使用 ```cargo run --release```
+- 实际二进制文件位于 ```target``` 文件夹下的 ```debug``` 或 ```release``` 子目录
+- 你可能还注意到源码同目录下有 ```Cargo.lock``` 文件。它自动生成，不应手动修改
+    - 我们稍后会再讨论 ```Cargo.lock``` 的具体用途
 

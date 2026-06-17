@@ -1,15 +1,15 @@
-# Rust Best Practices Summary
+# Rust 最佳实践摘要 {#rust-best-practices-summary}
 
-> **What you'll learn:** Practical guidelines for writing idiomatic Rust — code organization, naming conventions, error handling patterns, and documentation. A quick-reference chapter you'll return to often.
+> **你将学到：** 编写地道 Rust 的实用指南 — 代码组织、命名约定、错误处理模式与文档。你会经常回顾的快速参考章节。
 
-## Code Organization
-- **Prefer small functions**: Easy to test and reason about
-- **Use descriptive names**: `calculate_total_price()` vs `calc()`
-- **Group related functionality**: Use modules and separate files
-- **Write documentation**: Use `///` for public APIs
+## 代码组织 {#code-organization}
+- **优先小函数**：易于测试与推理
+- **使用描述性名称**：`calculate_total_price()` 而非 `calc()`
+- **将相关功能分组**：使用模块与独立文件
+- **编写文档**：对公共 API 使用 `///`
 
-## Error Handling
-- **Avoid `unwrap()` unless infallible**: Only use when you're 100% certain it won't panic
+## 错误处理 {#error-handling}
+- **除非确定不会 panic，避免 `unwrap()`**：仅在 100% 确信时使用
 ```rust
 // Bad: Can panic
 let value = some_option.unwrap();
@@ -26,13 +26,13 @@ let value = some_result.unwrap_or_else(|err| {
     default_value
 });
 ```
-- **Use `expect()` with descriptive messages**: When unwrap is justified, explain why
+- **用描述性消息使用 `expect()`**：当 unwrap 合理时，说明原因
 ```rust
 let config = std::env::var("CONFIG_PATH")
     .expect("CONFIG_PATH environment variable must be set");
 ```
-- **Return `Result<T, E>` for fallible operations**: Let callers decide how to handle errors
-- **Use `thiserror` for custom error types**: More ergonomic than manual implementations
+- **可失败操作返回 `Result<T, E>`**：让调用方决定如何处理错误
+- **自定义错误类型使用 `thiserror`**：比手写实现更顺手
 ```rust
 use thiserror::Error;
 
@@ -48,17 +48,12 @@ pub enum MyError {
     OutOfRange { value: i32 },
 }
 ```
-- **Chain errors with `?` operator**: Propagate errors up the call stack
-- **Prefer `thiserror` over `anyhow`**: Our team convention is to define explicit error
-  enums with `#[derive(thiserror::Error)]` so callers can match on specific variants.
-  `anyhow::Error` is convenient for quick prototyping but erases the error type, making
-  it harder for callers to handle specific failures. Use `thiserror` for library and
-  production code; reserve `anyhow` for throwaway scripts or top-level binaries where
-  you only need to print the error.
-- **When `unwrap()` is acceptable**:
-  - **Unit tests**: `assert_eq!(result.unwrap(), expected)`
-  - **Prototyping**: Quick and dirty code that you'll replace
-  - **Infallible operations**: When you can prove it won't fail
+- **用 `?` 运算符链式传播错误**：沿调用栈向上传递
+- **优先 `thiserror` 而非 `anyhow`**：我们团队约定用 `#[derive(thiserror::Error)]` 定义显式错误枚举，以便调用方匹配具体变体。`anyhow::Error` 适合快速原型，但会抹平错误类型，使调用方难以处理特定失败。库与生产代码用 `thiserror`；仅在只需打印错误的临时脚本或顶层二进制中用 `anyhow`。
+- **何时 `unwrap()` 可接受**：
+  - **单元测试**：`assert_eq!(result.unwrap(), expected)`
+  - **原型**：会被替换的临时代码
+  - **不会失败的操作**：能证明不会失败时
 ```rust
 let numbers = vec![1, 2, 3];
 let first = numbers.get(0).unwrap(); // Safe: we just created the vec with elements
@@ -66,27 +61,27 @@ let first = numbers.get(0).unwrap(); // Safe: we just created the vec with eleme
 // Better: Use expect() with explanation
 let first = numbers.get(0).expect("numbers vec is non-empty by construction");
 ```
-- **Fail fast**: Check preconditions early and return errors immediately
+- **快速失败**：尽早检查前置条件并立即返回错误
 
-## Memory Management
-- **Prefer borrowing over cloning**: Use `&T` instead of cloning when possible
-- **Use `Rc<T>` sparingly**: Only when you need shared ownership
-- **Limit lifetimes**: Use scopes `{}` to control when values are dropped
-- **Avoid `RefCell<T>` in public APIs**: Keep interior mutability internal
+## 内存管理 {#memory-management}
+- **优先借用而非 clone**：尽可能用 `&T` 代替 clone
+- **谨慎使用 `Rc<T>`**：仅在需要共享所有权时
+- **限制生命周期**：用作用域 `{}` 控制值何时 drop
+- **公共 API 避免 `RefCell<T>`**：内部可变性保持内部
 
-## Performance
-- **Profile before optimizing**: Use `cargo bench` and profiling tools
-- **Prefer iterators over loops**: More readable and often faster
-- **Use `&str` over `String`**: When you don't need ownership
-- **Consider `Box<T>` for large stack objects**: Move them to heap if needed
+## 性能 {#performance}
+- **先 profile 再优化**：使用 `cargo bench` 与 profiling 工具
+- **优先迭代器而非循环**：更可读且往往更快
+- **需要所有权时用 `&str` 而非 `String`**
+- **大栈对象考虑 `Box<T>`**：必要时移到堆上
 
-## Essential Traits to Implement
+## 应实现的基本 Trait {#essential-traits-to-implement}
 
-### Core Traits Every Type Should Consider
+### 每种类型都应考虑的核心 Trait {#core-trait-every-type-should-consider}
 
-When creating custom types, consider implementing these fundamental traits to make your types feel native to Rust:
+创建自定义类型时，考虑实现这些基础 Trait，使类型在 Rust 中感觉原生：
 
-#### **Debug and Display**
+#### **Debug 与 Display** {#debug-and-display}
 ```rust
 use std::fmt;
 
@@ -109,7 +104,7 @@ println!("{:?}", person);  // Debug: Person { name: "Alice", age: 30 }
 println!("{}", person);    // Display: Alice (age 30)
 ```
 
-#### **Clone and Copy**
+#### **Clone 与 Copy** {#clone-and-copy}
 ```rust
 // Copy: Implicit duplication for small, simple types
 #[derive(Debug, Clone, Copy)]
@@ -132,7 +127,7 @@ let person1 = Person { name: "Bob".to_string(), age: 25 };
 let person2 = person1.clone();  // Clone (explicit)
 ```
 
-#### **PartialEq and Eq**
+#### **PartialEq 与 Eq** {#partialeq-and-eq}
 ```rust
 #[derive(Debug, PartialEq, Eq)]
 struct UserId(u64);
@@ -151,7 +146,7 @@ let temp2 = Temperature { celsius: 20.0 };
 assert_eq!(temp1, temp2);  // Works with PartialEq
 ```
 
-#### **PartialOrd and Ord**
+#### **PartialOrd 与 Ord** {#partialord-and-ord}
 ```rust
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Priority(u8);
@@ -165,7 +160,7 @@ let mut priorities = vec![Priority(5), Priority(1), Priority(8)];
 priorities.sort();  // Works because Priority implements Ord
 ```
 
-#### **Default**
+#### **Default** {#default}
 ```rust
 #[derive(Debug, Default)]
 struct Config {
@@ -189,7 +184,7 @@ let config = Config::default();
 let config = Config { debug: true, ..Default::default() };  // Partial override
 ```
 
-#### **From and Into**
+#### **From 与 Into** {#from-and-into}
 ```rust
 struct UserId(u64);
 struct UserName(String);
@@ -220,7 +215,7 @@ let username = UserName::from("alice");      // &str -> UserName
 let username: UserName = "bob".into();       // Using Into
 ```
 
-#### **TryFrom and TryInto**
+#### **TryFrom 与 TryInto** {#tryfrom-and-tryinto}
 ```rust
 use std::convert::TryFrom;
 
@@ -246,7 +241,7 @@ let positive = PositiveNumber::try_from(42)?;     // Ok(PositiveNumber(42))
 let error = PositiveNumber::try_from(-5);         // Err(NegativeNumberError)
 ```
 
-#### **Serde (for serialization)**
+#### **Serde（序列化）** {#serde-for-serialization}
 ```rust
 use serde::{Deserialize, Serialize};
 
@@ -268,9 +263,9 @@ let json = serde_json::to_string(&user)?;
 let deserialized: User = serde_json::from_str(&json)?;
 ```
 
-### Trait Implementation Checklist
+### Trait 实现清单 {#trait-implementation-checklist}
 
-For any new type, consider this checklist:
+对新类型，可参考此清单：
 
 ```rust
 #[derive(
@@ -293,32 +288,31 @@ impl From<OtherType> for MyType { /* convenient conversion */ }
 impl TryFrom<FallibleType> for MyType { /* fallible conversion */ }
 ```
 
-### When NOT to Implement Traits
+### 何时不应实现 Trait {#when-not-to-implement-trait}
 
-- **Don't implement Copy for types with heap data**: `String`, `Vec`, `HashMap` etc.
-- **Don't implement Eq if values can be NaN**: Types containing `f32`/`f64`
-- **Don't implement Default if there's no sensible default**: File handles, network connections
-- **Don't implement Clone if cloning is expensive**: Large data structures (consider `Rc<T>` instead)
+- **堆数据类型不要实现 Copy**：`String`、`Vec`、`HashMap` 等
+- **值可能为 NaN 时不要实现 Eq**：含 `f32`/`f64` 的类型
+- **没有合理默认值时不要实现 Default**：文件句柄、网络连接
+- **clone 昂贵时不要实现 Clone**：大型数据结构（考虑 `Rc<T>`）
 
-### Summary: Trait Benefits
+### 摘要：Trait 收益 {#summary-trait-benefits}
 
-| Trait | Benefit | When to Use |
+| Trait | 收益 | 何时使用 |
 |-------|---------|-------------|
-| `Debug` | `println!("{:?}", value)` | Always (except rare cases) |
-| `Display` | `println!("{}", value)` | User-facing types |
-| `Clone` | `value.clone()` | When explicit duplication makes sense |
-| `Copy` | Implicit duplication | Small, simple types |
-| `PartialEq` | `==` and `!=` operators | Most types |
-| `Eq` | Reflexive equality | When equality is mathematically sound |
-| `PartialOrd` | `<`, `>`, `<=`, `>=` | Types with natural ordering |
-| `Ord` | `sort()`, `BinaryHeap` | When ordering is total |
-| `Hash` | `HashMap` keys | Types used as map keys |
-| `Default` | `Default::default()` | Types with obvious defaults |
-| `From/Into` | Convenient conversions | Common type conversions |
-| `TryFrom/TryInto` | Fallible conversions | Conversions that can fail |
+| `Debug` | `println!("{:?}", value)` | 几乎总是（极少数例外） |
+| `Display` | `println!("{}", value)` | 面向用户的类型 |
+| `Clone` | `value.clone()` | 显式复制有意义时 |
+| `Copy` | 隐式复制 | 小型简单类型 |
+| `PartialEq` | `==` 与 `!=` | 大多数类型 |
+| `Eq` | 自反相等 | 数学上相等可靠时 |
+| `PartialOrd` | `<`、`>`、`<=`、`>=` | 有自然序的类型 |
+| `Ord` | `.sort()`、`BinaryHeap` | 全序时 |
+| `Hash` | `HashMap` 键 | 用作 map 键的类型 |
+| `Default` | `Default::default()` | 有明显默认值的类型 |
+| `From/Into` | 便捷转换 | 常见类型转换 |
+| `TryFrom/TryInto` | 可失败转换 | 可能失败的转换 |
 
 ----
 
 ----
-
 

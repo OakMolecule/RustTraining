@@ -1,10 +1,10 @@
-### Rust array type
+### Rust 数组类型 {#rust-array-type}
 
-> **What you'll learn:** Rust's core data structures — arrays, tuples, slices, strings, structs, `Vec`, and `HashMap`. This is a dense chapter; focus on understanding `String` vs `&str` and how structs work. You'll revisit references and borrowing in depth in chapter 7.
+> **你将学到：** Rust 的核心数据结构——数组、元组、切片、字符串、结构体、`Vec` 和 `HashMap`。本章内容较密集；重点理解 `String` 与 `&str` 的区别，以及结构体的工作方式。引用与借用将在第 7 章深入讲解。
 
-- Arrays contain a fixed number of elements of the same type
-    - Like all other Rust types, arrays are immutable by default (unless mut is used)
-    - Arrays are indexed using [] and are bounds checked. The len() method can be used to obtain the length of the array
+- 数组包含固定数量的同类型元素
+    - 与 Rust 中其他类型一样，数组默认不可变（除非使用 `mut`）
+    - 数组使用 `[]` 索引，并会进行边界检查。可用 `len()` 方法获取数组长度
 ```rust
     fn get_index(y : usize) -> usize {
         y+1        
@@ -25,9 +25,9 @@
 ```
 
 ----
-### Rust array type continued
-- Arrays can be nested
-    - Rust has several built-in formatters for printing. In the below, the ```:?``` is the ```debug``` print formatter. The ```:#?``` formatter can be used for ```pretty print```. These formatters can be customized per type (more on this later) 
+### Rust 数组类型（续）
+- 数组可以嵌套
+    - Rust 内置多种打印格式化器。下面示例中，```:?``` 是 ```debug``` 打印格式化器。```:#?``` 可用于 ```pretty print```。这些格式化器可按类型自定义（后续会介绍）
 ```rust
     fn main() {
         let a = [
@@ -41,10 +41,10 @@
     }
 ```
 ----
-### Rust tuples
-- Tuples have a fixed size and can group arbitrary types into a single compound type
-    - The constituent types can be indexed by their relative location (.0, .1, .2, ...). An empty tuple, i.e., () is called the unit value and is the equivalent of a void return value
-    - Rust supports tuple destructuring to make it easy to bind variables to individual elements
+### Rust 元组 {#rust-tuples}
+- 元组大小固定，可将任意类型组合成单一复合类型
+    - 各成员类型可通过相对位置索引（`.0`、`.1`、`.2`、……）。空元组 `()` 称为 unit 值，相当于 void 返回值
+    - Rust 支持元组解构，便于将变量绑定到各个元素
 ```rust
 fn get_tuple() -> (u32, bool) {
     (42, true)        
@@ -60,10 +60,10 @@ fn main() {
 }
 ```
 
-### Rust references
-- References in Rust are roughly equivalent to pointers in C with some key differences
-    - It is legal to have any number of read-only (immutable) references to a variable at any point of time. A reference cannot outlive the variable scope (this is a key concept called **lifetime**; discussed in detail later)
-    - Only a single writable (mutable) reference to a mutable variable is permitted and it must not overlap with any other reference.
+### Rust 引用 {#rust-references}
+- Rust 中的引用大致相当于 C 中的指针，但有关键差异
+    - 在任意时刻，对同一变量可以有任意数量的只读（不可变）引用。引用不能超出变量作用域（这是称为**生命周期**的核心概念；后续详述）
+    - 对可变变量只允许一个可写（可变）引用，且不得与其他任何引用重叠。
 ```rust
 fn main() {
     let mut a = 42;
@@ -90,9 +90,9 @@ fn main() {
 ```
 
 ----
-# Rust slices
-- Rust references can be used to create subsets of arrays
-    - Unlike arrays, which have a static fixed length determined at compile time, slices can be of arbitrary size. Internally, slices are implemented as a "fat-pointer" that contains the length of the slice and a pointer to the starting element in the original array
+# Rust 切片 {#rust-slices}
+- Rust 引用可用于创建数组的子集
+    - 与编译期长度固定的数组不同，切片可以是任意大小。内部实现上，切片是包含长度与指向原数组首元素指针的「胖指针」
 ```rust
 fn main() {
     let a = [40, 41, 42, 43];
@@ -103,9 +103,9 @@ fn main() {
 }
 ```
 ----
-# Rust constants and statics
-- The ```const``` keyword can be used to define a constant value. Constant values are evaluated at **compile time** and are inlined into the program
-- The ```static``` keyword is used to define the equivalent of global variables in languages like C/C++ Static variables have an addressable memory location and are created once and last the entire lifetime of the program
+# Rust 常量与 static {#rust-constants-and-statics}
+- ```const``` 关键字用于定义常量。常量在**编译期**求值并内联到程序中
+- ```static``` 关键字用于定义类似 C/C++ 全局变量的等价物。static 变量有可寻址内存位置，创建一次并在程序整个生命周期内存在
 ```rust
 const SECRET_OF_LIFE: u32 = 42;
 static GLOBAL_VARIABLE : u32 = 2;
@@ -116,26 +116,26 @@ fn main() {
 ```
 
 ----
-# Rust strings: String vs &str
+# Rust 字符串：`String` 与 `&str` {#rust-strings-string-vs-str}
 
-- Rust has **two** string types that serve different purposes
-    - `String` — owned, heap-allocated, growable (like C's `malloc`'d buffer, or C++'s `std::string`)
-    - `&str` — borrowed, lightweight reference (like C's `const char*` with length, or C++'s `std::string_view` — but `&str` is **lifetime-checked** so it can never dangle)
-    - Unlike C's null-terminated strings, Rust strings track their length and are guaranteed valid UTF-8
+- Rust 有**两种**用途不同的字符串类型
+    - `String` — 拥有所有权、堆分配、可增长（类似 C 的 `malloc` 缓冲区，或 C++ 的 `std::string`）
+    - `&str` — 借用、轻量引用（类似带长度的 C `const char*`，或 C++ 的 `std::string_view`——但 `&str` 经**生命周期**检查，不会悬垂）
+    - 与 C 以 null 结尾的字符串不同，Rust 字符串跟踪长度并保证为有效 UTF-8
 
-> **For C++ developers:** `String` ≈ `std::string`, `&str` ≈ `std::string_view`. Unlike `std::string_view`, a `&str` is guaranteed valid for its entire lifetime by the borrow checker.
+> **面向 C++ 开发者：** `String` ≈ `std::string`，`&str` ≈ `std::string_view`。与 `std::string_view` 不同，`&str` 在其整个生命周期内由借用检查器保证有效。
 
-## String vs &str: Owned vs Borrowed
+## `String` 与 `&str`：拥有 vs 借用
 
-> **Production patterns**: See [JSON handling: nlohmann::json → serde](ch17-2-avoiding-unchecked-indexing.md#json-handling-nlohmannjson--serde) for how string handling works with serde in production code.
+> **生产实践：** 参见 [JSON 处理：nlohmann::json → serde](ch17-2-avoiding-unchecked-indexing.md#json-handling-nlohmannjson--serde)，了解生产代码中 serde 与字符串处理的配合。
 
-| **Aspect** | **C `char*`** | **C++ `std::string`** | **Rust `String`** | **Rust `&str`** |
+| **方面** | **C `char*`** | **C++ `std::string`** | **Rust `String`** | **Rust `&str`** |
 |------------|--------------|----------------------|-------------------|----------------|
-| **Memory** | Manual (`malloc`/`free`) | Heap-allocated, owns buffer | Heap-allocated, auto-freed | Borrowed reference (lifetime-checked) |
-| **Mutability** | Always mutable via pointer | Mutable | Mutable with `mut` | Always immutable |
-| **Size info** | None (relies on `'\0'`) | Tracks length and capacity | Tracks length and capacity | Tracks length (fat pointer) |
-| **Encoding** | Unspecified (usually ASCII) | Unspecified (usually ASCII) | Guaranteed valid UTF-8 | Guaranteed valid UTF-8 |
-| **Null terminator** | Required | Required (`c_str()`) | Not used | Not used |
+| **内存** | 手动（`malloc`/`free`） | 堆分配，拥有缓冲区 | 堆分配，自动释放 | 借用引用（经生命周期检查） |
+| **可变性** | 指针始终可变 | 可变 | 需 `mut` 才可变 | 始终不可变 |
+| **大小信息** | 无（依赖 `'\0'`） | 跟踪长度与容量 | 跟踪长度与容量 | 跟踪长度（胖指针） |
+| **编码** | 未指定（通常 ASCII） | 未指定（通常 ASCII） | 保证有效 UTF-8 | 保证有效 UTF-8 |
+| **Null 终止符** | 需要 | 需要（`c_str()`） | 不使用 | 不使用 |
 
 ```rust
 fn main() {
@@ -167,7 +167,7 @@ fn main() {
 }
 ```
 
-## Why You Cannot Index Strings with `[]`
+## 为何不能用 `[]` 索引字符串
 ```rust
 fn main() {
     let s = String::from("hello");
@@ -183,11 +183,11 @@ fn main() {
 }
 ```
 
-## Exercise: String manipulation
+## 练习：字符串操作
 
-🟢 **Starter**
-- Write a function `fn count_words(text: &str) -> usize` that counts the number of whitespace-separated words in a string
-- Write a function `fn longest_word(text: &str) -> &str` that returns the longest word (hint: you'll need to think about lifetimes -- why does the return type need to be `&str` and not `String`?)
+🟢 **入门**
+- 编写函数 `fn count_words(text: &str) -> usize`，统计字符串中由空白分隔的单词数
+- 编写函数 `fn longest_word(text: &str) -> &str`，返回最长单词（提示：需考虑生命周期——为何返回类型是 `&str` 而非 `String`？）
 
 <details><summary>Solution (click to expand)</summary>
 
@@ -211,10 +211,10 @@ fn main() {
 
 </details>
 
-# Rust structs
-- The ```struct``` keyword declares a user-defined struct type
-    - ```struct``` members can either be named, or anonymous (tuple structs)
-- Unlike languages like C++, there's no notion of "data inheritance" in Rust
+# Rust 结构体 {#rust-structs}
+- ```struct``` 关键字声明用户定义的结构体类型
+    - ```struct``` 成员可以具名，也可以匿名（元组结构体）
+- 与 C++ 等语言不同，Rust 没有「数据继承」概念
 ```rust
 fn main() {
     struct MyStruct {
@@ -234,9 +234,9 @@ fn main() {
 }
 ```
 
-# Rust tuple structs
-- Rust tuple structs are similar to tuples and individual fields don't have names
-    - Like tuples, individual elements are accessed using .0, .1, .2, .... A common use case for tuple structs is to wrap primitive types to create custom types. **This can be useful to avoid mixing differing values of the same type**
+# Rust 元组结构体
+- Rust 元组结构体类似元组，各字段没有名称
+    - 与元组一样，用 `.0`、`.1`、`.2`、…… 访问各元素。常见用途是用元组结构体包装基本类型以创建自定义类型。**这有助于避免混淆同类型的不同值**
 ```rust
 struct WeightInGrams(u32);
 struct WeightInMilligrams(u32);
@@ -257,7 +257,7 @@ fn main() {
 ```
 
 
-**Note**: The `#[derive(...)]` attribute automatically generates common trait implementations for structs and enums. You'll see this used throughout the course:
+**注意**：`#[derive(...)]` 属性会为结构体和枚举自动生成常见 Trait 实现。本课程中会频繁使用：
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 struct Point { x: i32, y: i32 }
@@ -269,13 +269,13 @@ fn main() {
     assert_eq!(p, p2);            // PartialEq: works because of #[derive(PartialEq)]
 }
 ```
-We'll cover the trait system in depth later, but `#[derive(Debug)]` is so useful that you should add it to nearly every `struct` and `enum` you create.
+Trait 系统后续会深入讲解，但 `#[derive(Debug)]` 非常实用，几乎应对每个 `struct` 和 `enum` 都加上。
 
-# Rust Vec type
-- The ```Vec<T>``` type implements a dynamic heap allocated buffer (similar to manually managed `malloc`/`realloc` arrays in C, or C++'s `std::vector`)
-    - Unlike arrays with fixed size, `Vec` can grow and shrink at runtime
-    - `Vec` owns its data and automatically manages memory allocation/deallocation
-- Common operations: `push()`, `pop()`, `insert()`, `remove()`, `len()`, `capacity()`
+# Rust `Vec` 类型 {#rust-vec-type}
+- ```Vec<T>``` 类型实现动态堆分配缓冲区（类似 C 中手动管理的 `malloc`/`realloc` 数组，或 C++ 的 `std::vector`）
+    - 与固定大小数组不同，`Vec` 可在运行时增长与收缩
+    - `Vec` 拥有其数据并自动管理内存分配/释放
+- 常见操作：`push()`、`pop()`、`insert()`、`remove()`、`len()`、`capacity()`
 ```rust
 fn main() {
     let mut v = Vec::new();    // Empty vector, type inferred from usage
@@ -307,10 +307,10 @@ fn main() {
     // println!("{}", v2[100]);  // Would panic at runtime
 }
 ```
-> **Production patterns**: See [Avoiding unchecked indexing](ch17-2-avoiding-unchecked-indexing.md#avoiding-unchecked-indexing) for safe `.get()` patterns from production Rust code.
+> **生产实践：** 参见 [避免未检查索引](ch17-2-avoiding-unchecked-indexing.md#avoiding-unchecked-indexing)，了解生产 Rust 代码中安全的 `.get()` 模式。
 
-# Rust HashMap type
-- ```HashMap``` implements generic ```key``` -> ```value``` lookups (a.k.a. ```dictionary``` or ```map```)
+# Rust `HashMap` 类型 {#rust-hashmap-type}
+- ```HashMap``` 实现泛型 ```key``` -> ```value``` 查找（亦称 ```dictionary``` 或 ```map```）
 ```rust
 fn main() {
     use std::collections::HashMap;  // Need explicit import, unlike Vec
@@ -332,10 +332,10 @@ fn main() {
 }
 ```
 
-# Exercise: Vec and HashMap
+# 练习：`Vec` 与 `HashMap` {#exercise-vec-and-hashmap}
 
-🟢 **Starter**
-- Create a ```HashMap<u32, bool>``` with a few entries (make sure that some values are ```true``` and others are ```false```). Loop over all elements in the hashmap and put the keys into one ```Vec``` and the values into another
+🟢 **入门**
+- 创建包含若干条目的 ```HashMap<u32, bool>```（确保部分值为 ```true```、部分为 ```false```）。遍历 hashmap 中所有元素，将键放入一个 ```Vec```，值放入另一个
 
 <details><summary>Solution (click to expand)</summary>
 
@@ -364,13 +364,13 @@ fn main() {
 
 ---
 
-## Deep Dive: C++ References vs Rust References
+## 深入：C++ 引用 vs Rust 引用 {#c-references-vs-rust-references--key-differences}
 
-> **For C++ developers:** C++ programmers often assume Rust `&T` works like C++ `T&`. While superficially similar, there are fundamental differences that cause confusion. C developers can skip this section — Rust references are covered in [Ownership and Borrowing](ch07-ownership-and-borrowing.md).
+> **面向 C++ 开发者：** C++ 程序员常假设 Rust 的 `&T` 与 C++ 的 `T&` 类似。表面相似，但存在根本差异，容易混淆。C 开发者可跳过本节——Rust 引用在 [所有权与借用](ch07-ownership-and-borrowing.md) 中已有讲解。
 
-#### 1. No Rvalue References or Universal References
+#### 1. 无右值引用与万能引用
 
-In C++, `&&` has two meanings depending on context:
+在 C++ 中，`&&` 依上下文有两种含义：
 
 ```cpp
 // C++: && means different things:
@@ -384,7 +384,7 @@ void forward(T&& arg) {     // NOT an rvalue ref! Deduced as T& or T&&
 }
 ```
 
-**In Rust: none of this exists.** `&&` is simply the logical AND operator.
+**Rust 中不存在这些。** `&&` 只是逻辑与运算符。
 
 ```rust
 // Rust: && is just boolean AND
@@ -401,17 +401,17 @@ fn process_ref(w: &Widget) { } // Borrows immutably (like C++ const T&)
 fn process_mut(w: &mut Widget) { } // Borrows mutably (like C++ T&, but exclusive)
 ```
 
-| C++ Concept | Rust Equivalent | Notes |
+| C++ 概念 | Rust 等价 | 说明 |
 |-------------|-----------------|-------|
-| `T&` (lvalue ref) | `&T` or `&mut T` | Rust splits into shared vs exclusive |
-| `T&&` (rvalue ref) | Just `T` | Take by value = take ownership |
-| `T&&` in template (universal ref) | `impl Trait` or `<T: Trait>` | Generics replace forwarding |
-| `std::move(x)` | `x` (just use it) | Move is the default |
-| `std::forward<T>(x)` | No equivalent needed | No universal references to forward |
+| `T&`（左值引用） | `&T` 或 `&mut T` | Rust 分为共享与独占 |
+| `T&&`（右值引用） | 直接用 `T` | 按值接收 = 取得所有权 |
+| 模板中的 `T&&`（万能引用） | `impl Trait` 或 `<T: Trait>` | 泛型替代转发 |
+| `std::move(x)` | `x`（直接使用） | 移动是默认行为 |
+| `std::forward<T>(x)` | 无需等价物 | 没有万能引用可转发 |
 
-#### 2. Moves Are Bitwise — No Move Constructors
+#### 2. 移动是位拷贝——无移动构造函数
 
-In C++, moving is a *user-defined operation* (move constructor / move assignment). In Rust, moving is always a **bitwise memcpy** of the value, and the source is invalidated:
+在 C++ 中，移动是*用户定义*操作（移动构造/移动赋值）。在 Rust 中，移动始终是值的**按位 memcpy**，源被作废：
 
 ```rust
 // Rust move = memcpy the bytes, mark source as invalid
@@ -429,14 +429,14 @@ std::string s2 = std::move(s1); // Calls string's move ctor
 std::cout << s1; // Compiles! Prints... something (empty string, usually)
 ```
 
-**Consequences**:
-- Rust has no Rule of Five (no copy ctor, move ctor, copy=, move=, destructor to define)
-- No moved-from "zombie" state — the compiler simply prevents access
-- No `noexcept` considerations for moves — bitwise copy can't throw
+**后果**：
+- Rust 无需 Rule of Five（无需定义拷贝构造、移动构造、拷贝赋值、移动赋值、析构）
+- 没有移动后「僵尸」状态——编译器直接禁止访问
+- 移动无需考虑 `noexcept`——按位拷贝不会抛异常
 
-#### 3. Auto-Deref: The Compiler Sees Through Indirection
+#### 3. 自动解引用：编译器穿透间接层
 
-Rust automatically dereferences through multiple layers of pointers/wrappers via the `Deref` trait. This has no C++ equivalent:
+Rust 通过 `Deref` Trait 自动解引用多层指针/包装。C++ 无直接等价物：
 
 ```rust
 use std::sync::{Arc, Mutex};
@@ -457,7 +457,7 @@ println!("Length: {}", boxed_string.len());  // Box→String, then String::len()
 // No need for (*boxed_string).len() or boxed_string->len()
 ```
 
-**Deref coercion** also applies to function arguments — the compiler inserts dereferences to make types match:
+**Deref 强制转换**也适用于函数参数——编译器插入解引用使类型匹配：
 
 ```rust
 fn greet(name: &str) {
@@ -477,15 +477,9 @@ fn main() {
 // In C++ you'd need .c_str() or explicit conversions for each case.
 ```
 
-**The Deref chain**: When you call `x.method()`, Rust's method resolution
-tries the receiver type `T`, then `&T`, then `&mut T`. If no match, it
-dereferences via the `Deref` trait and repeats with the target type.
-This continues through multiple layers — which is why `Box<Vec<T>>`
-"just works" like a `Vec<T>`. Deref *coercion* (for function arguments)
-is a separate but related mechanism that automatically converts `&Box<String>`
-to `&str` by chaining `Deref` impls.
+**Deref 链**：调用 `x.method()` 时，Rust 的方法解析先尝试接收者类型 `T`，再 `&T`、`&mut T`。若无匹配，则通过 `Deref` Trait 解引用并对目标类型重复。可穿透多层——因此 `Box<Vec<T>>` 能像 `Vec<T>` 一样「直接可用」。Deref *强制转换*（用于函数参数）是相关但独立的机制，将 `&Box<String>` 自动转为 `&str`，通过链式 `Deref` 实现。
 
-#### 4. No Null References, No Optional References
+#### 4. 无空引用，无可选引用
 
 ```cpp
 // C++: references can't be null, but pointers can, and the distinction is blurry
@@ -505,7 +499,7 @@ if let Some(w) = opt {
 }
 ```
 
-#### 5. References Cannot Be Reseated
+#### 5. 引用不能重新绑定目标
 
 ```cpp
 // C++: a reference is an alias — it can't be rebound
@@ -529,7 +523,6 @@ let mut r = &a;
 r = &b;      // ✅ r now points to b — this IS rebinding (not assignment through)
 ```
 
-> **Mental model**: In C++, a reference is a permanent alias for one object.
-> In Rust, a reference is a value (a pointer with lifetime guarantees) that
-> follows normal variable binding rules — immutable by default, rebindable
-> only if declared `mut`.
+> **心智模型**：在 C++ 中，引用是某一对象的永久别名。
+> 在 Rust 中，引用是带生命周期保证的指针值，
+> 遵循普通变量绑定规则——默认可变需 `mut` 才能重新绑定。

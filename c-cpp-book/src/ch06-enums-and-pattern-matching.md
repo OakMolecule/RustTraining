@@ -1,12 +1,12 @@
-# Rust enum types
+# Rust 枚举类型 {#rust-enum-types}
 
-> **What you'll learn:** Rust enums as discriminated unions (tagged unions done right), `match` for exhaustive pattern matching, and how enums replace C++ class hierarchies and C tagged unions with compiler-enforced safety.
+> **你将学到：** Rust 枚举作为可辨识联合体（tagged union 的正确做法）、用于穷尽模式匹配的 `match`，以及枚举如何以编译器强制安全的方式替代 C++ 类层次与 C 的 tagged union。
 
-- Enum types are discriminated unions, i.e., they are a sum type of several possible different types with a tag that identifies the specific variant
-    - For C developers: enums in Rust can carry data (tagged unions done right — the compiler tracks which variant is active)
-    - For C++ developers: Rust enums are like `std::variant` but with exhaustive pattern matching, no `std::get` exceptions, and no `std::visit` boilerplate
-    - The size of the `enum` is that of the largest possible type. The individual variants are not related to one another and can have completely different types
-    - `enum` types are one of the most powerful features of the language — they replace entire class hierarchies in C++ (more on this in the Case Studies)
+- 枚举类型是可辨识联合体，即若干可能类型的和类型，带标识具体变体的标签
+    - 面向 C 开发者：Rust 枚举可携带数据（tagged union 的正确做法——编译器跟踪当前活跃变体）
+    - 面向 C++ 开发者：Rust 枚举类似 `std::variant`，但有穷尽模式匹配、无 `std::get` 异常、无 `std::visit` 样板代码
+    - `enum` 的大小等于最大可能类型的大小。各变体彼此无关，可有完全不同的类型
+    - `enum` 是语言最强大特性之一——在 C++ 中可替代整棵类层次（案例研究中有更多说明）
 ```rust
 fn main() {
     enum Numbers {
@@ -22,11 +22,11 @@ fn main() {
 }
 ```
 ----
-# Rust match statement
-- The Rust ```match``` is the equivalent of the C "switch" on steroids
-    - ```match``` can be used for pattern matching on simple data types, ```struct```, ```enum```
-    - The ```match``` statement must be exhaustive, i.e., they must cover all possible cases for a given ```type```. The ```_``` can be used a wildcard for the "all else" case
-    - ```match``` can yield a value, but all arms (```=>```) must return a value of the same type
+# Rust `match` 语句 {#rust-match-statement}
+- Rust 的 ```match``` 相当于加强版 C 的 `switch`
+    - ```match``` 可用于简单数据类型、```struct```、```enum``` 的模式匹配
+    - ```match``` 必须穷尽，即覆盖给定 ```type``` 的所有可能情况。```_``` 可作「其余所有」的通配符
+    - ```match``` 可产生值，但各分支（```=>```）必须返回相同类型的值
 
 ```rust
 fn main() {
@@ -42,8 +42,8 @@ fn main() {
 }
 ```
 
-# Rust match statement
-- ```match``` supports ranges, boolean filters, and ```if``` guard statements
+# Rust `match` 语句
+- ```match``` 支持范围、布尔过滤与 ```if``` 守卫
 ```rust
 fn main() {
     let x = 42;
@@ -62,10 +62,10 @@ fn main() {
 }
 ```
 
-# Rust match statement
-- ```match``` and ```enums``` are often combined together
-    - The match statement can "bind" the contained value to a variable. Use ```_``` if the value is a don't care
-    - The ```matches!``` macro can be used to match to specific variant
+# Rust `match` 语句
+- ```match``` 常与 ```enum``` 结合
+    - match 可将内含值绑定到变量。若值不关心，用 ```_```
+    - ```matches!``` 宏可匹配特定变体
 ```rust
 fn main() {
     enum Numbers {
@@ -88,8 +88,8 @@ fn main() {
 }
 ```
 
-# Rust match statement
-- ```match``` can also perform matches using destructuring and slices
+# Rust `match` 语句
+- ```match``` 也可通过解构与切片匹配
 ```rust
 fn main() {
     struct Foo {
@@ -113,29 +113,29 @@ fn main() {
 }
 ```
 
-# Exercise: Implement add and subtract using match and enum
+# 练习：用 `match` 与 `enum` 实现加减 {#exercise-implement-add-and-subtract-using-match-and-enum}
 
-🟢 **Starter**
+🟢 **入门**
 
-- Write a function that implements arithmetic operations on unsigned 64-bit numbers
-- **Step 1**: Define an enum for operations:
+- 编写函数，对无符号 64 位整数实现算术运算
+- **步骤 1**：定义运算枚举：
 ```rust
 enum Operation {
     Add(u64, u64),
     Subtract(u64, u64),
 }
 ```
-- **Step 2**: Define a result enum:
+- **步骤 2**：定义结果枚举：
 ```rust
 enum CalcResult {
     Ok(u64),                    // Successful result
     Invalid(String),            // Error message for invalid operations
 }
 ```
-- **Step 3**: Implement `calculate(op: Operation) -> CalcResult`
-    - For Add: return Ok(sum)
-    - For Subtract: return Ok(difference) if first >= second, otherwise Invalid("Underflow")
-- **Hint**: Use pattern matching in your function:
+- **步骤 3**：实现 `calculate(op: Operation) -> CalcResult`
+    - Add：返回 Ok(和)
+    - Subtract：若第一个 >= 第二个则返回 Ok(差)，否则 Invalid("Underflow")
+- **提示**：在函数中使用模式匹配：
 ```rust
 match op {
     Operation::Add(a, b) => { /* your code */ },
@@ -186,11 +186,11 @@ fn main() {
 
 </details>
 
-# Rust associated methods
-- ```impl``` can define methods associated for types like ```struct```, ```enum```, etc
-    - The methods may optionally take ```self``` as a parameter. ```self``` is conceptually similar to passing a pointer to the struct as the first parameter in C, or ```this``` in C++
-    - The reference to ```self``` can be immutable (default: ```&self```), mutable (```&mut self```), or ```self``` (transferring ownership)
-    - The ```Self``` keyword can be used a shortcut to imply the type
+# Rust 关联方法
+- ```impl``` 可为 ```struct```、```enum``` 等类型定义关联方法
+    - 方法可选地接受 ```self``` 参数。```self``` 概念上类似 C 中把结构体指针作为首参，或 C++ 中的 ```this```
+    - 对 ```self``` 的引用可为不可变（默认 ```&self```）、可变（```&mut self```）或 ```self```（转移所有权）
+    - ```Self``` 关键字可作类型简写
 ```rust
 struct Point {x: u32, y: u32}
 impl Point {
@@ -207,12 +207,12 @@ fn main() {
 }
 ```
 
-# Exercise: Point add and transform
+# 练习：`Point` 的 add 与 transform
 
-🟡 **Intermediate** — requires understanding move vs borrow from method signatures
-- Implement the following associated methods for ```Point```
-    - ```add()``` will take another ```Point``` and will increment the x and y values in place (hint: use ```&mut self```)
-    - ```transform()``` will consume an existing ```Point``` (hint: use ```self```) and return a new ```Point``` by squaring the x and y
+🟡 **中级** — 需理解方法签名中的移动 vs 借用
+- 为 ```Point``` 实现下列关联方法
+    - ```add()``` 接收另一个 ```Point```，原地增加 x、y（提示：使用 ```&mut self```）
+    - ```transform()``` 消费现有 ```Point```（提示：使用 ```self```），返回 x、y 平方后的新 ```Point```
 
 <details><summary>Solution (click to expand)</summary>
 
