@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>1. Why Async is Different in Rust - Async Rust: From Futures to Production</title>
+        <title>1. Rust 中异步为何不同 - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,37 +177,37 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="1-why-async-is-different-in-rust-"><a class="header" href="#1-why-async-is-different-in-rust-">1. Why Async is Different in Rust 🟢</a></h1>
+                        <h1 id="1-为何-rust-中的异步与众不同-"><a class="header" href="#1-为何-rust-中的异步与众不同-">1. 为何 Rust 中的异步与众不同 🟢</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>Why Rust has no built-in async runtime (and what that means for you)</li>
-<li>The three key properties: lazy execution, no runtime, zero-cost abstraction</li>
-<li>When async is the right tool (and when it’s slower)</li>
-<li>How Rust’s model compares to C#, Go, Python, and JavaScript</li>
+<li>为何 Rust 没有内置异步运行时（以及这对你的意义）</li>
+<li>三个关键特性：惰性执行、无运行时、零成本抽象（zero-cost abstraction）</li>
+<li>何时该用异步（以及何时它反而更慢）</li>
+<li>Rust 的模型与 C#、Go、Python、JavaScript 的对比</li>
 </ul>
 </blockquote>
-<h2 id="the-fundamental-difference"><a class="header" href="#the-fundamental-difference">The Fundamental Difference</a></h2>
-<p>Most languages with <code>async/await</code> hide the machinery. C# has the CLR thread pool. JavaScript has the event loop. Go has goroutines and a scheduler built into the runtime. Python has <code>asyncio</code>.</p>
-<p><strong>Rust has nothing.</strong></p>
-<p>There is no built-in runtime, no thread pool, no event loop. The <code>async</code> keyword is a zero-cost compilation strategy — it transforms your function into a state machine that implements the <code>Future</code> trait. Someone else (an <em>executor</em>) must drive that state machine forward.</p>
-<h3 id="three-key-properties-of-rust-async"><a class="header" href="#three-key-properties-of-rust-async">Three Key Properties of Rust Async</a></h3>
+<h2 id="根本差异"><a class="header" href="#根本差异">根本差异</a></h2>
+<p>大多数带有 <code>async/await</code> 的语言都会把底层机制藏起来。C# 有 CLR 线程池。JavaScript 有事件循环。Go 在运行时中内置了 goroutine 和调度器。Python 有 <code>asyncio</code>。</p>
+<p><strong>Rust 什么都没有。</strong></p>
+<p>没有内置运行时、没有线程池、没有事件循环。<code>async</code> 关键字是一种零成本编译策略——它把你的函数变换成实现 <code>Future</code> Trait（特征）的状态机。必须由其他人（<em>executor</em>，执行器）来驱动该状态机向前推进。</p>
+<h3 id="rust-异步的三个关键特性"><a class="header" href="#rust-异步的三个关键特性">Rust 异步的三个关键特性</a></h3>
 <pre class="mermaid">graph LR
     subgraph "C# / JS / Go"
-        EAGER["Eager Execution&lt;br/&gt;Task starts immediately"]
-        BUILTIN["Built-in Runtime&lt;br/&gt;Thread pool included"]
-        GC["GC-Managed&lt;br/&gt;No lifetime concerns"]
+        EAGER["急切执行（Eager Execution）&lt;br/&gt;Task 立即开始执行"]
+        BUILTIN["内置运行时（Built-in Runtime）&lt;br/&gt;包含线程池"]
+        GC["GC 管理（GC-Managed）&lt;br/&gt;无需关心生命周期"]
     end
 
-    subgraph "Rust (and Python*)"
-        LAZY["Lazy Execution&lt;br/&gt;Nothing happens until polled/awaited"]
-        BYOB["Bring Your Own Runtime&lt;br/&gt;You choose the executor"]
-        OWNED["Ownership Applies&lt;br/&gt;Lifetimes, Send, Sync matter"]
+    subgraph "Rust（以及 Python*）"
+        LAZY["惰性执行（Lazy Execution）&lt;br/&gt;在 poll/await 之前什么都不发生"]
+        BYOB["自带运行时（Bring Your Own Runtime）&lt;br/&gt;由你选择执行器"]
+        OWNED["适用所有权（Ownership Applies）&lt;br/&gt;生命周期、Send、Sync 都很重要"]
     end
 
-    EAGER -. "opposite" .-&gt; LAZY
-    BUILTIN -. "opposite" .-&gt; BYOB
-    GC -. "opposite" .-&gt; OWNED
+    EAGER -. "相反" .-&gt; LAZY
+    BUILTIN -. "相反" .-&gt; BYOB
+    GC -. "相反" .-&gt; OWNED
 
     style LAZY fill:#e8f5e8,color:#000
     style BYOB fill:#e8f5e8,color:#000
@@ -218,9 +218,9 @@
 </pre>
 
 <blockquote>
-<p>* Python coroutines are lazy like Rust futures — they don’t execute until awaited or scheduled. However, Python still uses GC and has no ownership/lifetime concerns.</p>
+<p>* Python 协程与 Rust future 一样是惰性的——在 await 或被调度之前不会执行。不过 Python 仍使用 GC，没有所有权/生命周期方面的顾虑。</p>
 </blockquote>
-<h3 id="no-built-in-runtime"><a class="header" href="#no-built-in-runtime">No Built-In Runtime</a></h3>
+<h3 id="无内置运行时"><a class="header" href="#无内置运行时">无内置运行时</a></h3>
 <pre class="playground"><code class="language-rust">// This compiles but does NOTHING:
 async fn fetch_data() -&gt; String {
     "hello".to_string()
@@ -232,26 +232,26 @@ fn main() {
     // No output, no side effects, nothing happens
     drop(future); // Silently dropped — work was never started
 }</code></pre>
-<p>Compare with C# where <code>Task</code> starts eagerly:</p>
+<p>与 C# 中 <code>Task</code> 会急切启动形成对比：</p>
 <pre><code class="language-csharp">// C# — this immediately starts executing:
 async Task&lt;string&gt; FetchData() =&gt; "hello";
 
 var task = FetchData(); // Already running!
 var result = await task; // Just waits for completion
 </code></pre>
-<h3 id="lazy-futures-vs-eager-tasks"><a class="header" href="#lazy-futures-vs-eager-tasks">Lazy Futures vs Eager Tasks</a></h3>
-<p>This is the single most important mental shift:</p>
+<h3 id="惰性-future-与急切-task"><a class="header" href="#惰性-future-与急切-task">惰性 Future 与急切 Task</a></h3>
+<p>这是最重要的思维转变：</p>
 <div class="table-wrapper">
 <table>
 <thead>
 <tr><th></th><th>C# / JavaScript</th><th>Python</th><th>Go</th><th>Rust</th></tr>
 </thead>
 <tbody>
-<tr><td><strong>Creation</strong></td><td><code>Task</code> starts executing immediately</td><td>Coroutine is <strong>lazy</strong> — returns an object, doesn’t run until awaited or scheduled</td><td>Goroutine starts immediately</td><td><code>Future</code> does nothing until polled</td></tr>
-<tr><td><strong>Dropping</strong></td><td>Detached task continues running</td><td>Unawaited coroutine is garbage-collected (with a warning)</td><td>Goroutine runs until return</td><td>Dropping a Future cancels it</td></tr>
-<tr><td><strong>Runtime</strong></td><td>Built into the language/VM</td><td><code>asyncio</code> event loop (must be explicitly started)</td><td>Built into the binary (M:N scheduler)</td><td>You choose (tokio, smol, etc.)</td></tr>
-<tr><td><strong>Scheduling</strong></td><td>Automatic (thread pool)</td><td>Event loop + <code>await</code> or <code>create_task()</code></td><td>Automatic (GMP scheduler)</td><td>Explicit (<code>spawn</code>, <code>block_on</code>)</td></tr>
-<tr><td><strong>Cancellation</strong></td><td><code>CancellationToken</code> (cooperative)</td><td><code>Task.cancel()</code> (cooperative, raises <code>CancelledError</code>)</td><td><code>context.Context</code> (cooperative)</td><td>Drop the future (immediate)</td></tr>
+<tr><td><strong>创建</strong></td><td><code>Task</code> 立即开始执行</td><td>协程是<strong>惰性的</strong>——返回对象，在 await 或被调度之前不运行</td><td>Goroutine 立即启动</td><td><code>Future</code> 在 poll 之前什么都不做</td></tr>
+<tr><td><strong>丢弃</strong></td><td>已分离的 task 继续运行</td><td>未 await 的协程被垃圾回收（并发出警告）</td><td>Goroutine 运行到返回</td><td>丢弃 Future 会取消它</td></tr>
+<tr><td><strong>运行时</strong></td><td>内置于语言/VM</td><td><code>asyncio</code> 事件循环（必须显式启动）</td><td>内置于二进制（M:N 调度器）</td><td>由你选择（tokio、smol 等）</td></tr>
+<tr><td><strong>调度</strong></td><td>自动（线程池）</td><td>事件循环 + <code>await</code> 或 <code>create_task()</code></td><td>自动（GMP 调度器）</td><td>显式（<code>spawn</code>、<code>block_on</code>）</td></tr>
+<tr><td><strong>取消</strong></td><td><code>CancellationToken</code>（协作式）</td><td><code>Task.cancel()</code>（协作式，抛出 <code>CancelledError</code>）</td><td><code>context.Context</code>（协作式）</td><td>丢弃 future（立即生效）</td></tr>
 </tbody>
 </table>
 </div>
@@ -261,28 +261,28 @@ async fn main() {
     let result = fetch_data().await; // NOW it executes
     println!("{result}");
 }</code></pre>
-<h3 id="when-to-use-async-and-when-not-to"><a class="header" href="#when-to-use-async-and-when-not-to">When to Use Async (and When Not To)</a></h3>
+<h3 id="何时使用异步以及何时不用"><a class="header" href="#何时使用异步以及何时不用">何时使用异步（以及何时不用）</a></h3>
 <pre class="mermaid">graph TD
-    START["What kind of work?"]
+    START["什么类型的工作？"]
 
-    IO["I/O-bound?&lt;br/&gt;(network, files, DB)"]
-    CPU["CPU-bound?&lt;br/&gt;(computation, parsing)"]
-    MANY["Many concurrent connections?&lt;br/&gt;(100+)"]
-    FEW["Few concurrent tasks?&lt;br/&gt;(&lt;10)"]
+    IO["I/O 密集型？&lt;br/&gt;（网络、文件、数据库）"]
+    CPU["CPU 密集型？&lt;br/&gt;（计算、解析）"]
+    MANY["大量并发连接？&lt;br/&gt;（100+）"]
+    FEW["少量并发任务？&lt;br/&gt;（&lt;10）"]
 
-    USE_ASYNC["✅ Use async/await"]
-    USE_THREADS["✅ Use std::thread or rayon"]
-    USE_SPAWN_BLOCKING["✅ Use spawn_blocking()"]
-    MAYBE_SYNC["Consider synchronous code&lt;br/&gt;(simpler, less overhead)"]
+    USE_ASYNC["✅ 使用 async/await"]
+    USE_THREADS["✅ 使用 std::thread 或 rayon"]
+    USE_SPAWN_BLOCKING["✅ 使用 spawn_blocking()"]
+    MAYBE_SYNC["考虑同步代码&lt;br/&gt;（更简单、开销更小）"]
 
-    START --&gt;|Network, files, DB| IO
-    START --&gt;|Computation| CPU
-    IO --&gt;|Yes, many| MANY
-    IO --&gt;|Just a few| FEW
+    START --&gt;|网络、文件、数据库| IO
+    START --&gt;|计算| CPU
+    IO --&gt;|是，很多| MANY
+    IO --&gt;|只有少量| FEW
     MANY --&gt; USE_ASYNC
     FEW --&gt; MAYBE_SYNC
-    CPU --&gt;|Parallelize| USE_THREADS
-    CPU --&gt;|Inside async context| USE_SPAWN_BLOCKING
+    CPU --&gt;|并行化| USE_THREADS
+    CPU --&gt;|在异步上下文中| USE_SPAWN_BLOCKING
 
     style USE_ASYNC fill:#c8e6c9,color:#000
     style USE_THREADS fill:#c8e6c9,color:#000
@@ -290,55 +290,55 @@ async fn main() {
     style MAYBE_SYNC fill:#fff3e0,color:#000
 </pre>
 
-<p><strong>Rule of thumb</strong>: Async is for I/O concurrency (doing many things at once while waiting), not CPU parallelism (making one thing faster). If you have 10,000 network connections, async shines. If you’re crunching numbers, use <code>rayon</code> or OS threads.</p>
-<h3 id="when-async-can-be-slower"><a class="header" href="#when-async-can-be-slower">When Async Can Be <em>Slower</em></a></h3>
-<p>Async isn’t free. For low-concurrency workloads, synchronous code can outperform async:</p>
+<p><strong>经验法则</strong>：异步用于 I/O 并发（在等待时同时处理多件事），而非 CPU 并行（让一件事更快）。若有 10,000 个网络连接，异步表现优异。若在做数值计算，请用 <code>rayon</code> 或 OS 线程。</p>
+<h3 id="异步何时会更慢"><a class="header" href="#异步何时会更慢">异步何时会<em>更慢</em></a></h3>
+<p>异步并非免费。对于低并发工作负载，同步代码可能优于异步：</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Cost</th><th>Why</th></tr>
+<tr><th>成本</th><th>原因</th></tr>
 </thead>
 <tbody>
-<tr><td><strong>State machine overhead</strong></td><td>Each <code>.await</code> adds an enum variant; deeply nested futures produce large, complex state machines</td></tr>
-<tr><td><strong>Dynamic dispatch</strong></td><td><code>Box&lt;dyn Future&gt;</code> adds indirection and kills inlining</td></tr>
-<tr><td><strong>Context switching</strong></td><td>Cooperative scheduling still has cost — the executor must manage a task queue, wakers, and I/O registrations</td></tr>
-<tr><td><strong>Compile time</strong></td><td>Async code generates more complex types, slowing down compilation</td></tr>
-<tr><td><strong>Debuggability</strong></td><td>Stack traces through state machines are harder to read (see Ch. 12)</td></tr>
+<tr><td><strong>状态机开销</strong></td><td>每个 <code>.await</code> 增加一个枚举变体；深度嵌套的 future 会产生庞大、复杂的状态机</td></tr>
+<tr><td><strong>动态分发</strong></td><td><code>Box&lt;dyn Future&gt;</code> 增加间接层并破坏内联</td></tr>
+<tr><td><strong>上下文切换</strong></td><td>协作式调度仍有成本——执行器必须管理任务队列、waker 和 I/O 注册</td></tr>
+<tr><td><strong>编译时间</strong></td><td>异步代码生成更复杂的类型，拖慢编译</td></tr>
+<tr><td><strong>可调试性</strong></td><td>穿过状态机的栈跟踪更难阅读（见第 12 章）</td></tr>
 </tbody>
 </table>
 </div>
-<p><strong>Benchmarking guidance</strong>: If fewer than ~10 concurrent I/O operations, profile before committing to async. A simple <code>std::thread::spawn</code> per connection scales fine to hundreds of threads on modern Linux.</p>
-<h3 id="exercise-when-would-you-use-async"><a class="header" href="#exercise-when-would-you-use-async">Exercise: When Would You Use Async?</a></h3>
+<p><strong>基准测试建议</strong>：若并发 I/O 操作少于约 10 个，在决定采用异步之前先做性能分析。在现代 Linux 上，每个连接简单 <code>std::thread::spawn</code> 也能轻松扩展到数百个线程。</p>
+<h3 id="练习你会在何时使用异步"><a class="header" href="#练习你会在何时使用异步">练习：你会在何时使用异步？</a></h3>
 <details>
-<summary>🏋️ Exercise (click to expand)</summary>
-<p>For each scenario, decide whether async is appropriate and explain why:</p>
+<summary>🏋️ 练习（点击展开）</summary>
+<p>针对每个场景，判断是否适合使用异步并说明原因：</p>
 <ol>
-<li>A web server handling 10,000 concurrent WebSocket connections</li>
-<li>A CLI tool that compresses a single large file</li>
-<li>A service that queries 5 different databases and merges results</li>
-<li>A game engine running a physics simulation at 60 FPS</li>
+<li>处理 10,000 个并发 WebSocket 连接的 Web 服务器</li>
+<li>压缩单个大文件的 CLI 工具</li>
+<li>查询 5 个不同数据库并合并结果的服务</li>
+<li>以 60 FPS 运行物理模拟的游戏引擎</li>
 </ol>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <ol>
-<li><strong>Async</strong> — I/O-bound with massive concurrency. Each connection spends most time waiting for data. Threads would require 10K stacks.</li>
-<li><strong>Sync/threads</strong> — CPU-bound, single task. Async adds overhead with no benefit. Use <code>rayon</code> for parallel compression.</li>
-<li><strong>Async</strong> — Five concurrent I/O waits. <code>tokio::join!</code> runs all five queries simultaneously.</li>
-<li><strong>Sync/threads</strong> — CPU-bound, latency-sensitive. Async’s cooperative scheduling could introduce frame jitter.</li>
+<li><strong>异步</strong>——I/O 密集型且并发量巨大。每个连接大部分时间都在等待数据。用线程需要 10K 个栈。</li>
+<li><strong>同步/线程</strong>——CPU 密集型、单任务。异步只会增加开销而无收益。并行压缩请用 <code>rayon</code>。</li>
+<li><strong>异步</strong>——五个并发的 I/O 等待。<code>tokio::join!</code> 可同时运行全部五个查询。</li>
+<li><strong>同步/线程</strong>——CPU 密集型、对延迟敏感。异步的协作式调度可能引入帧抖动。</li>
 </ol>
 </details>
 </details>
 <blockquote>
-<p><strong>Key Takeaways — Why Async is Different</strong></p>
+<p><strong>要点回顾 — 为何异步与众不同</strong></p>
 <ul>
-<li>Rust futures are <strong>lazy</strong> — they do nothing until polled by an executor</li>
-<li>There is <strong>no built-in runtime</strong> — you choose (or build) your own</li>
-<li>Async is a <strong>zero-cost compilation strategy</strong> that produces state machines</li>
-<li>Async shines for <strong>I/O-bound concurrency</strong>; for CPU-bound work, use threads or rayon</li>
+<li>Rust future 是<strong>惰性的</strong>——在执行器 poll 之前什么都不做</li>
+<li><strong>没有内置运行时</strong>——由你选择（或构建）自己的运行时</li>
+<li>异步是一种<strong>零成本编译策略</strong>，生成状态机</li>
+<li>异步在 <strong>I/O 密集型并发</strong> 上表现突出；CPU 密集型工作请用线程或 rayon</li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch02-the-future-trait.html">Ch 2 — The Future Trait</a> for the trait that makes this all work, <a href="ch07-executors-and-runtimes.html">Ch 7 — Executors and Runtimes</a> for choosing your runtime</p>
+<p><strong>另见：</strong> <a href="ch02-the-future-trait.html">第 2 章 — Future Trait</a> 了解让这一切运转的 trait，<a href="ch07-executors-and-runtimes.html">第 7 章 — 执行器与运行时</a> 了解如何选择运行时</p>
 </blockquote>
 <hr>
                     </main>

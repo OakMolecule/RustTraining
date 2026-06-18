@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>13. Production Patterns - Async Rust: From Futures to Production</title>
+        <title>13. 生产模式 - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,20 +177,20 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="13-production-patterns-"><a class="header" href="#13-production-patterns-">13. Production Patterns 🔴</a></h1>
+                        <h1 id="13-生产模式-"><a class="header" href="#13-生产模式-">13. 生产模式 🔴</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>Graceful shutdown with <code>watch</code> channels and <code>select!</code></li>
-<li>Backpressure: bounded channels prevent OOM</li>
-<li>Structured concurrency: <code>JoinSet</code> and <code>TaskTracker</code></li>
-<li>Timeouts, retries, and exponential backoff</li>
-<li>Error handling: <code>thiserror</code> vs <code>anyhow</code>, the double-<code>?</code> pattern</li>
-<li>Tower: the middleware pattern used by axum, tonic, and hyper</li>
+<li>使用 <code>watch</code> channel 和 <code>select!</code> 实现优雅关闭</li>
+<li>背压（backpressure）：有界 channel 防止 OOM</li>
+<li>结构化并发（structured concurrency）：<code>JoinSet</code> 与 <code>TaskTracker</code></li>
+<li>超时、重试与指数退避</li>
+<li>错误处理：<code>thiserror</code> 与 <code>anyhow</code>、双重 <code>?</code> 模式</li>
+<li>Tower：axum、tonic、hyper 使用的中间件模式</li>
 </ul>
 </blockquote>
-<h2 id="graceful-shutdown"><a class="header" href="#graceful-shutdown">Graceful Shutdown</a></h2>
-<p>Production servers must shut down cleanly — finish in-flight requests, flush buffers, close connections:</p>
+<h2 id="优雅关闭"><a class="header" href="#优雅关闭">优雅关闭</a></h2>
+<p>生产服务器必须干净关闭——完成进行中的请求、刷新缓冲区、关闭连接：</p>
 <pre class="playground"><code class="language-rust">use tokio::signal;
 use tokio::sync::watch;
 
@@ -259,8 +259,8 @@ async fn handle_connection(conn: Connection, mut shutdown: watch::Receiver&lt;bo
     }
 }</code></pre>
 <pre class="mermaid">sequenceDiagram
-    participant OS as OS Signal
-    participant Main as Main Task
+    participant OS as OS 信号
+    participant Main as 主任务
     participant WCH as watch Channel
     participant W1 as Worker 1
     participant W2 as Worker 2
@@ -270,16 +270,16 @@ async fn handle_connection(conn: Connection, mut shutdown: watch::Receiver&lt;bo
     WCH--&gt;&gt;W1: changed()
     WCH--&gt;&gt;W2: changed()
 
-    Note over W1: Finish current request
-    Note over W2: Finish current request
+    Note over W1: 完成当前请求
+    Note over W2: 完成当前请求
 
-    W1--&gt;&gt;Main: Task complete
-    W2--&gt;&gt;Main: Task complete
-    Main-&gt;&gt;Main: All workers done → exit
+    W1--&gt;&gt;Main: 任务完成
+    W2--&gt;&gt;Main: 任务完成
+    Main-&gt;&gt;Main: 所有 worker 完成 → 退出
 </pre>
 
-<h3 id="backpressure-with-bounded-channels"><a class="header" href="#backpressure-with-bounded-channels">Backpressure with Bounded Channels</a></h3>
-<p>Unbounded channels can lead to OOM if the producer is faster than the consumer. Always use bounded channels in production:</p>
+<h3 id="有界-channel-的背压"><a class="header" href="#有界-channel-的背压">有界 Channel 的背压</a></h3>
+<p>无界 channel 在生产者快于消费者时可能导致 OOM。生产环境应始终使用有界 channel：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use tokio::sync::mpsc;
@@ -311,8 +311,8 @@ async fn backpressure_example() {
 // let (tx, rx) = mpsc::unbounded_channel(); // No backpressure!
 // Producer can fill memory indefinitely
 <span class="boring">}</span></code></pre>
-<h3 id="structured-concurrency-joinset-and-tasktracker"><a class="header" href="#structured-concurrency-joinset-and-tasktracker">Structured Concurrency: JoinSet and TaskTracker</a></h3>
-<p><code>JoinSet</code> groups related tasks and ensures they all complete:</p>
+<h3 id="结构化并发joinset-与-tasktracker"><a class="header" href="#结构化并发joinset-与-tasktracker">结构化并发：JoinSet 与 TaskTracker</a></h3>
+<p><code>JoinSet</code> 将相关任务分组，并确保它们全部完成：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use tokio::task::JoinSet;
@@ -360,7 +360,7 @@ async fn with_tracker() {
     println!("All tasks finished");
 }
 <span class="boring">}</span></code></pre>
-<h3 id="timeouts-and-retries"><a class="header" href="#timeouts-and-retries">Timeouts and Retries</a></h3>
+<h3 id="超时与重试"><a class="header" href="#超时与重试">超时与重试</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use tokio::time::{timeout, sleep, Duration};
@@ -410,14 +410,11 @@ where
 // }).await?;
 <span class="boring">}</span></code></pre>
 <blockquote>
-<p><strong>Production tip — add jitter</strong>: The function above uses pure exponential backoff, but in
-production many clients failing simultaneously will all retry at the same intervals (thundering
-herd). Add random <em>jitter</em> — e.g., <code>sleep(delay + rand_jitter)</code> where <code>rand_jitter</code> is
-<code>0..delay/4</code> — so retries spread out over time.</p>
+<p><strong>生产提示 — 添加抖动（jitter）</strong>：上述函数使用纯指数退避，但生产中大量客户端同时失败会在相同间隔重试（惊群效应，thundering herd）。添加随机 <em>抖动</em>——例如 <code>sleep(delay + rand_jitter)</code>，其中 <code>rand_jitter</code> 为 <code>0..delay/4</code>——使重试在时间上分散。</p>
 </blockquote>
-<h3 id="error-handling-in-async-code"><a class="header" href="#error-handling-in-async-code">Error Handling in Async Code</a></h3>
-<p>Async introduces unique error propagation challenges — spawned tasks create error boundaries, timeout errors wrap inner errors, and <code>?</code> interacts differently when futures cross task boundaries.</p>
-<p><strong><code>thiserror</code> vs <code>anyhow</code></strong> — choosing the right tool:</p>
+<h3 id="异步代码中的错误处理"><a class="header" href="#异步代码中的错误处理">异步代码中的错误处理</a></h3>
+<p>异步带来独特的错误传播挑战——spawn 的任务形成错误边界，超时错误包装内部错误，<code>?</code> 在 Future 跨越任务边界时行为不同。</p>
+<p><strong><code>thiserror</code> 与 <code>anyhow</code></strong>——选择合适工具：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// thiserror: Define typed errors for libraries and public APIs
@@ -459,16 +456,16 @@ async fn run_diagnostics() -&gt; Result&lt;()&gt; {
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Crate</th><th>Use When</th><th>Error Type</th><th>Matching</th></tr>
+<tr><th>Crate</th><th>适用场景</th><th>错误类型</th><th>模式匹配</th></tr>
 </thead>
 <tbody>
-<tr><td><code>thiserror</code></td><td>Library code, public APIs</td><td><code>enum MyError { ... }</code></td><td><code>match err { MyError::Timeout =&gt; ... }</code></td></tr>
-<tr><td><code>anyhow</code></td><td>Applications, CLI tools, scripts</td><td><code>anyhow::Error</code> (type-erased)</td><td><code>err.downcast_ref::&lt;MyError&gt;()</code></td></tr>
-<tr><td>Both together</td><td>Library exposes <code>thiserror</code>, app wraps with <code>anyhow</code></td><td>Best of both</td><td>Library errors are typed, app doesn’t care</td></tr>
+<tr><td><code>thiserror</code></td><td>库代码、公开 API</td><td><code>enum MyError { ... }</code></td><td><code>match err { MyError::Timeout =&gt; ... }</code></td></tr>
+<tr><td><code>anyhow</code></td><td>应用、CLI 工具、脚本</td><td><code>anyhow::Error</code>（类型擦除）</td><td><code>err.downcast_ref::&lt;MyError&gt;()</code></td></tr>
+<tr><td>两者结合</td><td>库暴露 <code>thiserror</code>，应用用 <code>anyhow</code> 包装</td><td>两全其美</td><td>库错误有类型，应用不关心</td></tr>
 </tbody>
 </table>
 </div>
-<p><strong>The double-<code>?</code> pattern</strong> with <code>tokio::spawn</code>:</p>
+<p><strong>与 <code>tokio::spawn</code> 的双重 <code>?</code> 模式</strong>：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use thiserror::Error;
@@ -494,7 +491,7 @@ async fn spawn_with_errors() -&gt; Result&lt;String, AppError&gt; {
     Ok(result)
 }
 <span class="boring">}</span></code></pre>
-<p><strong>The error boundary problem</strong> — <code>tokio::spawn</code> erases context:</p>
+<p><strong>错误边界问题</strong>——<code>tokio::spawn</code> 擦除上下文：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// ❌ Error context is lost across spawn boundaries:
@@ -522,7 +519,7 @@ async fn good_error_handling() -&gt; Result&lt;()&gt; {
     Ok(())
 }
 <span class="boring">}</span></code></pre>
-<p><strong>Timeout errors</strong> — wrapping vs replacing:</p>
+<p><strong>超时错误</strong>——包装 vs 替换：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use tokio::time::{timeout, Duration};
@@ -536,8 +533,8 @@ async fn with_timeout_context() -&gt; Result&lt;String, DiagError&gt; {
     }
 }
 <span class="boring">}</span></code></pre>
-<h3 id="tower-the-middleware-pattern"><a class="header" href="#tower-the-middleware-pattern">Tower: The Middleware Pattern</a></h3>
-<p>The <a href="https://docs.rs/tower">Tower</a> crate defines a composable <code>Service</code> trait — the backbone of async middleware in Rust (used by <code>axum</code>, <code>tonic</code>, <code>hyper</code>):</p>
+<h3 id="tower中间件模式"><a class="header" href="#tower中间件模式">Tower：中间件模式</a></h3>
+<p><a href="https://docs.rs/tower">Tower</a> crate 定义了可组合的 <code>Service</code> Trait——Rust 异步中间件的骨干（被 <code>axum</code>、<code>tonic</code>、<code>hyper</code> 使用）：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// Tower's core trait (simplified):
@@ -550,7 +547,7 @@ pub trait Service&lt;Request&gt; {
     fn call(&amp;mut self, req: Request) -&gt; Self::Future;
 }
 <span class="boring">}</span></code></pre>
-<p>Middleware wraps a <code>Service</code> to add cross-cutting behavior — logging, timeouts, rate-limiting — without modifying inner logic:</p>
+<p>中间件包装 <code>Service</code> 以添加横切行为——日志、超时、限流——而无需修改内部逻辑：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use tower::{ServiceBuilder, timeout::TimeoutLayer, limit::RateLimitLayer};
@@ -561,13 +558,13 @@ let service = ServiceBuilder::new()
     .layer(RateLimitLayer::new(100, Duration::from_secs(1))) // Then: rate limit
     .service(my_handler);                                     // Innermost: your code
 <span class="boring">}</span></code></pre>
-<p><strong>Why this matters</strong>: If you’ve used ASP.NET middleware or Express.js middleware, Tower is the Rust equivalent. It’s how production Rust services add cross-cutting concerns without code duplication.</p>
-<h3 id="exercise-graceful-shutdown-with-worker-pool"><a class="header" href="#exercise-graceful-shutdown-with-worker-pool">Exercise: Graceful Shutdown with Worker Pool</a></h3>
+<p><strong>为何重要</strong>：若你用过 ASP.NET 中间件或 Express.js 中间件，Tower 就是 Rust 等价物。生产 Rust 服务借此添加横切关注点而无需重复代码。</p>
+<h3 id="练习带-worker-池的优雅关闭"><a class="header" href="#练习带-worker-池的优雅关闭">练习：带 Worker 池的优雅关闭</a></h3>
 <details>
-<summary>🏋️ Exercise (click to expand)</summary>
-<p><strong>Challenge</strong>: Build a task processor with a channel-based work queue, N worker tasks, and graceful shutdown on Ctrl+C. Workers should finish in-flight work before exiting.</p>
+<summary>🏋️ 练习（点击展开）</summary>
+<p><strong>挑战</strong>：构建基于 channel 工作队列的任务处理器，含 N 个 worker 任务，并在 Ctrl+C 时优雅关闭。Worker 应在退出前完成进行中的工作。</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust">use tokio::sync::{mpsc, watch};
 use tokio::time::{sleep, Duration};
 
@@ -621,17 +618,17 @@ async fn main() {
 </details>
 </details>
 <blockquote>
-<p><strong>Key Takeaways — Production Patterns</strong></p>
+<p><strong>要点回顾 — 生产模式</strong></p>
 <ul>
-<li>Use a <code>watch</code> channel + <code>select!</code> for coordinated graceful shutdown</li>
-<li>Bounded channels (<code>mpsc::channel(N)</code>) provide <strong>backpressure</strong> — senders block when the buffer is full</li>
-<li><code>JoinSet</code> and <code>TaskTracker</code> provide <strong>structured concurrency</strong>: track, abort, and await task groups</li>
-<li>Always add timeouts to network operations — <code>tokio::time::timeout(dur, fut)</code></li>
-<li>Tower’s <code>Service</code> trait is the standard middleware pattern for production Rust services</li>
+<li>使用 <code>watch</code> channel + <code>select!</code> 实现协调的优雅关闭</li>
+<li>有界 channel（<code>mpsc::channel(N)</code>）提供 <strong>背压</strong>——缓冲区满时发送方阻塞</li>
+<li><code>JoinSet</code> 与 <code>TaskTracker</code> 提供 <strong>结构化并发</strong>：跟踪、中止并等待任务组</li>
+<li>网络操作始终加超时——<code>tokio::time::timeout(dur, fut)</code></li>
+<li>Tower 的 <code>Service</code> Trait 是生产 Rust 服务的标准中间件模式</li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch08-tokio-deep-dive.html">Ch 8 — Tokio Deep Dive</a> for channels and sync primitives, <a href="ch12-common-pitfalls.html">Ch 12 — Common Pitfalls</a> for cancellation hazards during shutdown</p>
+<p><strong>另见：</strong> <a href="ch08-tokio-deep-dive.html">第 8 章 — Tokio 深入</a> 了解 channel 与同步原语，<a href="ch12-common-pitfalls.html">第 12 章 — 常见陷阱</a> 了解关闭期间的取消风险</p>
 </blockquote>
 <hr>
                     </main>

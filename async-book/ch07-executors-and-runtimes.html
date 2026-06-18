@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>7. Executors and Runtimes - Async Rust: From Futures to Production</title>
+        <title>7. 执行器与运行时 - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,38 +177,38 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="7-executors-and-runtimes-"><a class="header" href="#7-executors-and-runtimes-">7. Executors and Runtimes 🟡</a></h1>
+                        <h1 id="7-执行器与运行时-"><a class="header" href="#7-执行器与运行时-">7. 执行器与运行时 🟡</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>What an executor does: poll + sleep efficiently</li>
-<li>The six major runtimes: mio, io_uring, tokio, async-std, smol, embassy</li>
-<li>A decision tree for choosing the right runtime</li>
-<li>Why runtime-agnostic library design matters</li>
+<li>执行器（executor）做什么：高效地 poll 与休眠</li>
+<li>六大主要运行时：mio、io_uring、tokio、async-std、smol、embassy</li>
+<li>选择合适运行时的决策树</li>
+<li>为何与运行时无关（runtime-agnostic）的库设计很重要</li>
 </ul>
 </blockquote>
-<h2 id="what-an-executor-does"><a class="header" href="#what-an-executor-does">What an Executor Does</a></h2>
-<p>An executor has two jobs:</p>
+<h2 id="执行器做什么"><a class="header" href="#执行器做什么">执行器做什么</a></h2>
+<p>执行器有两项职责：</p>
 <ol>
-<li><strong>Poll futures</strong> when they’re ready to make progress</li>
-<li><strong>Sleep efficiently</strong> when no futures are ready (using OS I/O notification APIs)</li>
+<li>在 future 可以推进时<strong>轮询 future</strong></li>
+<li>当没有 future 就绪时<strong>高效休眠</strong>（使用操作系统 I/O 通知 API）</li>
 </ol>
 <pre class="mermaid">graph TB
-    subgraph Executor["Executor (e.g., tokio)"]
-        QUEUE["Task Queue"]
-        POLLER["I/O Poller&lt;br/&gt;(epoll/kqueue/io_uring)"]
-        THREADS["Worker Thread Pool"]
+    subgraph Executor["执行器（如 tokio）"]
+        QUEUE["任务队列"]
+        POLLER["I/O 轮询器&lt;br/&gt;（epoll/kqueue/io_uring）"]
+        THREADS["工作线程池"]
     end
 
     subgraph Tasks
-        T1["Task 1&lt;br/&gt;(HTTP request)"]
-        T2["Task 2&lt;br/&gt;(DB query)"]
-        T3["Task 3&lt;br/&gt;(File read)"]
+        T1["任务 1&lt;br/&gt;（HTTP 请求）"]
+        T2["任务 2&lt;br/&gt;（数据库查询）"]
+        T3["任务 3&lt;br/&gt;（文件读取）"]
     end
 
-    subgraph OS["Operating System"]
-        NET["Network Stack"]
-        DISK["Disk I/O"]
+    subgraph OS["操作系统"]
+        NET["网络栈"]
+        DISK["磁盘 I/O"]
     end
 
     T1 --&gt; QUEUE
@@ -218,16 +218,16 @@
     THREADS --&gt;|"poll()"| T1
     THREADS --&gt;|"poll()"| T2
     THREADS --&gt;|"poll()"| T3
-    POLLER &lt;--&gt;|"register/notify"| NET
-    POLLER &lt;--&gt;|"register/notify"| DISK
-    POLLER --&gt;|"wake tasks"| QUEUE
+    POLLER &lt;--&gt;|"注册/通知"| NET
+    POLLER &lt;--&gt;|"注册/通知"| DISK
+    POLLER --&gt;|"唤醒任务"| QUEUE
 
     style Executor fill:#e3f2fd,color:#000
     style OS fill:#f3e5f5,color:#000
 </pre>
 
-<h3 id="mio-the-foundation-layer"><a class="header" href="#mio-the-foundation-layer">mio: The Foundation Layer</a></h3>
-<p><a href="https://github.com/tokio-rs/mio">mio</a> (Metal I/O) is not an executor — it’s the lowest-level cross-platform I/O notification library. It wraps <code>epoll</code> (Linux), <code>kqueue</code> (macOS/BSD), and IOCP (Windows).</p>
+<h3 id="mio基础层"><a class="header" href="#mio基础层">mio：基础层</a></h3>
+<p><a href="https://github.com/tokio-rs/mio">mio</a>（Metal I/O）不是执行器——它是最底层的跨平台 I/O 通知库。它封装了 <code>epoll</code>（Linux）、<code>kqueue</code>（macOS/BSD）和 IOCP（Windows）。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// Conceptual mio usage (simplified):
@@ -251,9 +251,9 @@ loop {
     }
 }
 <span class="boring">}</span></code></pre>
-<p>Most developers never touch mio directly — tokio and smol build on top of it.</p>
-<h3 id="io_uring-the-completion-based-future"><a class="header" href="#io_uring-the-completion-based-future">io_uring: The Completion-Based Future</a></h3>
-<p>Linux’s <code>io_uring</code> (kernel 5.1+) represents a fundamental shift from the readiness-based I/O model that mio/epoll use:</p>
+<p>大多数开发者不会直接碰 mio——tokio 和 smol 都构建在它之上。</p>
+<h3 id="io_uring基于完成通知的未来"><a class="header" href="#io_uring基于完成通知的未来">io_uring：基于完成通知的未来</a></h3>
+<p>Linux 的 <code>io_uring</code>（内核 5.1+）代表了与 mio/epoll 所用的就绪式（readiness-based）I/O 模型的根本转变：</p>
 <pre><code class="language-text">Readiness-based (epoll / mio / tokio):
   1. Ask: "Is this socket readable?"     → epoll_wait()
   2. Kernel: "Yes, it's ready"           → EPOLLIN event
@@ -265,22 +265,22 @@ Completion-based (io_uring):
   3. App:   gets completed result with data            → CQE
 </code></pre>
 <pre class="mermaid">graph LR
-    subgraph "Readiness Model (epoll)"
-        A1["App: is it ready?"] --&gt; K1["Kernel: yes"]
-        K1 --&gt; A2["App: now read()"]
-        A2 --&gt; K2["Kernel: here's data"]
+    subgraph "就绪模型（epoll）"
+        A1["应用：可读了吗？"] --&gt; K1["内核：是的"]
+        K1 --&gt; A2["应用：现在 read()"]
+        A2 --&gt; K2["内核：这是数据"]
     end
 
-    subgraph "Completion Model (io_uring)"
-        B1["App: read this for me"] --&gt; K3["Kernel: working..."]
-        K3 --&gt; B2["App: got result + data"]
+    subgraph "完成模型（io_uring）"
+        B1["应用：帮我读这个"] --&gt; K3["内核：处理中..."]
+        K3 --&gt; B2["应用：得到结果 + 数据"]
     end
 
     style B1 fill:#c8e6c9,color:#000
     style B2 fill:#c8e6c9,color:#000
 </pre>
 
-<p><strong>The ownership challenge</strong>: io_uring requires the kernel to own the buffer until the operation completes. This conflicts with Rust’s standard <code>AsyncRead</code> trait which borrows the buffer. That’s why <code>tokio-uring</code> has different I/O traits:</p>
+<p><strong>所有权挑战</strong>：io_uring 要求内核在操作完成前拥有缓冲区。这与 Rust 标准 <code>AsyncRead</code> Trait 借用缓冲区的方式冲突。因此 <code>tokio-uring</code> 使用不同的 I/O Trait：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// Standard tokio (readiness-based) — borrows the buffer:
@@ -305,23 +305,23 @@ fn main() {
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Aspect</th><th>epoll (tokio)</th><th>io_uring (tokio-uring)</th></tr>
+<tr><th>方面</th><th>epoll（tokio）</th><th>io_uring（tokio-uring）</th></tr>
 </thead>
 <tbody>
-<tr><td><strong>Model</strong></td><td>Readiness notification</td><td>Completion notification</td></tr>
-<tr><td><strong>Syscalls</strong></td><td>epoll_wait + read/write</td><td>Batched SQE/CQE ring</td></tr>
-<tr><td><strong>Buffer ownership</strong></td><td>App retains (&amp;mut buf)</td><td>Ownership transfer (move buf)</td></tr>
-<tr><td><strong>Platform</strong></td><td>Linux, macOS (kqueue), Windows (IOCP)</td><td>Linux 5.1+ only</td></tr>
-<tr><td><strong>Zero-copy</strong></td><td>No (userspace copy)</td><td>Yes (registered buffers)</td></tr>
-<tr><td><strong>Maturity</strong></td><td>Production-ready</td><td>Experimental</td></tr>
+<tr><td><strong>模型</strong></td><td>就绪通知</td><td>完成通知</td></tr>
+<tr><td><strong>系统调用</strong></td><td>epoll_wait + read/write</td><td>批量 SQE/CQE 环</td></tr>
+<tr><td><strong>缓冲区所有权</strong></td><td>应用保留（<code>&amp;mut buf</code>）</td><td>所有权转移（move buf）</td></tr>
+<tr><td><strong>平台</strong></td><td>Linux、macOS（kqueue）、Windows（IOCP）</td><td>仅 Linux 5.1+</td></tr>
+<tr><td><strong>零拷贝</strong></td><td>否（用户态拷贝）</td><td>是（注册缓冲区）</td></tr>
+<tr><td><strong>成熟度</strong></td><td>生产可用</td><td>实验性</td></tr>
 </tbody>
 </table>
 </div>
 <blockquote>
-<p><strong>When to use io_uring</strong>: High-throughput file I/O or networking where syscall overhead is the bottleneck (databases, storage engines, proxies serving 100k+ connections). For most applications, standard tokio with epoll is the right choice.</p>
+<p><strong>何时使用 io_uring</strong>：高吞吐文件 I/O 或网络，且系统调用开销是瓶颈时（数据库、存储引擎、服务 10 万+ 连接的代理）。对大多数应用，带 epoll 的标准 tokio 是正确选择。</p>
 </blockquote>
-<h3 id="tokio-the-batteries-included-runtime"><a class="header" href="#tokio-the-batteries-included-runtime">tokio: The Batteries-Included Runtime</a></h3>
-<p>The dominant async runtime in the Rust ecosystem. Used by Axum, Hyper, Tonic, and most production Rust servers.</p>
+<h3 id="tokio开箱即用的运行时"><a class="header" href="#tokio开箱即用的运行时">tokio：开箱即用的运行时</a></h3>
+<p>Rust 生态中占主导地位的异步运行时。Axum、Hyper、Tonic 及大多数生产级 Rust 服务器都在使用它。</p>
 <pre class="playground"><code class="language-rust">// Cargo.toml:
 // [dependencies]
 // tokio = { version = "1", features = ["full"] }
@@ -337,9 +337,9 @@ async fn main() {
     let result = handle.await.unwrap();
     println!("{result}");
 }</code></pre>
-<p><strong>tokio features</strong>: Timer, I/O, TCP/UDP, Unix sockets, signal handling, sync primitives (Mutex, RwLock, Semaphore, channels), fs, process, tracing integration.</p>
-<h3 id="async-std-the-standard-library-mirror"><a class="header" href="#async-std-the-standard-library-mirror">async-std: The Standard Library Mirror</a></h3>
-<p>Mirrors the <code>std</code> API with async versions. Less popular than tokio but simpler for beginners.</p>
+<p><strong>tokio 功能</strong>：定时器、I/O、TCP/UDP、Unix socket、信号处理、同步原语（Mutex、RwLock、Semaphore、channel）、fs、进程、tracing 集成。</p>
+<h3 id="async-std标准库镜像"><a class="header" href="#async-std标准库镜像">async-std：标准库镜像</a></h3>
+<p>用异步版本镜像 <code>std</code> API。不如 tokio 流行，但对初学者更简单。</p>
 <pre class="playground"><code class="language-rust">// Cargo.toml:
 // [dependencies]
 // async-std = { version = "1", features = ["attributes"] }
@@ -350,8 +350,8 @@ async fn main() {
     let content = fs::read_to_string("hello.txt").await.unwrap();
     println!("{content}");
 }</code></pre>
-<h3 id="smol-the-minimalist-runtime"><a class="header" href="#smol-the-minimalist-runtime">smol: The Minimalist Runtime</a></h3>
-<p>Small, zero-dependency async runtime. Great for libraries that want async without pulling in tokio.</p>
+<h3 id="smol极简运行时"><a class="header" href="#smol极简运行时">smol：极简运行时</a></h3>
+<p>小巧、零依赖的异步运行时。适合希望支持异步又不想拉入 tokio 的库。</p>
 <pre class="playground"><code class="language-rust">// Cargo.toml:
 // [dependencies]
 // smol = "2"
@@ -365,8 +365,8 @@ fn main() {
         println!("{result}");
     });
 }</code></pre>
-<h3 id="embassy-async-for-embedded-no_std"><a class="header" href="#embassy-async-for-embedded-no_std">embassy: Async for Embedded (no_std)</a></h3>
-<p>Async runtime for embedded systems. No heap allocation, no <code>std</code> required.</p>
+<h3 id="embassy嵌入式异步no_std"><a class="header" href="#embassy嵌入式异步no_std">embassy：嵌入式异步（no_std）</a></h3>
+<p>面向嵌入式系统的异步运行时。无需堆分配，不要求 <code>std</code>。</p>
 <pre class="playground"><code class="language-rust">// Runs on microcontrollers (e.g., STM32, nRF52, RP2040)
 #[embassy_executor::main]
 async fn main(spawner: embassy_executor::Spawner) {
@@ -379,33 +379,33 @@ async fn main(spawner: embassy_executor::Spawner) {
         Timer::after(Duration::from_millis(500)).await;
     }
 }</code></pre>
-<h3 id="runtime-decision-tree"><a class="header" href="#runtime-decision-tree">Runtime Decision Tree</a></h3>
+<h3 id="运行时决策树"><a class="header" href="#运行时决策树">运行时决策树</a></h3>
 <pre class="mermaid">graph TD
-    START["Choosing a Runtime"]
+    START["选择运行时"]
 
-    Q1{"Building a&lt;br/&gt;network server?"}
-    Q2{"Need tokio ecosystem&lt;br/&gt;(Axum, Tonic, Hyper)?"}
-    Q3{"Building a library?"}
-    Q4{"Embedded /&lt;br/&gt;no_std?"}
-    Q5{"Want minimal&lt;br/&gt;dependencies?"}
+    Q1{"在构建&lt;br/&gt;网络服务器？"}
+    Q2{"需要 tokio 生态&lt;br/&gt;（Axum、Tonic、Hyper）？"}
+    Q3{"在写库？"}
+    Q4{"嵌入式 /&lt;br/&gt;no_std？"}
+    Q5{"想要最少&lt;br/&gt;依赖？"}
 
-    TOKIO["🟢 tokio&lt;br/&gt;Best ecosystem, most popular"]
-    SMOL["🔵 smol&lt;br/&gt;Minimal, no ecosystem lock-in"]
-    EMBASSY["🟠 embassy&lt;br/&gt;Embedded-first, no alloc"]
-    ASYNC_STD["🟣 async-std&lt;br/&gt;std-like API, good for learning"]
-    AGNOSTIC["🔵 runtime-agnostic&lt;br/&gt;Use futures crate only"]
+    TOKIO["🟢 tokio&lt;br/&gt;生态最好，最流行"]
+    SMOL["🔵 smol&lt;br/&gt;极简，无生态锁定"]
+    EMBASSY["🟠 embassy&lt;br/&gt;嵌入式优先，无 alloc"]
+    ASYNC_STD["🟣 async-std&lt;br/&gt;类 std API，适合学习"]
+    AGNOSTIC["🔵 与运行时无关&lt;br/&gt;仅用 futures crate"]
 
     START --&gt; Q1
-    Q1 --&gt;|Yes| Q2
-    Q1 --&gt;|No| Q3
-    Q2 --&gt;|Yes| TOKIO
-    Q2 --&gt;|No| Q5
-    Q3 --&gt;|Yes| AGNOSTIC
-    Q3 --&gt;|No| Q4
-    Q4 --&gt;|Yes| EMBASSY
-    Q4 --&gt;|No| Q5
-    Q5 --&gt;|Yes| SMOL
-    Q5 --&gt;|No| ASYNC_STD
+    Q1 --&gt;|是| Q2
+    Q1 --&gt;|否| Q3
+    Q2 --&gt;|是| TOKIO
+    Q2 --&gt;|否| Q5
+    Q3 --&gt;|是| AGNOSTIC
+    Q3 --&gt;|否| Q4
+    Q4 --&gt;|是| EMBASSY
+    Q4 --&gt;|否| Q5
+    Q5 --&gt;|是| SMOL
+    Q5 --&gt;|否| ASYNC_STD
 
     style TOKIO fill:#c8e6c9,color:#000
     style SMOL fill:#bbdefb,color:#000
@@ -414,35 +414,35 @@ async fn main(spawner: embassy_executor::Spawner) {
     style AGNOSTIC fill:#bbdefb,color:#000
 </pre>
 
-<h3 id="runtime-comparison-table"><a class="header" href="#runtime-comparison-table">Runtime Comparison Table</a></h3>
+<h3 id="运行时对比表"><a class="header" href="#运行时对比表">运行时对比表</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Feature</th><th>tokio</th><th>async-std</th><th>smol</th><th>embassy</th></tr>
+<tr><th>特性</th><th>tokio</th><th>async-std</th><th>smol</th><th>embassy</th></tr>
 </thead>
 <tbody>
-<tr><td><strong>Ecosystem</strong></td><td>Dominant</td><td>Small</td><td>Minimal</td><td>Embedded</td></tr>
-<tr><td><strong>Multi-threaded</strong></td><td>✅ Work-stealing</td><td>✅</td><td>✅</td><td>❌ (single-core)</td></tr>
+<tr><td><strong>生态</strong></td><td>主导</td><td>较小</td><td>极简</td><td>嵌入式</td></tr>
+<tr><td><strong>多线程</strong></td><td>✅ 工作窃取</td><td>✅</td><td>✅</td><td>❌（单核）</td></tr>
 <tr><td><strong>no_std</strong></td><td>❌</td><td>❌</td><td>❌</td><td>✅</td></tr>
-<tr><td><strong>Timer</strong></td><td>✅ Built-in</td><td>✅ Built-in</td><td>Via <code>async-io</code></td><td>✅ HAL-based</td></tr>
-<tr><td><strong>I/O</strong></td><td>✅ Own abstractions</td><td>✅ std mirror</td><td>✅ Via <code>async-io</code></td><td>✅ HAL drivers</td></tr>
-<tr><td><strong>Channels</strong></td><td>✅ Rich set</td><td>✅</td><td>Via <code>async-channel</code></td><td>✅</td></tr>
-<tr><td><strong>Learning curve</strong></td><td>Medium</td><td>Low</td><td>Low</td><td>High (HW)</td></tr>
-<tr><td><strong>Binary size</strong></td><td>Large</td><td>Medium</td><td>Small</td><td>Tiny</td></tr>
+<tr><td><strong>定时器</strong></td><td>✅ 内置</td><td>✅ 内置</td><td>通过 <code>async-io</code></td><td>✅ 基于 HAL</td></tr>
+<tr><td><strong>I/O</strong></td><td>✅ 自有抽象</td><td>✅ std 镜像</td><td>✅ 通过 <code>async-io</code></td><td>✅ HAL 驱动</td></tr>
+<tr><td><strong>Channel</strong></td><td>✅ 丰富</td><td>✅</td><td>通过 <code>async-channel</code></td><td>✅</td></tr>
+<tr><td><strong>学习曲线</strong></td><td>中等</td><td>低</td><td>低</td><td>高（硬件）</td></tr>
+<tr><td><strong>二进制体积</strong></td><td>大</td><td>中</td><td>小</td><td>极小</td></tr>
 </tbody>
 </table>
 </div>
 <details>
-<summary><strong>🏋️ Exercise: Runtime Comparison</strong> (click to expand)</summary>
-<p><strong>Challenge</strong>: Write the same program using three different runtimes (tokio, smol, and async-std). The program should:</p>
+<summary><strong>🏋️ 练习：运行时对比</strong>（点击展开）</summary>
+<p><strong>挑战</strong>：用三种不同运行时（tokio、smol、async-std）写同一个程序。程序应：</p>
 <ol>
-<li>Fetch a URL (simulate with a sleep)</li>
-<li>Read a file (simulate with a sleep)</li>
-<li>Print both results</li>
+<li>获取 URL（用 sleep 模拟）</li>
+<li>读取文件（用 sleep 模拟）</li>
+<li>打印两个结果</li>
 </ol>
-<p>This exercise demonstrates that the async/await code is the same — only the runtime setup differs.</p>
+<p>本练习说明 async/await 代码可以相同——只有运行时设置不同。</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust">// ----- tokio version -----
 // Cargo.toml: tokio = { version = "1", features = ["full"] }
 #[tokio::main]
@@ -494,20 +494,20 @@ async fn main() {
     ).await;
     println!("URL: {url_result}, File: {file_result}");
 }</code></pre>
-<p><strong>Key takeaway</strong>: The async business logic is identical across runtimes. Only the entry point and timer/IO APIs differ. This is why writing runtime-agnostic libraries (using only <code>std::future::Future</code>) is valuable.</p>
+<p><strong>要点</strong>：异步业务逻辑在各运行时上完全相同。只有入口点和定时器/I/O API 不同。这就是为什么编写与运行时无关的库（仅使用 <code>std::future::Future</code>）很有价值。</p>
 </details>
 </details>
 <blockquote>
-<p><strong>Key Takeaways — Executors and Runtimes</strong></p>
+<p><strong>要点回顾 — 执行器与运行时</strong></p>
 <ul>
-<li>An executor’s job: poll futures when woken, sleep efficiently using OS I/O APIs</li>
-<li><strong>tokio</strong> is the default for servers; <strong>smol</strong> for minimal footprint; <strong>embassy</strong> for embedded</li>
-<li>Your business logic should depend on <code>std::future::Future</code>, not a specific runtime</li>
-<li>io_uring (Linux 5.1+) is the future of high-perf I/O but the ecosystem is still maturing</li>
+<li>执行器的职责：在 waker 唤醒时 poll future，并用 OS I/O API 高效休眠</li>
+<li><strong>tokio</strong> 是服务器默认选择；<strong>smol</strong> 适合最小体积；<strong>embassy</strong> 面向嵌入式</li>
+<li>业务逻辑应依赖 <code>std::future::Future</code>，而非特定运行时</li>
+<li>io_uring（Linux 5.1+）是高性能 I/O 的未来，但生态仍在成熟中</li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch08-tokio-deep-dive.html">Ch 8 — Tokio Deep Dive</a> for tokio specifics, <a href="ch09-when-tokio-isnt-the-right-fit.html">Ch 9 — When Tokio Isn’t the Right Fit</a> for alternatives</p>
+<p><strong>另见：</strong> <a href="ch08-tokio-deep-dive.html">第 8 章 — Tokio 深入</a> 了解 tokio 细节，<a href="ch09-when-tokio-isnt-the-right-fit.html">第 9 章 — 何时不该用 Tokio</a> 了解替代方案</p>
 </blockquote>
 <hr>
                     </main>

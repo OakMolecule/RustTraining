@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>5. The State Machine Reveal - Async Rust: From Futures to Production</title>
+        <title>5. 状态机揭秘 - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,19 +177,19 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="5-the-state-machine-reveal-"><a class="header" href="#5-the-state-machine-reveal-">5. The State Machine Reveal 🟢</a></h1>
+                        <h1 id="5-状态机揭秘-"><a class="header" href="#5-状态机揭秘-">5. 状态机揭秘 🟢</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>How the compiler transforms <code>async fn</code> into an enum state machine</li>
-<li>Side-by-side comparison: source code vs generated states</li>
-<li>Why large stack allocations in <code>async fn</code> blow up future sizes</li>
-<li>The drop optimization: values drop as soon as they’re no longer needed</li>
+<li>编译器如何将 <code>async fn</code> 变换为枚举状态机</li>
+<li>并排对比：源代码 vs 生成的状态</li>
+<li>为何 <code>async fn</code> 中的大型栈分配会撑大 future 尺寸</li>
+<li>drop 优化：值在不再需要时立即释放</li>
 </ul>
 </blockquote>
-<h2 id="what-the-compiler-actually-generates"><a class="header" href="#what-the-compiler-actually-generates">What the Compiler Actually Generates</a></h2>
-<p>When you write <code>async fn</code>, the compiler transforms your sequential-looking code into an enum-based state machine. Understanding this transformation is the key to understanding async Rust’s performance characteristics and many of its quirks.</p>
-<h3 id="side-by-side-async-fn-vs-state-machine"><a class="header" href="#side-by-side-async-fn-vs-state-machine">Side-by-Side: async fn vs State Machine</a></h3>
+<h2 id="编译器实际生成了什么"><a class="header" href="#编译器实际生成了什么">编译器实际生成了什么</a></h2>
+<p>当你写 <code>async fn</code> 时，编译器把你的顺序式代码变换为基于枚举的状态机。理解这一变换是理解异步 Rust 性能特征及其诸多怪异行为的关键。</p>
+<h3 id="并排对比async-fn-与状态机"><a class="header" href="#并排对比async-fn-与状态机">并排对比：async fn 与状态机</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// What you write:
@@ -199,7 +199,7 @@ async fn fetch_two_pages() -&gt; String {
     format!("{page1}\n{page2}")
 }
 <span class="boring">}</span></code></pre>
-<p>The compiler generates something conceptually like this:</p>
+<p>编译器在概念上生成类似下面的代码：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>enum FetchTwoPagesStateMachine {
@@ -255,31 +255,31 @@ impl Future for FetchTwoPagesStateMachine {
 }
 <span class="boring">}</span></code></pre>
 <blockquote>
-<p><strong>Note</strong>: This desugaring is <em>conceptual</em>. The real compiler output uses
-<code>unsafe</code> pin projections — the <code>get_mut()</code> calls shown here require
-<code>Unpin</code>, but async state machines are <code>!Unpin</code>. The goal is to illustrate
-state transitions, not produce compilable code.</p>
+<p><strong>注意</strong>：这种脱糖（desugaring）是<em>概念性的</em>。真实编译器输出使用
+<code>unsafe</code> pin 投影——此处展示的 <code>get_mut()</code> 调用需要
+<code>Unpin</code>，但异步状态机是 <code>!Unpin</code>。目的是说明
+状态转换，而非产出可编译代码。</p>
 </blockquote>
 <pre class="mermaid">stateDiagram-v2
     [*] --&gt; Start
-    Start --&gt; WaitingPage1: Create http_get future #1
+    Start --&gt; WaitingPage1: 创建 http_get future #1
     WaitingPage1 --&gt; WaitingPage1: poll() → Pending
     WaitingPage1 --&gt; WaitingPage2: poll() → Ready(page1)
     WaitingPage2 --&gt; WaitingPage2: poll() → Pending
     WaitingPage2 --&gt; Complete: poll() → Ready(page2)
-    Complete --&gt; [*]: Return format!("{page1}\\n{page2}")
+    Complete --&gt; [*]: 返回 format!("{page1}\\n{page2}")
 </pre>
 
 <blockquote>
-<p><strong>State contents:</strong></p>
+<p><strong>各状态内容：</strong></p>
 <ul>
-<li><strong>WaitingPage1</strong> — stores <code>fut1: HttpGetFuture</code> (page2 not yet allocated)</li>
-<li><strong>WaitingPage2</strong> — stores <code>page1: String</code>, <code>fut2: HttpGetFuture</code> (fut1 has been dropped)</li>
+<li><strong>WaitingPage1</strong> — 存储 <code>fut1: HttpGetFuture</code>（page2 尚未分配）</li>
+<li><strong>WaitingPage2</strong> — 存储 <code>page1: String</code>、<code>fut2: HttpGetFuture</code>（fut1 已被 drop）</li>
 </ul>
 </blockquote>
-<h3 id="why-this-matters-for-performance"><a class="header" href="#why-this-matters-for-performance">Why This Matters for Performance</a></h3>
-<p><strong>Zero-cost</strong>: The state machine is a stack-allocated enum. No heap allocation per future, no garbage collector, no boxing — unless you explicitly use <code>Box::pin()</code>.</p>
-<p><strong>Size</strong>: The enum’s size is the maximum of all its variants. Each <code>.await</code> point creates a new variant. This means:</p>
+<h3 id="为何这对性能很重要"><a class="header" href="#为何这对性能很重要">为何这对性能很重要</a></h3>
+<p><strong>零成本</strong>：状态机是栈分配的枚举。每个 future 无需堆分配、无垃圾回收器、无装箱——除非你显式使用 <code>Box::pin()</code>。</p>
+<p><strong>尺寸</strong>：枚举的大小是其所有变体中的最大值。每个 <code>.await</code> 点创建一个新变体。这意味着：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>async fn small() {
@@ -300,16 +300,16 @@ async fn big() {
 // ⚠️ Don't stack-allocate huge buffers in async functions!
 // Use Vec&lt;u8&gt; or Box&lt;[u8]&gt; instead.
 <span class="boring">}</span></code></pre>
-<p><strong>Drop optimization</strong>: When a state machine transitions, it drops values no longer needed. In the example above, <code>fut1</code> is dropped when we transition from <code>WaitingPage1</code> to <code>WaitingPage2</code> — the compiler inserts the drop automatically.</p>
+<p><strong>drop 优化</strong>：状态机转换时，会 drop 不再需要的值。在上例中，从 <code>WaitingPage1</code> 转换到 <code>WaitingPage2</code> 时 <code>fut1</code> 被 drop——编译器会自动插入 drop。</p>
 <blockquote>
-<p><strong>Practical rule</strong>: Large stack allocations in <code>async fn</code> blow up the future’s
-size. If you see stack overflows in async code, check for large arrays or
-deeply nested futures. Use <code>Box::pin()</code> to heap-allocate sub-futures if needed.</p>
+<p><strong>实用规则</strong>：<code>async fn</code> 中的大型栈分配会撑大 future 的
+尺寸。若在异步代码中出现栈溢出，检查是否有大型数组或
+深度嵌套的 future。必要时用 <code>Box::pin()</code> 在堆上分配子 future。</p>
 </blockquote>
-<h3 id="exercise-predict-the-state-machine"><a class="header" href="#exercise-predict-the-state-machine">Exercise: Predict the State Machine</a></h3>
+<h3 id="练习预测状态机"><a class="header" href="#练习预测状态机">练习：预测状态机</a></h3>
 <details>
-<summary>🏋️ Exercise (click to expand)</summary>
-<p><strong>Challenge</strong>: Given this async function, sketch the state machine the compiler generates. How many states (enum variants) does it have? What values are stored in each?</p>
+<summary>🏋️ 练习（点击展开）</summary>
+<p><strong>挑战</strong>：给定以下异步函数，勾勒编译器生成的状态机。有多少个状态（枚举变体）？每个状态存储什么值？</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>async fn pipeline(url: &amp;str) -&gt; Result&lt;usize, Error&gt; {
@@ -320,29 +320,29 @@ deeply nested futures. Use <code>Box::pin()</code> to heap-allocate sub-futures 
 }
 <span class="boring">}</span></code></pre>
 <details>
-<summary>🔑 Solution</summary>
-<p>Five states:</p>
+<summary>🔑 解答</summary>
+<p>五个状态：</p>
 <ol>
-<li><strong>Start</strong> — stores <code>url</code></li>
-<li><strong>WaitingFetch</strong> — stores <code>url</code>, <code>fetch</code> future</li>
-<li><strong>WaitingText</strong> — stores <code>response</code>, <code>text()</code> future</li>
-<li><strong>WaitingParse</strong> — stores <code>body</code>, <code>parse</code> future</li>
-<li><strong>Done</strong> — returned <code>Ok(parsed.len())</code></li>
+<li><strong>Start</strong> — 存储 <code>url</code></li>
+<li><strong>WaitingFetch</strong> — 存储 <code>url</code>、<code>fetch</code> future</li>
+<li><strong>WaitingText</strong> — 存储 <code>response</code>、<code>text()</code> future</li>
+<li><strong>WaitingParse</strong> — 存储 <code>body</code>、<code>parse</code> future</li>
+<li><strong>Done</strong> — 返回 <code>Ok(parsed.len())</code></li>
 </ol>
-<p>Each <code>.await</code> creates a yield point = a new enum variant. The <code>?</code> adds early-exit paths but doesn’t add extra states — it’s just a <code>match</code> on the <code>Poll::Ready</code> value.</p>
+<p>每个 <code>.await</code> 创建一个让出点 = 一个新的枚举变体。<code>?</code> 增加提前退出路径但不增加额外状态——它只是在 <code>Poll::Ready</code> 值上做 <code>match</code>。</p>
 </details>
 </details>
 <blockquote>
-<p><strong>Key Takeaways — The State Machine Reveal</strong></p>
+<p><strong>要点回顾 — 状态机揭秘</strong></p>
 <ul>
-<li><code>async fn</code> compiles to an enum with one variant per <code>.await</code> point</li>
-<li>The future’s <strong>size</strong> = max of all variant sizes — large stack values blow it up</li>
-<li>The compiler inserts <strong>drops</strong> at state transitions automatically</li>
-<li>Use <code>Box::pin()</code> or heap allocation when future size becomes a problem</li>
+<li><code>async fn</code> 编译为枚举，每个 <code>.await</code> 点对应一个变体</li>
+<li>future 的<strong>尺寸</strong> = 所有变体尺寸的最大值——大型栈值会撑大它</li>
+<li>编译器在状态转换时自动插入 <strong>drop</strong></li>
+<li>future 尺寸成为问题时，使用 <code>Box::pin()</code> 或堆分配</li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch04-pin-and-unpin.html">Ch 4 — Pin and Unpin</a> for why the generated enum needs pinning, <a href="ch06-building-futures-by-hand.html">Ch 6 — Building Futures by Hand</a> to build these state machines yourself</p>
+<p><strong>另见：</strong> <a href="ch04-pin-and-unpin.html">第 4 章 — Pin 与 Unpin</a> 了解生成的枚举为何需要固定，<a href="ch06-building-futures-by-hand.html">第 6 章 — 手写 Future</a> 了解如何自己构建这些状态机</p>
 </blockquote>
 <hr>
                     </main>

@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>11. Streams and AsyncIterator - Async Rust: From Futures to Production</title>
+        <title>11. Stream 与 AsyncIterator - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,18 +177,18 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="11-streams-and-asynciterator-"><a class="header" href="#11-streams-and-asynciterator-">11. Streams and AsyncIterator 🟡</a></h1>
+                        <h1 id="11-stream-与-asynciterator-"><a class="header" href="#11-stream-与-asynciterator-">11. Stream 与 AsyncIterator 🟡</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>The <code>Stream</code> trait: async iteration over multiple values</li>
-<li>Creating streams: <code>stream::iter</code>, <code>async_stream</code>, <code>unfold</code></li>
-<li>Stream combinators: <code>map</code>, <code>filter</code>, <code>buffer_unordered</code>, <code>fold</code></li>
-<li>Async I/O traits: <code>AsyncRead</code>, <code>AsyncWrite</code>, <code>AsyncBufRead</code></li>
+<li><code>Stream</code> Trait（特征）：异步迭代多个值</li>
+<li>创建 Stream：<code>stream::iter</code>、<code>async_stream</code>、<code>unfold</code></li>
+<li>Stream 组合子：<code>map</code>、<code>filter</code>、<code>buffer_unordered</code>、<code>fold</code></li>
+<li>异步 I/O Trait：<code>AsyncRead</code>、<code>AsyncWrite</code>、<code>AsyncBufRead</code></li>
 </ul>
 </blockquote>
-<h2 id="stream-trait-overview"><a class="header" href="#stream-trait-overview">Stream Trait Overview</a></h2>
-<p>A <code>Stream</code> is to <code>Iterator</code> what <code>Future</code> is to a single value — it yields multiple values asynchronously:</p>
+<h2 id="stream-trait-概览"><a class="header" href="#stream-trait-概览">Stream Trait 概览</a></h2>
+<p><code>Stream</code> 之于 <code>Iterator</code>，就像 <code>Future</code> 之于单个值——它异步地产生多个值：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// std::iter::Iterator (synchronous, multiple values)
@@ -204,20 +204,20 @@ trait Stream {
 }
 <span class="boring">}</span></code></pre>
 <pre class="mermaid">graph LR
-    subgraph "Sync"
-        VAL["Value&lt;br/&gt;(T)"]
-        ITER["Iterator&lt;br/&gt;(multiple T)"]
+    subgraph "同步"
+        VAL["值&lt;br/&gt;(T)"]
+        ITER["迭代器&lt;br/&gt;(多个 T)"]
     end
 
-    subgraph "Async"
-        FUT["Future&lt;br/&gt;(async T)"]
-        STREAM["Stream&lt;br/&gt;(async multiple T)"]
+    subgraph "异步"
+        FUT["Future&lt;br/&gt;(异步 T)"]
+        STREAM["Stream&lt;br/&gt;(异步多个 T)"]
     end
 
-    VAL --&gt;|"make async"| FUT
-    ITER --&gt;|"make async"| STREAM
-    VAL --&gt;|"make multiple"| ITER
-    FUT --&gt;|"make multiple"| STREAM
+    VAL --&gt;|"变为异步"| FUT
+    ITER --&gt;|"变为异步"| STREAM
+    VAL --&gt;|"变为多个"| ITER
+    FUT --&gt;|"变为多个"| STREAM
 
     style VAL fill:#e3f2fd,color:#000
     style ITER fill:#e3f2fd,color:#000
@@ -225,7 +225,7 @@ trait Stream {
     style STREAM fill:#c8e6c9,color:#000
 </pre>
 
-<h3 id="creating-streams"><a class="header" href="#creating-streams">Creating Streams</a></h3>
+<h3 id="创建-stream"><a class="header" href="#创建-stream">创建 Stream</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use futures::stream::{self, StreamExt};
@@ -265,7 +265,7 @@ let s = stream::unfold(0u32, |state| async move {
     }
 });
 <span class="boring">}</span></code></pre>
-<h3 id="consuming-streams"><a class="header" href="#consuming-streams">Consuming Streams</a></h3>
+<h3 id="消费-stream"><a class="header" href="#消费-stream">消费 Stream</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use futures::stream::{self, StreamExt};
@@ -308,19 +308,19 @@ async fn stream_examples() {
         .await;
 }
 <span class="boring">}</span></code></pre>
-<h3 id="comparison-with-c-iasyncenumerable"><a class="header" href="#comparison-with-c-iasyncenumerable">Comparison with C# IAsyncEnumerable</a></h3>
+<h3 id="与-c-iasyncenumerable-对比"><a class="header" href="#与-c-iasyncenumerable-对比">与 C# IAsyncEnumerable 对比</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Feature</th><th>Rust <code>Stream</code></th><th>C# <code>IAsyncEnumerable&lt;T&gt;</code></th></tr>
+<tr><th>特性</th><th>Rust <code>Stream</code></th><th>C# <code>IAsyncEnumerable&lt;T&gt;</code></th></tr>
 </thead>
 <tbody>
-<tr><td><strong>Syntax</strong></td><td><code>stream! { yield x; }</code></td><td><code>await foreach</code> / <code>yield return</code></td></tr>
-<tr><td><strong>Cancellation</strong></td><td>Drop the stream</td><td><code>CancellationToken</code></td></tr>
-<tr><td><strong>Backpressure</strong></td><td>Consumer controls poll rate</td><td>Consumer controls <code>MoveNextAsync</code></td></tr>
-<tr><td><strong>Built-in</strong></td><td>No (needs <code>futures</code> crate)</td><td>Yes (since C# 8.0)</td></tr>
-<tr><td><strong>Combinators</strong></td><td><code>.map()</code>, <code>.filter()</code>, <code>.buffer_unordered()</code></td><td>LINQ + <code>System.Linq.Async</code></td></tr>
-<tr><td><strong>Error handling</strong></td><td><code>Stream&lt;Item = Result&lt;T, E&gt;&gt;</code></td><td>Throw in async iterator</td></tr>
+<tr><td><strong>语法</strong></td><td><code>stream! { yield x; }</code></td><td><code>await foreach</code> / <code>yield return</code></td></tr>
+<tr><td><strong>取消</strong></td><td>丢弃 Stream</td><td><code>CancellationToken</code></td></tr>
+<tr><td><strong>背压（backpressure）</strong></td><td>消费者控制 poll 速率</td><td>消费者控制 <code>MoveNextAsync</code></td></tr>
+<tr><td><strong>内置</strong></td><td>否（需要 <code>futures</code> crate）</td><td>是（自 C# 8.0 起）</td></tr>
+<tr><td><strong>组合子</strong></td><td><code>.map()</code>、<code>.filter()</code>、<code>.buffer_unordered()</code></td><td>LINQ + <code>System.Linq.Async</code></td></tr>
+<tr><td><strong>错误处理</strong></td><td><code>Stream&lt;Item = Result&lt;T, E&gt;&gt;</code></td><td>在异步迭代器中抛出异常</td></tr>
 </tbody>
 </table>
 </div>
@@ -361,11 +361,11 @@ await foreach (var user in GetUsers()) {
 }
 </code></pre>
 <details>
-<summary><strong>🏋️ Exercise: Build an Async Stats Aggregator</strong> (click to expand)</summary>
-<p><strong>Challenge</strong>: Given a stream of sensor readings <code>Stream&lt;Item = f64&gt;</code>, write an async function that consumes the stream and returns <code>(count, min, max, average)</code>. Use <code>StreamExt</code> combinators — don’t just collect into a Vec.</p>
-<p><em>Hint</em>: Use <code>.fold()</code> to accumulate state across the stream.</p>
+<summary><strong>🏋️ 练习：构建异步统计聚合器</strong>（点击展开）</summary>
+<p><strong>挑战</strong>：给定一个传感器读数 Stream <code>Stream&lt;Item = f64&gt;</code>，编写一个异步函数，消费该 Stream 并返回 <code>(count, min, max, average)</code>。使用 <code>StreamExt</code> 组合子——不要只是收集到 <code>Vec</code> 中。</p>
+<p><em>提示</em>：使用 <code>.fold()</code> 在 Stream 上累积状态。</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use futures::stream::{self, StreamExt};
@@ -410,11 +410,11 @@ async fn test_stats() {
     assert!((stats.average() - 23.86).abs() &lt; 0.01);
 }
 <span class="boring">}</span></code></pre>
-<p><strong>Key takeaway</strong>: Stream combinators like <code>.fold()</code> process items one-at-a-time without collecting into memory — essential for processing large or unbounded data streams.</p>
+<p><strong>要点</strong>：像 <code>.fold()</code> 这样的 Stream 组合子可以逐条处理元素，而无需全部载入内存——这对处理大型或无界数据流至关重要。</p>
 </details>
 </details>
-<h3 id="async-io-traits-asyncread-asyncwrite-asyncbufread"><a class="header" href="#async-io-traits-asyncread-asyncwrite-asyncbufread">Async I/O Traits: AsyncRead, AsyncWrite, AsyncBufRead</a></h3>
-<p>Just as <code>std::io::Read</code>/<code>Write</code> are the foundation of synchronous I/O, their async counterparts are the foundation of async I/O. These traits are provided by <code>tokio::io</code> (or <code>futures::io</code> for runtime-agnostic code):</p>
+<h3 id="异步-io-traitasyncreadasyncwriteasyncbufread"><a class="header" href="#异步-io-traitasyncreadasyncwriteasyncbufread">异步 I/O Trait：AsyncRead、AsyncWrite、AsyncBufRead</a></h3>
+<p>正如 <code>std::io::Read</code>/<code>Write</code> 是同步 I/O 的基础，它们的异步对应物是异步 I/O 的基础。这些 Trait 由 <code>tokio::io</code> 提供（或与运行时无关的代码使用 <code>futures::io</code>）：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// tokio::io — the async versions of std::io traits
@@ -446,7 +446,7 @@ pub trait AsyncBufRead: AsyncRead {
     fn consume(self: Pin&lt;&amp;mut Self&gt;, amt: usize);
 }
 <span class="boring">}</span></code></pre>
-<p><strong>In practice</strong>, you rarely call these <code>poll_*</code> methods directly. Instead, use the extension traits <code>AsyncReadExt</code> and <code>AsyncWriteExt</code> which provide <code>.await</code>-friendly helper methods:</p>
+<p><strong>实践中</strong>，你很少直接调用这些 <code>poll_*</code> 方法。相反，应使用扩展 Trait <code>AsyncReadExt</code> 和 <code>AsyncWriteExt</code>，它们提供支持 <code>.await</code> 的辅助方法：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use tokio::io::{AsyncReadExt, AsyncWriteExt, AsyncBufReadExt};
@@ -474,7 +474,7 @@ async fn io_examples() -&gt; tokio::io::Result&lt;()&gt; {
     Ok(())
 }
 <span class="boring">}</span></code></pre>
-<p><strong>Implementing custom async I/O</strong> — wrap a protocol over raw TCP:</p>
+<p><strong>实现自定义异步 I/O</strong>——在原始 TCP 之上封装协议：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
@@ -514,7 +514,7 @@ impl&lt;T: AsyncWrite + AsyncWriteExt + Unpin&gt; FramedStream&lt;T&gt; {
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Sync Trait</th><th>Async Trait (tokio)</th><th>Async Trait (futures)</th><th>Extension Trait</th></tr>
+<tr><th>同步 Trait</th><th>异步 Trait (tokio)</th><th>异步 Trait (futures)</th><th>扩展 Trait</th></tr>
 </thead>
 <tbody>
 <tr><td><code>std::io::Read</code></td><td><code>tokio::io::AsyncRead</code></td><td><code>futures::io::AsyncRead</code></td><td><code>AsyncReadExt</code></td></tr>
@@ -525,17 +525,17 @@ impl&lt;T: AsyncWrite + AsyncWriteExt + Unpin&gt; FramedStream&lt;T&gt; {
 </table>
 </div>
 <blockquote>
-<p><strong>tokio vs futures I/O traits</strong>: They’re similar but not identical — tokio’s <code>AsyncRead</code> uses <code>ReadBuf</code> (handles uninitialized memory safely), while <code>futures::AsyncRead</code> uses <code>&amp;mut [u8]</code>. Use <code>tokio_util::compat</code> to convert between them.</p>
+<p><strong>tokio 与 futures I/O Trait 对比</strong>：它们相似但不完全相同——tokio 的 <code>AsyncRead</code> 使用 <code>ReadBuf</code>（安全处理未初始化内存），而 <code>futures::AsyncRead</code> 使用 <code>&amp;mut [u8]</code>。使用 <code>tokio_util::compat</code> 在两者之间转换。</p>
 </blockquote>
 <blockquote>
-<p><strong>Copy utilities</strong>: <code>tokio::io::copy(&amp;mut reader, &amp;mut writer)</code> is the async equivalent of <code>std::io::copy</code> — useful for proxy servers or file transfers. <code>tokio::io::copy_bidirectional</code> copies both directions concurrently.</p>
+<p><strong>复制工具</strong>：<code>tokio::io::copy(&amp;mut reader, &amp;mut writer)</code> 是 <code>std::io::copy</code> 的异步等价物——适用于代理服务器或文件传输。<code>tokio::io::copy_bidirectional</code> 并发地向两个方向复制。</p>
 </blockquote>
 <details>
-<summary><strong>🏋️ Exercise: Build an Async Line Counter</strong> (click to expand)</summary>
-<p><strong>Challenge</strong>: Write an async function that takes any <code>AsyncBufRead</code> source and returns the number of non-empty lines. It should work with files, TCP streams, or any buffered reader.</p>
-<p><em>Hint</em>: Use <code>AsyncBufReadExt::lines()</code> and count lines where <code>!line.is_empty()</code>.</p>
+<summary><strong>🏋️ 练习：构建异步行计数器</strong>（点击展开）</summary>
+<p><strong>挑战</strong>：编写一个异步函数，接受任意 <code>AsyncBufRead</code> 数据源并返回非空行的数量。它应适用于文件、TCP 流或任何带缓冲的 reader。</p>
+<p><em>提示</em>：使用 <code>AsyncBufReadExt::lines()</code>，并统计 <code>!line.is_empty()</code> 的行。</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use tokio::io::AsyncBufReadExt;
@@ -560,20 +560,20 @@ async fn count_non_empty_lines&lt;R: tokio::io::AsyncBufRead + Unpin&gt;(
 // let tcp = tokio::io::BufReader::new(TcpStream::connect("...").await?);
 // let count = count_non_empty_lines(tcp).await?;
 <span class="boring">}</span></code></pre>
-<p><strong>Key takeaway</strong>: By programming against <code>AsyncBufRead</code> instead of a concrete type, your I/O code is reusable across files, sockets, pipes, and even in-memory buffers (<code>tokio::io::BufReader::new(std::io::Cursor::new(data))</code>).</p>
+<p><strong>要点</strong>：针对 <code>AsyncBufRead</code> 而非具体类型编程，你的 I/O 代码可在文件、套接字、管道之间复用，甚至适用于内存缓冲区（<code>tokio::io::BufReader::new(std::io::Cursor::new(data))</code>）。</p>
 </details>
 </details>
 <blockquote>
-<p><strong>Key Takeaways — Streams and AsyncIterator</strong></p>
+<p><strong>要点回顾 — Stream 与 AsyncIterator</strong></p>
 <ul>
-<li><code>Stream</code> is the async equivalent of <code>Iterator</code> — yields <code>Poll::Ready(Some(item))</code> or <code>Poll::Ready(None)</code></li>
-<li><code>.buffer_unordered(N)</code> processes N stream items concurrently — the key concurrency tool for streams</li>
-<li><code>async_stream::stream!</code> is the easiest way to create custom streams (uses <code>yield</code>)</li>
-<li><code>AsyncRead</code>/<code>AsyncBufRead</code> enable generic, reusable I/O code across files, sockets, and pipes</li>
+<li><code>Stream</code> 是 <code>Iterator</code> 的异步等价物——产生 <code>Poll::Ready(Some(item))</code> 或 <code>Poll::Ready(None)</code></li>
+<li><code>.buffer_unordered(N)</code> 并发处理 N 个 Stream 元素——Stream 的关键并发工具</li>
+<li><code>async_stream::stream!</code> 是创建自定义 Stream 的最简单方式（使用 <code>yield</code>）</li>
+<li><code>AsyncRead</code>/<code>AsyncBufRead</code> 使 I/O 代码可在文件、套接字和管道之间通用复用</li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch09-when-tokio-isnt-the-right-fit.html">Ch 9 — When Tokio Isn’t the Right Fit</a> for <code>FuturesUnordered</code> (related pattern), <a href="ch13-production-patterns.html">Ch 13 — Production Patterns</a> for backpressure with bounded channels</p>
+<p><strong>另见：</strong> <a href="ch09-when-tokio-isnt-the-right-fit.html">第 9 章 — 何时 Tokio 并非合适选择</a> 了解 <code>FuturesUnordered</code>（相关模式），<a href="ch13-production-patterns.html">第 13 章 — 生产模式</a> 了解有界 channel 的背压</p>
 </blockquote>
 <hr>
                     </main>

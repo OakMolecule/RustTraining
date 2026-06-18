@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>3. How Poll Works - Async Rust: From Futures to Production</title>
+        <title>3. Poll 如何工作 - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,33 +177,33 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="3-how-poll-works-"><a class="header" href="#3-how-poll-works-">3. How Poll Works 🟡</a></h1>
+                        <h1 id="3-poll-如何工作-"><a class="header" href="#3-poll-如何工作-">3. Poll 如何工作 🟡</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>The executor’s poll loop: poll → pending → wake → poll again</li>
-<li>How to build a minimal executor from scratch</li>
-<li>Spurious wake rules and why they matter</li>
-<li>Utility functions: <code>poll_fn()</code> and <code>yield_now()</code></li>
+<li>执行器的 poll 循环：poll → pending → wake → 再次 poll</li>
+<li>如何从零构建最小执行器</li>
+<li>虚假唤醒（spurious wake）规则及其重要性</li>
+<li>实用函数：<code>poll_fn()</code> 和 <code>yield_now()</code></li>
 </ul>
 </blockquote>
-<h2 id="the-polling-state-machine"><a class="header" href="#the-polling-state-machine">The Polling State Machine</a></h2>
-<p>The executor runs a loop: poll a future, if it’s <code>Pending</code>, park it until its waker fires, then poll again. This is fundamentally different from OS threads where the kernel handles scheduling.</p>
+<h2 id="轮询状态机"><a class="header" href="#轮询状态机">轮询状态机</a></h2>
+<p>执行器运行一个循环：poll future，若为 <code>Pending</code> 则停放它直到 waker 触发，然后再次 poll。这与 OS 线程根本不同——后者由内核负责调度。</p>
 <pre class="mermaid">stateDiagram-v2
-    [*] --&gt; Idle : Future created
-    Idle --&gt; Polling : executor calls poll()
+    [*] --&gt; Idle : Future 已创建
+    Idle --&gt; Polling : 执行器调用 poll()
     Polling --&gt; Complete : Ready(value)
     Polling --&gt; Waiting : Pending
-    Waiting --&gt; Polling : waker.wake() called
-    Complete --&gt; [*] : Value returned
+    Waiting --&gt; Polling : 调用 waker.wake()
+    Complete --&gt; [*] : 返回值
 </pre>
 
 <blockquote>
-<p><strong>Important:</strong> While in the <em>Waiting</em> state the future <strong>must</strong> have registered
-the waker with an I/O source. No registration = hang forever.</p>
+<p><strong>重要：</strong> 在 <em>Waiting</em> 状态下，future <strong>必须</strong>已向 I/O 源注册了
+waker。未注册 = 永远挂起。</p>
 </blockquote>
-<h3 id="a-minimal-executor"><a class="header" href="#a-minimal-executor">A Minimal Executor</a></h3>
-<p>To demystify executors, let’s build the simplest possible one:</p>
+<h3 id="最小执行器"><a class="header" href="#最小执行器">最小执行器</a></h3>
+<p>为揭开执行器的面纱，我们来构建最简单的一个：</p>
 <pre class="playground"><code class="language-rust">use std::future::Future;
 use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 use std::pin::Pin;
@@ -249,12 +249,12 @@ fn main() {
     println!("Got: {result}");
 }</code></pre>
 <blockquote>
-<p><strong>Don’t use this in production!</strong> It busy-loops, wasting CPU. Real executors
-(tokio, smol) use <code>epoll</code>/<code>kqueue</code>/<code>io_uring</code> to sleep until I/O is ready.
-But this shows the core idea: an executor is just a loop that calls <code>poll()</code>.</p>
+<p><strong>不要在生产环境使用！</strong> 它会忙循环，浪费 CPU。真正的执行器
+（tokio、smol）使用 <code>epoll</code>/<code>kqueue</code>/<code>io_uring</code> 休眠直到 I/O 就绪。
+但这展示了核心思想：执行器就是一个调用 <code>poll()</code> 的循环。</p>
 </blockquote>
-<h3 id="wake-up-notifications"><a class="header" href="#wake-up-notifications">Wake-Up Notifications</a></h3>
-<p>A real executor is event-driven. When all futures are <code>Pending</code>, the executor sleeps. The waker is an interrupt mechanism:</p>
+<h3 id="唤醒通知"><a class="header" href="#唤醒通知">唤醒通知</a></h3>
+<p>真正的执行器是事件驱动的。当所有 future 都是 <code>Pending</code> 时，执行器休眠。waker 是一种中断机制：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// Conceptual model of a real executor's main loop:
@@ -274,8 +274,8 @@ fn executor_loop(tasks: &amp;mut TaskQueue) {
     }
 }
 <span class="boring">}</span></code></pre>
-<h3 id="spurious-wakes"><a class="header" href="#spurious-wakes">Spurious Wakes</a></h3>
-<p>A future may be polled even when its I/O isn’t ready. This is called a <em>spurious wake</em>. Futures must handle this correctly:</p>
+<h3 id="虚假唤醒"><a class="header" href="#虚假唤醒">虚假唤醒</a></h3>
+<p>future 可能在其 I/O 尚未就绪时就被 poll。这称为<em>虚假唤醒</em>（spurious wake）。future 必须正确处理这种情况：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>impl Future for MyFuture {
@@ -297,19 +297,19 @@ fn executor_loop(tasks: &amp;mut TaskQueue) {
     }
 }
 <span class="boring">}</span></code></pre>
-<p><strong>Rules for implementing <code>poll()</code></strong>:</p>
+<p><strong>实现 <code>poll()</code> 的规则</strong>：</p>
 <ol>
-<li><strong>Never block</strong> — return <code>Pending</code> immediately if not ready</li>
-<li><strong>Always re-register the waker</strong> — it may have changed between polls</li>
-<li><strong>Handle spurious wakes</strong> — check the actual condition, don’t assume readiness</li>
-<li><strong>Don’t poll after <code>Ready</code></strong> — behavior is <strong>unspecified</strong> (may panic, return <code>Pending</code>, or repeat <code>Ready</code>). Only <code>FusedFuture</code> guarantees safe post-completion polling</li>
+<li><strong>绝不阻塞</strong> — 若未就绪，立即返回 <code>Pending</code></li>
+<li><strong>始终重新注册 waker</strong> — 两次 poll 之间它可能已改变</li>
+<li><strong>处理虚假唤醒</strong> — 检查实际条件，不要假设已就绪</li>
+<li><strong>不要在 <code>Ready</code> 之后 poll</strong> — 行为是<strong>未定义的</strong>（可能 panic、返回 <code>Pending</code> 或重复 <code>Ready</code>）。只有 <code>FusedFuture</code> 保证完成后 poll 是安全的</li>
 </ol>
 <details>
-<summary><strong>🏋️ Exercise: Spurious-Wake-Safe Flag Future</strong> (click to expand)</summary>
-<p><strong>Challenge</strong>: Implement a <code>FlagFuture</code> that wraps a shared <code>Arc&lt;AtomicBool&gt;</code> flag. When polled, it checks whether the flag is <code>true</code>. If so, it completes with <code>Ready(())</code>. If not, it stores the waker and returns <code>Pending</code>. The twist: the future must handle <strong>spurious wakes</strong> correctly — it must re-check the flag on every poll, never assuming the flag is set just because it was woken.</p>
-<p><em>Hint</em>: You’ll need an <code>Arc&lt;Mutex&lt;Option&lt;Waker&gt;&gt;&gt;</code> (or similar) so an external thread can set the flag and wake the future. Use <code>poll_fn</code> for a concise alternative solution.</p>
+<summary><strong>🏋️ 练习：可应对虚假唤醒的 Flag Future</strong>（点击展开）</summary>
+<p><strong>挑战</strong>：实现一个 <code>FlagFuture</code>，包装共享的 <code>Arc&lt;AtomicBool&gt;</code> 标志。被 poll 时，检查标志是否为 <code>true</code>。若是，以 <code>Ready(())</code> 完成。若否，存储 waker 并返回 <code>Pending</code>。难点：future 必须正确处理<strong>虚假唤醒</strong>——每次 poll 都要重新检查标志，绝不能仅因被唤醒就假设标志已设置。</p>
+<p><em>提示</em>：你需要 <code>Arc&lt;Mutex&lt;Option&lt;Waker&gt;&gt;&gt;</code>（或类似结构），以便外部线程可以设置标志并唤醒 future。也可用 <code>poll_fn</code> 写出更简洁的替代方案。</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::future::Future;
@@ -372,11 +372,11 @@ fn set_flag(flag: &amp;AtomicBool, waker_slot: &amp;Mutex&lt;Option&lt;Waker&gt;
 //     }).await
 // }
 <span class="boring">}</span></code></pre>
-<p><strong>Key takeaway</strong>: The double-check pattern (check → store waker → check again) is essential to avoid a race between the condition changing and the waker being registered. This is the real-world pattern that all I/O futures use internally, and it demonstrates why handling spurious wakes matters.</p>
+<p><strong>要点</strong>：双重检查模式（检查 → 存储 waker → 再次检查）对于避免条件变化与 waker 注册之间的竞态至关重要。这是所有 I/O future 内部使用的真实模式，也说明了为何处理虚假唤醒很重要。</p>
 </details>
 </details>
-<h3 id="handy-utilities-poll_fn-and-yield_now"><a class="header" href="#handy-utilities-poll_fn-and-yield_now">Handy Utilities: <code>poll_fn</code> and <code>yield_now</code></a></h3>
-<p>Two utilities from the standard library and tokio that avoid writing full <code>Future</code> impls:</p>
+<h3 id="实用工具poll_fn-和-yield_now"><a class="header" href="#实用工具poll_fn-和-yield_now">实用工具：<code>poll_fn</code> 和 <code>yield_now</code></a></h3>
+<p>标准库和 tokio 提供的两个工具，可避免编写完整的 <code>Future</code> 实现：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::future::poll_fn;
@@ -409,21 +409,20 @@ async fn cpu_heavy_work(items: &amp;[Item]) {
 }
 <span class="boring">}</span></code></pre>
 <blockquote>
-<p><strong>When to use <code>yield_now()</code></strong>: If your async function does CPU work in a loop
-without any <code>.await</code> points, it monopolizes the executor thread. Insert
-<code>yield_now().await</code> periodically to enable cooperative multitasking.</p>
+<p><strong>何时使用 <code>yield_now()</code></strong>：若你的异步函数在循环中做 CPU 工作且没有任何 <code>.await</code> 点，它会独占执行器线程。定期插入
+<code>yield_now().await</code> 以实现协作式多任务。</p>
 </blockquote>
 <blockquote>
-<p><strong>Key Takeaways — How Poll Works</strong></p>
+<p><strong>要点回顾 — Poll 如何工作</strong></p>
 <ul>
-<li>An executor repeatedly calls <code>poll()</code> on futures that have been woken</li>
-<li>Futures must handle <strong>spurious wakes</strong> — always re-check the actual condition</li>
-<li><code>poll_fn()</code> lets you create ad-hoc futures from closures</li>
-<li><code>yield_now()</code> is a cooperative scheduling escape hatch for CPU-heavy async code</li>
+<li>执行器反复对已唤醒的 future 调用 <code>poll()</code></li>
+<li>future 必须处理<strong>虚假唤醒</strong>——始终重新检查实际条件</li>
+<li><code>poll_fn()</code> 让你用闭包创建临时 future</li>
+<li><code>yield_now()</code> 是 CPU 密集型异步代码的协作式调度逃生口</li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch02-the-future-trait.html">Ch 2 — The Future Trait</a> for the trait definition, <a href="ch05-the-state-machine-reveal.html">Ch 5 — The State Machine Reveal</a> for what the compiler generates</p>
+<p><strong>另见：</strong> <a href="ch02-the-future-trait.html">第 2 章 — Future Trait</a> 了解 trait 定义，<a href="ch05-the-state-machine-reveal.html">第 5 章 — 状态机揭秘</a> 了解编译器生成了什么</p>
 </blockquote>
 <hr>
                     </main>

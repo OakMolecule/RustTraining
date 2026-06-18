@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>14. Async Is an Optimization, Not an Architecture - Async Rust: From Futures to Production</title>
+        <title>14. 异步是优化，而非架构 - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,50 +177,50 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="14-async-is-an-optimization-not-an-architecture-"><a class="header" href="#14-async-is-an-optimization-not-an-architecture-">14. Async Is an Optimization, Not an Architecture 🔴</a></h1>
+                        <h1 id="14-异步是优化而非架构-"><a class="header" href="#14-异步是优化而非架构-">14. 异步是优化，而非架构 🔴</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>Why async tends to contaminate entire codebases — and why that’s a design flaw, not a feature</li>
-<li>The “sync core, async shell” pattern for keeping most code testable and debuggable</li>
-<li>How to handle the hard case: logic that <em>also</em> needs I/O</li>
-<li>When <code>spawn_blocking</code> is a fix vs. a symptom</li>
-<li>When async genuinely belongs in your core logic</li>
-<li>Why sync-first libraries are more composable than async-first ones</li>
+<li>为何异步往往会污染整个代码库——以及为何这是设计缺陷而非特性</li>
+<li>「同步核心、异步外壳」模式，使大部分代码可测试、可调试</li>
+<li>如何处理困难情况：逻辑 <em>同时</em> 需要 I/O</li>
+<li>何时 <code>spawn_blocking</code> 是修复 vs 是症状</li>
+<li>何时异步确实应属于核心逻辑</li>
+<li>为何同步优先的库比异步优先的库更可组合</li>
 </ul>
 </blockquote>
-<p>You’ve now spent 13 chapters learning async Rust. Here’s the most important thing the book hasn’t told you: <strong>most of your code shouldn’t be async.</strong></p>
-<h2 id="the-function-coloring-problem"><a class="header" href="#the-function-coloring-problem">The Function Coloring Problem</a></h2>
-<p>Bob Nystrom’s <a href="https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/">“What Color is Your Function?”</a> identifies the core issue: async functions can call sync functions, but sync functions cannot call async functions. Once one function goes async, everything above it in the call chain must follow.</p>
-<p>In Rust this is <strong>worse</strong> than in C# or JavaScript, because async doesn’t just infect function signatures — it infects types:</p>
+<p>你已花 13 章学习异步 Rust。本书尚未告诉你的最重要一点：<strong>你的大部分代码不应该是异步的。</strong></p>
+<h2 id="函数着色问题function-coloring-problem"><a class="header" href="#函数着色问题function-coloring-problem">函数着色问题（Function Coloring Problem）</a></h2>
+<p>Bob Nystrom 的 <a href="https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/">“What Color is Your Function?”</a> 指出了核心问题：异步函数可以调用同步函数，但同步函数不能调用异步函数。一旦某个函数变成异步，调用链上它之上的所有函数都必须跟随。</p>
+<p>在 Rust 中这比 C# 或 JavaScript <strong>更严重</strong>，因为异步不仅感染函数签名——还感染类型：</p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Sync code</th><th>Async equivalent</th><th>Why it’s different</th></tr>
+<tr><th>同步代码</th><th>异步等价物</th><th>为何不同</th></tr>
 </thead>
 <tbody>
-<tr><td><code>fn process(&amp;self)</code></td><td><code>async fn process(&amp;self)</code></td><td>Callers must be async too</td></tr>
-<tr><td><code>&amp;mut T</code></td><td><code>Arc&lt;Mutex&lt;T&gt;&gt;</code></td><td>Spawned tasks need <code>'static + Send</code></td></tr>
-<tr><td><code>std::sync::Mutex</code></td><td><code>tokio::sync::Mutex</code></td><td>Different type if held across <code>.await</code></td></tr>
-<tr><td><code>impl Trait</code> return</td><td><code>impl Future&lt;Output = T&gt; + Send</code></td><td>Simpler since RPITIT (Rust 1.75, ch10), but still colored</td></tr>
-<tr><td><code>#[test]</code></td><td><code>#[tokio::test]</code></td><td>Tests need a runtime</td></tr>
-<tr><td>Stack trace: 5 frames</td><td>Stack trace: 25 frames</td><td>Half are runtime internals</td></tr>
+<tr><td><code>fn process(&amp;self)</code></td><td><code>async fn process(&amp;self)</code></td><td>调用者也必须是异步的</td></tr>
+<tr><td><code>&amp;mut T</code></td><td><code>Arc&lt;Mutex&lt;T&gt;&gt;</code></td><td>spawn 的任务需要 <code>'static + Send</code></td></tr>
+<tr><td><code>std::sync::Mutex</code></td><td><code>tokio::sync::Mutex</code></td><td>若在 <code>.await</code> 期间持有，类型不同</td></tr>
+<tr><td><code>impl Trait</code> 返回</td><td><code>impl Future&lt;Output = T&gt; + Send</code></td><td>自 RPITIT（Rust 1.75，第 10 章）起更简单，但仍被着色</td></tr>
+<tr><td><code>#[test]</code></td><td><code>#[tokio::test]</code></td><td>测试需要运行时</td></tr>
+<tr><td>堆栈跟踪：5 帧</td><td>堆栈跟踪：25 帧</td><td>一半是运行时内部</td></tr>
 </tbody>
 </table>
 </div>
-<p>Every row is a decision someone must make, get right, and maintain — and none of it is about business logic. The industry is moving <em>away</em> from this: Java’s Project Loom (virtual threads) and Go’s goroutines both let you write synchronous-looking code that the runtime multiplexes cheaply. Rust chose explicit async for zero-cost control, but that control has a complexity cost that should be paid consciously, not by default.</p>
-<h2 id="but-threads-are-expensive"><a class="header" href="#but-threads-are-expensive">“But Threads Are Expensive”</a></h2>
-<p>The reflexive counter: “we need async because threads are expensive.” Mostly wrong at the scale where most teams operate.</p>
+<p>每一行都是某人必须做出、做对并维护的决策——且都与业务逻辑无关。行业正在 <em>远离</em> 这种模式：Java 的 Project Loom（虚拟线程）和 Go 的 goroutine 都让你编写看似同步的代码，由运行时廉价地多路复用。Rust 选择显式异步以获得零成本控制，但这种控制有复杂度成本，应有意识地支付，而非默认承担。</p>
+<h2 id="但线程很贵"><a class="header" href="#但线程很贵">「但线程很贵」</a></h2>
+<p>条件反射式的反驳：「我们需要异步因为线程很贵。」在大多数团队运作的规模上，这大体是错的。</p>
 <ul>
-<li><strong>Stack memory:</strong> Each OS thread reserves 8MB of virtual address space (Linux default), but the OS only commits pages as touched — a mostly-idle thread uses 20-80KB of physical memory.</li>
-<li><strong>Context switches:</strong> ~1-5µs on modern hardware. At 50 concurrent requests, this is noise. At 100K switches/second, it’s measurable.</li>
-<li><strong>Creation cost:</strong> ~10-30µs per thread on Linux. A thread pool (rayon, <code>std::thread::scope</code>) amortizes this to zero.</li>
+<li><strong>栈内存：</strong> 每个 OS 线程保留 8MB 虚拟地址空间（Linux 默认），但 OS 仅在触碰时提交页——大多空闲的线程仅使用 20–80KB 物理内存。</li>
+<li><strong>上下文切换：</strong> 现代硬件上约 1–5µs。50 个并发请求时这是噪声。每秒 10 万次切换时可测量。</li>
+<li><strong>创建成本：</strong> Linux 上每线程约 10–30µs。线程池（rayon、<code>std::thread::scope</code>）将其摊销为零。</li>
 </ul>
-<p>The honest threshold where async earns its complexity is roughly <strong>1K-10K concurrent mostly-idle connections</strong> — the epoll/io_uring sweet spot where per-connection stacks become a real cost. Below that, a thread pool is simpler, faster to debug, and fast enough. Above that, async wins. Most services are below that.</p>
-<h2 id="the-hard-example-logic-that-also-needs-io"><a class="header" href="#the-hard-example-logic-that-also-needs-io">The Hard Example: Logic That Also Needs I/O</a></h2>
-<p>A trivial pure function — <code>fn add(a: i32, b: i32) -&gt; i32</code> — obviously doesn’t need async. That’s not an interesting lesson. The interesting case is when business logic <em>seems</em> to need I/O in the middle: validation that checks inventory, pricing that queries an exchange rate, an order pipeline that looks up a customer.</p>
-<p>Consider an order processing service. The async-everywhere version looks natural:</p>
-<h3 id="version-a-async-through-the-core"><a class="header" href="#version-a-async-through-the-core">Version A: Async Through the Core</a></h3>
+<p>异步真正值得其复杂度的诚实阈值大约是 <strong>1K–10K 个大多空闲的并发连接</strong>——epoll/io_uring 的甜蜜点，每连接栈成为真实成本。低于此，线程池更简单、更易调试、且足够快。高于此，异步胜出。大多数服务低于此阈值。</p>
+<h2 id="困难示例逻辑也需要-io"><a class="header" href="#困难示例逻辑也需要-io">困难示例：逻辑也需要 I/O</a></h2>
+<p>一个平凡的纯函数——<code>fn add(a: i32, b: i32) -&gt; i32</code>——显然不需要异步。这不是有趣的教训。有趣的情况是业务逻辑 <em>似乎</em> 需要在中间做 I/O：验证库存、定价查询汇率、订单流水线查找客户。</p>
+<p>考虑订单处理服务。处处异步的版本看起来很自然：</p>
+<h3 id="版本-a核心全程异步"><a class="header" href="#版本-a核心全程异步">版本 A：核心全程异步</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// orders.rs — async all the way down
@@ -247,9 +247,9 @@ pub async fn process_order(order: Order) -&gt; Result&lt;Receipt, OrderError&gt;
     Ok(Receipt::new(order, final_price))
 }
 <span class="boring">}</span></code></pre>
-<p>This is <em>reasonable</em> async code. No <code>Arc&lt;Mutex&gt;</code> abuse — just sequential awaits. Most developers would write it this way and move on. But look at what happened: <code>validate_items</code>, <code>validate_quantities</code>, <code>calculate_pricing</code>, and <code>Receipt::new</code> are all pure functions that got dragged into an async context because steps 2 and 4 need I/O. The entire function must be async, its tests need a runtime, and every caller up the chain is now colored.</p>
-<h3 id="version-b-sync-core-async-shell"><a class="header" href="#version-b-sync-core-async-shell">Version B: Sync Core, Async Shell</a></h3>
-<p>The alternative: separate <em>what to decide</em> from <em>how to fetch</em>:</p>
+<p>这是 <em>合理</em> 的异步代码。没有滥用 <code>Arc&lt;Mutex&gt;</code>——只是顺序 await。大多数开发者会这样写然后继续。但看看发生了什么：<code>validate_items</code>、<code>validate_quantities</code>、<code>calculate_pricing</code> 和 <code>Receipt::new</code> 都是纯函数，却因第 2、4 步需要 I/O 被拖入异步上下文。整个函数必须是异步的，测试需要运行时，调用链上每个调用者都被着色。</p>
+<h3 id="版本-b同步核心异步外壳"><a class="header" href="#版本-b同步核心异步外壳">版本 B：同步核心、异步外壳</a></h3>
+<p>替代方案：分离 <em>要决定什么</em> 与 <em>如何获取</em>：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// core.rs — pure business logic, zero async, zero tokio dependency
@@ -305,9 +305,9 @@ pub async fn process_order(order: Order) -&gt; Result&lt;Receipt, OrderError&gt;
     Ok(core::finalize(&amp;stocked, discount))
 }
 <span class="boring">}</span></code></pre>
-<p>The async shell is a <strong>pipeline of fetch → decide → fetch → decide</strong>. Each “decide” step is a sync function that takes the I/O result as input instead of reaching out for it.</p>
-<h3 id="testing-the-difference"><a class="header" href="#testing-the-difference">Testing the Difference</a></h3>
-<p>The sync core tests every business rule without a runtime or mocks:</p>
+<p>异步外壳是 <strong>获取 → 决策 → 获取 → 决策</strong> 的流水线。每个「决策」步骤是同步函数，将 I/O 结果作为输入，而非主动向外请求。</p>
+<h3 id="测试差异"><a class="header" href="#测试差异">测试差异</a></h3>
+<p>同步核心无需运行时或 mock 即可测试每条业务规则：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>#[test]
@@ -326,7 +326,7 @@ fn discount_applied_correctly() {
     assert_eq!(receipt.final_price, 85_00);
 }
 <span class="boring">}</span></code></pre>
-<p>The async shell gets a thinner <em>integration</em> test that verifies the wiring, not the logic:</p>
+<p>异步外壳得到更薄的 <em>集成</em> 测试，验证接线而非逻辑：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>#[tokio::test]
@@ -338,26 +338,26 @@ async fn process_order_integration() {
     // Logic correctness is already proven by core tests above
 }
 <span class="boring">}</span></code></pre>
-<h3 id="why-this-matters"><a class="header" href="#why-this-matters">Why This Matters</a></h3>
+<h3 id="为何重要"><a class="header" href="#为何重要">为何重要</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Concern</th><th>Async through the core</th><th>Sync core + async shell</th></tr>
+<tr><th>关注点</th><th>核心全程异步</th><th>同步核心 + 异步外壳</th></tr>
 </thead>
 <tbody>
-<tr><td>Business rules testable without runtime</td><td>No</td><td><strong>Yes</strong></td></tr>
-<tr><td>Number of unit tests needing <code>#[tokio::test]</code></td><td>All of them</td><td><strong>Only integration tests</strong></td></tr>
-<tr><td>I/O failures entangled with logic errors</td><td>Yes — one <code>Result</code> type for both</td><td><strong>No</strong> — sync returns logic errors, shell handles I/O errors</td></tr>
-<tr><td><code>validate_order</code> reusable in CLI / WASM / batch</td><td>No — pulls in tokio transitively</td><td><strong>Yes</strong> — pure <code>fn</code></td></tr>
-<tr><td>Stack traces through business logic</td><td>Interleaved with runtime frames</td><td><strong>Clean</strong></td></tr>
-<tr><td>Can swap HTTP client for gRPC later</td><td>Requires changing core functions</td><td><strong>Shell change only</strong></td></tr>
+<tr><td>业务规则无需运行时即可测试</td><td>否</td><td><strong>是</strong></td></tr>
+<tr><td>需要 <code>#[tokio::test]</code> 的单元测试数量</td><td>全部</td><td><strong>仅集成测试</strong></td></tr>
+<tr><td>I/O 失败与逻辑错误纠缠</td><td>是——一种 <code>Result</code> 类型兼顾两者</td><td><strong>否</strong>——同步返回逻辑错误，外壳处理 I/O 错误</td></tr>
+<tr><td><code>validate_order</code> 可在 CLI / WASM / 批处理中复用</td><td>否——传递依赖 tokio</td><td><strong>是</strong>——纯 <code>fn</code></td></tr>
+<tr><td>业务逻辑堆栈跟踪</td><td>与运行时帧交错</td><td><strong>清晰</strong></td></tr>
+<tr><td>日后将 HTTP 客户端换为 gRPC</td><td>需改核心函数</td><td><strong>仅改外壳</strong></td></tr>
 </tbody>
 </table>
 </div>
-<p>The key insight: <strong>the I/O calls in steps 2 and 4 don’t <em>need</em> to be inside the business logic. They’re inputs to it.</strong> The sync core takes <code>StockResult</code> and <code>Discount</code> as arguments. Where those values came from — HTTP, gRPC, a test fixture, a cache — is the shell’s concern.</p>
-<h2 id="the-spawn_blocking-smell"><a class="header" href="#the-spawn_blocking-smell">The <code>spawn_blocking</code> Smell</a></h2>
-<p>Chapter 12 introduced <code>spawn_blocking</code> as a fix for accidentally blocking the executor. That’s the right fix when you have a one-off blocking call — <code>std::fs::read</code>, a compression library, a legacy FFI function.</p>
-<p>But if you find yourself wrapping large sections of code in <code>spawn_blocking</code>:</p>
+<p>关键洞见：<strong>第 2、4 步的 I/O 调用不必 <em>位于</em> 业务逻辑内部。它们是逻辑的输入。</strong> 同步核心将 <code>StockResult</code> 和 <code>Discount</code> 作为参数。这些值来自 HTTP、gRPC、测试 fixture 还是缓存——是外壳的事。</p>
+<h2 id="spawn_blocking-的异味"><a class="header" href="#spawn_blocking-的异味"><code>spawn_blocking</code> 的异味</a></h2>
+<p>第 12 章将 <code>spawn_blocking</code> 作为意外阻塞执行器的修复。对于一次性阻塞调用——<code>std::fs::read</code>、压缩库、遗留 FFI 函数——这是正确修复。</p>
+<p>但若你发现自己在用 <code>spawn_blocking</code> 包装大段代码：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>async fn handler(req: Request) -&gt; Response {
@@ -371,7 +371,7 @@ async fn process_order_integration() {
     }).await.unwrap()
 }
 <span class="boring">}</span></code></pre>
-<p>…that’s the codebase telling you: <strong>this logic was never async to begin with.</strong> You don’t need <code>spawn_blocking</code> — you need a sync module that the async handler calls directly:</p>
+<p>……代码库在告诉你：<strong>这些逻辑本就不是异步的。</strong> 你不需要 <code>spawn_blocking</code>——你需要一个同步模块，由异步 handler 直接调用：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>async fn handler(req: Request) -&gt; Response {
@@ -381,9 +381,9 @@ async fn process_order_integration() {
     response
 }
 <span class="boring">}</span></code></pre>
-<p>Reserve <code>spawn_blocking</code> for genuinely heavy CPU work (parsing large payloads, image processing, compression) where the time cost would actually starve the executor. For ordinary business logic that runs in microseconds, a direct sync call is simpler and correct.</p>
-<h2 id="libraries-sync-first-async-wrapper-optional"><a class="header" href="#libraries-sync-first-async-wrapper-optional">Libraries: Sync First, Async Wrapper Optional</a></h2>
-<p>The boundary question is even more consequential for library authors. A sync library can be used from both sync and async callers:</p>
+<p>将 <code>spawn_blocking</code> 保留给真正重的 CPU 工作（解析大负载、图像处理、压缩），时间成本会实际饿死执行器。对于微秒级运行的普通业务逻辑，直接同步调用更简单且正确。</p>
+<h2 id="库同步优先异步包装可选"><a class="header" href="#库同步优先异步包装可选">库：同步优先，异步包装可选</a></h2>
+<p>边界问题对库作者更为关键。同步库可被同步和异步调用方使用：</p>
 <pre class="playground"><code class="language-rust">// A sync library — usable everywhere
 let report = my_lib::analyze(&amp;data);
 
@@ -407,7 +407,7 @@ async fn handler_heavy() -&gt; Json&lt;Report&gt; {
     }).await.unwrap();
     Json(report)
 }</code></pre>
-<p>An async library forces <em>all</em> callers into a runtime:</p>
+<p>异步库迫使 <em>所有</em> 调用方进入运行时：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// An async library — only usable from async contexts
@@ -418,30 +418,30 @@ let report = tokio::runtime::Runtime::new().unwrap().block_on(
     my_lib::analyze(&amp;data)
 ); // fragile, panic-prone if already inside a runtime
 <span class="boring">}</span></code></pre>
-<p><strong>Default to sync APIs.</strong> If your library does pure computation, data transformation, or parsing, there is no reason for it to be async. If it does I/O, consider offering a sync core with an optional async convenience layer behind a feature flag — let the caller own the boundary decision.</p>
-<h2 id="when-async-belongs-in-the-core"><a class="header" href="#when-async-belongs-in-the-core">When Async Belongs in the Core</a></h2>
-<p>Not everything can be cleanly separated. Async belongs in your core logic when:</p>
+<p><strong>默认使用同步 API。</strong> 若库做纯计算、数据转换或解析，没有理由异步。若做 I/O，考虑提供同步核心，并在 feature flag 后提供可选异步便利层——让调用方拥有边界决策。</p>
+<h2 id="何时异步属于核心"><a class="header" href="#何时异步属于核心">何时异步属于核心</a></h2>
+<p>并非一切都能干净分离。以下情况异步应属于核心逻辑：</p>
 <ul>
 <li>
-<p><strong>Fan-out/fan-in is the logic.</strong> If your business rule is “query 5 pricing services concurrently and return the cheapest,” the concurrency <em>is</em> the logic, not plumbing. Forcing this through sync + threads is reinventing a worse async.</p>
+<p><strong>扇出/扇入就是逻辑。</strong> 若业务规则是「并发查询 5 个定价服务并返回最便宜」，并发 <em>就是</em> 逻辑，而非管道。强行用同步 + 线程是在发明更差的异步。</p>
 </li>
 <li>
-<p><strong>Streaming is the logic.</strong> Processing a continuous event stream with backpressure — the stream management is non-trivial business logic, not just an I/O wrapper.</p>
+<p><strong>流式处理就是逻辑。</strong> 处理带背压的连续事件流——流管理是非平凡的业务逻辑，不只是 I/O 包装。</p>
 </li>
 <li>
-<p><strong>Long-lived stateful connections.</strong> WebSocket handlers, gRPC bidirectional streams, and protocol state machines have state transitions inherently tied to I/O events. The capstone project in <a href="ch17-capstone-project.html">ch17</a> — an async chat server — is exactly this case: concurrent connections, room-based fan-out, and graceful shutdown are fundamentally async work.</p>
+<p><strong>长生命周期有状态连接。</strong> WebSocket handler、gRPC 双向流和协议状态机，状态转换与 I/O 事件固有绑定。<a href="ch17-capstone-project.html">第 17 章</a> 的毕业项目——异步聊天服务器——正是此例：并发连接、基于房间扇出和优雅关闭本质上是异步工作。</p>
 </li>
 </ul>
-<p><strong>The test:</strong> if removing <code>async</code> from a function would require replacing it with threads, channels, or manual polling, then async is pulling its weight. If removing <code>async</code> would just mean deleting the keyword with no other changes, it never needed to be async.</p>
-<h2 id="decision-rule"><a class="header" href="#decision-rule">Decision Rule</a></h2>
+<p><strong>检验：</strong> 若从函数中移除 <code>async</code> 需要用线程、channel 或手动 poll 替代，则异步物有所值。若移除 <code>async</code> 只需删掉关键字而无其他变化，则它本不需要异步。</p>
+<h2 id="决策规则"><a class="header" href="#决策规则">决策规则</a></h2>
 <pre class="mermaid">graph TD
-    START["Should this function be async?"] --&gt; IO{"Does it do I/O?"}
-    IO --&gt;|No| SYNC["sync fn — always"]
-    IO --&gt;|Yes| BOUNDARY{"Is it at the boundary?&lt;br/&gt;handler, main loop, accept()"}
-    BOUNDARY --&gt;|Yes| ASYNC_SHELL["async fn — this is the shell"]
-    BOUNDARY --&gt;|No| CORE_IO{"Is the I/O the core logic?&lt;br/&gt;fan-out, streaming, stateful conn"}
-    CORE_IO --&gt;|Yes| ASYNC_CORE["async fn — justified"]
-    CORE_IO --&gt;|No| EXTRACT["Extract logic into sync fn.&lt;br/&gt;Pass I/O results in as arguments."]
+    START["此函数是否应为异步？"] --&gt; IO{"是否做 I/O？"}
+    IO --&gt;|否| SYNC["sync fn — 始终"]
+    IO --&gt;|是| BOUNDARY{"是否在边界？&lt;br/&gt;handler、主循环、accept()"}
+    BOUNDARY --&gt;|是| ASYNC_SHELL["async fn — 这是外壳"]
+    BOUNDARY --&gt;|否| CORE_IO{"I/O 是否为核心逻辑？&lt;br/&gt;扇出、流式、有状态连接"}
+    CORE_IO --&gt;|是| ASYNC_CORE["async fn — 有理由"]
+    CORE_IO --&gt;|否| EXTRACT["将逻辑提取为 sync fn。&lt;br/&gt;将 I/O 结果作为参数传入。"]
 
     style SYNC fill:#d4efdf,stroke:#27ae60,color:#000
     style ASYNC_SHELL fill:#e8f4f8,stroke:#2980b9,color:#000
@@ -450,11 +450,11 @@ let report = tokio::runtime::Runtime::new().unwrap().block_on(
 </pre>
 
 <blockquote>
-<p><strong>Rule of thumb:</strong> Start sync. Add async only at the outermost I/O boundary. Pull it inward only when you can articulate <em>which concurrent I/O operations</em> justify the complexity tax.</p>
+<p><strong>经验法则：</strong> 从同步开始。仅在最外层 I/O 边界添加异步。仅当你能阐明 <em>哪些并发 I/O 操作</em> 值得复杂度代价时，才向内推进。</p>
 </blockquote>
 <hr><details>
-<summary><strong>🏋️ Exercise: Extract the Sync Core</strong> (click to expand)</summary>
-<p>The following axum handler has async contamination — business logic mixed with I/O. Refactor it into a sync core module and a thin async shell.</p>
+<summary><strong>🏋️ 练习：提取同步核心</strong>（点击展开）</summary>
+<p>以下 axum handler 存在异步污染——业务逻辑与 I/O 混杂。将其重构为同步核心模块和薄异步外壳。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use axum::{Json, extract::Path};
@@ -506,19 +506,19 @@ async fn get_device_report(Path(device_id): Path&lt;String&gt;) -&gt; Result&lt;
     }))
 }
 <span class="boring">}</span></code></pre>
-<p><strong>Your goals:</strong></p>
+<p><strong>你的目标：</strong></p>
 <ol>
-<li>Create <code>core.rs</code> with sync functions: <code>calibrate_sensors</code>, <code>classify_health</code>, and <code>build_report</code></li>
-<li>Create <code>shell.rs</code> with a thin async handler that fetches, then calls the sync core</li>
-<li>Write <code>#[test]</code> (not <code>#[tokio::test]</code>) for: a sensor out of range, health classification thresholds, and a normal report</li>
+<li>创建 <code>core.rs</code>，含同步函数：<code>calibrate_sensors</code>、<code>classify_health</code>、<code>build_report</code></li>
+<li>创建 <code>shell.rs</code>，含薄异步 handler：先抓取，再调用同步核心</li>
+<li>编写 <code>#[test]</code>（非 <code>#[tokio::test]</code>）测试：传感器超范围、健康分类阈值、正常报告</li>
 </ol>
-<p><strong>Hints:</strong></p>
+<p><strong>提示：</strong></p>
 <ul>
-<li>The sync core should take <code>RawTelemetry</code> and <code>DeviceMetadata</code> as inputs — it should never know those came from HTTP.</li>
-<li>You’ll need to define small test helper functions (e.g., <code>raw_telemetry()</code>, <code>sensor()</code>, <code>reading()</code>, <code>device_meta()</code>) that construct test fixtures. Their signatures should be obvious from usage.</li>
+<li>同步核心应接受 <code>RawTelemetry</code> 和 <code>DeviceMetadata</code> 作为输入——它不应知道这些来自 HTTP。</li>
+<li>你需要定义小型测试辅助函数（如 <code>raw_telemetry()</code>、<code>sensor()</code>、<code>reading()</code>、<code>device_meta()</code>）构造测试 fixture。其签名应从用法中显而易见。</li>
 </ul>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// core.rs — zero async dependency
@@ -642,20 +642,20 @@ fn normal_report() {
     assert_eq!(report.readings.len(), 1);
 }
 <span class="boring">}</span></code></pre>
-<p><strong>What changed:</strong> The async handler went from 30 lines of mixed logic and I/O to 8 lines of pure orchestration. The business rules (calibration math, range validation, health thresholds) are now tested with <code>#[test]</code>, run in milliseconds, and have zero dependency on tokio, reqwest, or any HTTP mock server.</p>
+<p><strong>变化：</strong> 异步 handler 从 30 行逻辑与 I/O 混杂，变为 8 行纯编排。业务规则（校准数学、范围验证、健康阈值）现可用 <code>#[test]</code> 测试，毫秒级运行，零依赖 tokio、reqwest 或任何 HTTP mock 服务器。</p>
 </details>
 </details>
 <hr>
 <blockquote>
-<p><strong>Key Takeaways:</strong></p>
+<p><strong>要点回顾：</strong></p>
 <ol>
-<li>Async is an <strong>I/O multiplexing optimization</strong>, not an application architecture. Most business logic is sync.</li>
-<li><strong>Sync core, async shell:</strong> keep business rules in pure sync functions that take I/O results as arguments. The async shell orchestrates fetches and calls the core.</li>
-<li>If you’re wrapping large blocks in <code>spawn_blocking</code>, <strong>the boundary is in the wrong place</strong> — refactor the logic into a sync module instead.</li>
-<li><strong>Libraries should default to sync APIs.</strong> An async library forces all callers into a runtime; a sync library lets the caller own the async boundary.</li>
-<li>Async earns its keep for <strong>fan-out/fan-in, streaming, and stateful connections</strong> — the cases where the concurrency <em>is</em> the business logic.</li>
+<li>异步是 <strong>I/O 多路复用优化</strong>，而非应用架构。大多数业务逻辑是同步的。</li>
+<li><strong>同步核心、异步外壳：</strong> 将业务规则放在纯同步函数中，以 I/O 结果作为参数。异步外壳编排抓取并调用核心。</li>
+<li>若用大段 <code>spawn_blocking</code> 包装，<strong>边界放错了</strong>——将逻辑重构为同步模块。</li>
+<li><strong>库应默认同步 API。</strong> 异步库迫使所有调用方进入运行时；同步库让调用方拥有异步边界。</li>
+<li>异步在 <strong>扇出/扇入、流式处理和有状态连接</strong> 上物有所值——并发 <em>就是</em> 业务逻辑的情况。</li>
 </ol>
-<p><strong>See also:</strong> <a href="ch12-common-pitfalls.html">Ch12 — Common Pitfalls</a> (spawn_blocking as a tactical fix) · <a href="ch13-production-patterns.html">Ch13 — Production Patterns</a> (backpressure, structured concurrency) · <a href="ch17-capstone-project.html">Ch17 — Capstone: Async Chat Server</a> (a case where async is the right architecture)</p>
+<p><strong>另见：</strong> <a href="ch12-common-pitfalls.html">第 12 章 — 常见陷阱</a>（<code>spawn_blocking</code> 作为战术修复）· <a href="ch13-production-patterns.html">第 13 章 — 生产模式</a>（背压、结构化并发）· <a href="ch17-capstone-project.html">第 17 章 — 毕业项目：异步聊天服务器</a>（异步是正确架构的案例）</p>
 </blockquote>
 
                     </main>

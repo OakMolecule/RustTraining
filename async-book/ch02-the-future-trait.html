@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>2. The Future Trait - Async Rust: From Futures to Production</title>
+        <title>2. Future Trait - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,18 +177,18 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="2-the-future-trait-"><a class="header" href="#2-the-future-trait-">2. The Future Trait 🟡</a></h1>
+                        <h1 id="2-future-trait-"><a class="header" href="#2-future-trait-">2. Future Trait 🟡</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>The <code>Future</code> trait: <code>Output</code>, <code>poll()</code>, <code>Context</code>, <code>Waker</code></li>
-<li>How a waker tells the executor “poll me again”</li>
-<li>The contract: never call <code>wake()</code> = your program silently hangs</li>
-<li>Implementing a real future by hand (<code>Delay</code>)</li>
+<li><code>Future</code> Trait（特征）：<code>Output</code>、<code>poll()</code>、<code>Context</code>、<code>Waker</code></li>
+<li>waker 如何告诉执行器「请再次 poll 我」</li>
+<li>契约：从不调用 <code>wake()</code> = 程序会静默挂起</li>
+<li>手写实现一个真正的 future（<code>Delay</code>）</li>
 </ul>
 </blockquote>
-<h2 id="anatomy-of-a-future"><a class="header" href="#anatomy-of-a-future">Anatomy of a Future</a></h2>
-<p>Everything in async Rust ultimately implements this trait:</p>
+<h2 id="future-的解剖结构"><a class="header" href="#future-的解剖结构">Future 的解剖结构</a></h2>
+<p>异步 Rust 中的一切最终都实现这个 trait：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>pub trait Future {
@@ -202,41 +202,41 @@ pub enum Poll&lt;T&gt; {
     Pending,    // The future is not ready yet — call me back later
 }
 <span class="boring">}</span></code></pre>
-<p>That’s it. A <code>Future</code> is anything that can be <em>polled</em> — asked “are you done yet?” — and responds with either “yes, here’s the result” or “not yet, I’ll wake you up when I’m ready.”</p>
-<h3 id="output-poll-context-waker"><a class="header" href="#output-poll-context-waker">Output, poll(), Context, Waker</a></h3>
+<p>就这些。<code>Future</code> 是任何可以被 <em>poll</em>（轮询）的东西——被问「完成了吗？」——并回答「是的，这是结果」或「还没好，准备好时我会唤醒你」。</p>
+<h3 id="outputpollcontextwaker"><a class="header" href="#outputpollcontextwaker">Output、poll()、Context、Waker</a></h3>
 <pre class="mermaid">sequenceDiagram
-    participant E as Executor
-    participant F as Future (Task)
-    participant OS as Operating System&lt;br/&gt;(e.g., epoll/kqueue)
-    participant R as Reactor (Runtime)
+    participant E as 执行器（Executor）
+    participant F as Future（Task）
+    participant OS as 操作系统&lt;br/&gt;（如 epoll/kqueue）
+    participant R as Reactor（运行时）
 
-    E-&gt;&gt;F: Calls poll(cx)
-    Note right of F: Future attempts operation
-    F-&gt;&gt;OS: Syscall (e.g., read TCP socket)
-    OS--&gt;&gt;F: Returns Error: Not Ready
+    E-&gt;&gt;F: 调用 poll(cx)
+    Note right of F: Future 尝试执行操作
+    F-&gt;&gt;OS: 系统调用（如读取 TCP socket）
+    OS--&gt;&gt;F: 返回错误：未就绪
     
-    F-&gt;&gt;R: Registers: (Waker)
-    F--&gt;&gt;E: Returns Poll::Pending
-    Note left of E: Task is moved out&lt;br/&gt;of run queue
+    F-&gt;&gt;R: 注册：(Waker)
+    F--&gt;&gt;E: 返回 Poll::Pending
+    Note left of E: Task 移出&lt;br/&gt;运行队列
 
-    E-&gt;&gt;E: (Executor runs other tasks OR sleeps)
-    R-&gt;&gt;OS: epoll_wait() / Polls OS for events
+    E-&gt;&gt;E: （执行器运行其他 task 或休眠）
+    R-&gt;&gt;OS: epoll_wait() / 向 OS 轮询事件
 
-    Note right of OS: (Sometime Later) New data arrives
-    OS--&gt;&gt;R: Wakes Reactor: data is NOW READY
+    Note right of OS: （稍后）新数据到达
+    OS--&gt;&gt;R: 唤醒 Reactor：数据现已就绪
     
-    R-&gt;&gt;R: Reactor finds Waker
-    R-&gt;&gt;E: Calls Waker::wake()
-    Note right of E: Task is pushed back&lt;br/&gt;to Executor's run queue
+    R-&gt;&gt;R: Reactor 找到 Waker
+    R-&gt;&gt;E: 调用 Waker::wake()
+    Note right of E: Task 被推回&lt;br/&gt;执行器的运行队列
 
-    E-&gt;&gt;F: Calls poll(cx) again
-    Note right of F: Future attempts operation again
-    F-&gt;&gt;OS: Syscall (e.g., read TCP socket)
-    OS--&gt;&gt;F: Success: Returns Data Buffer
-    F--&gt;&gt;E: Returns Poll::Ready(Data)
+    E-&gt;&gt;F: 再次调用 poll(cx)
+    Note right of F: Future 再次尝试操作
+    F-&gt;&gt;OS: 系统调用（如读取 TCP socket）
+    OS--&gt;&gt;F: 成功：返回数据缓冲区
+    F--&gt;&gt;E: 返回 Poll::Ready(Data)
 </pre>
 
-<p>Let’s break down each piece:</p>
+<p>逐项拆解：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::future::Future;
@@ -254,15 +254,15 @@ impl Future for Ready42 {
     }
 }
 <span class="boring">}</span></code></pre>
-<p><strong>The components</strong>:</p>
+<p><strong>各组成部分</strong>：</p>
 <ul>
-<li><strong><code>Output</code></strong> — the type of value produced when the future completes</li>
-<li><strong><code>poll()</code></strong> — called by the executor to check progress; returns <code>Ready(value)</code> or <code>Pending</code></li>
-<li><strong><code>Pin&lt;&amp;mut Self&gt;</code></strong> — ensures the future won’t be moved in memory (we’ll cover why in Ch. 4)</li>
-<li><strong><code>Context</code></strong> — carries the <code>Waker</code> so the future can signal the executor when it’s ready to make progress</li>
+<li><strong><code>Output</code></strong> — future 完成时产生的值类型</li>
+<li><strong><code>poll()</code></strong> — 由执行器调用以检查进度；返回 <code>Ready(value)</code> 或 <code>Pending</code></li>
+<li><strong><code>Pin&lt;&amp;mut Self&gt;</code></strong> — 确保 future 在内存中不会被移动（原因见第 4 章）</li>
+<li><strong><code>Context</code></strong> — 携带 <code>Waker</code>，以便 future 在可以推进时通知执行器</li>
 </ul>
-<h3 id="the-waker-contract"><a class="header" href="#the-waker-contract">The Waker Contract</a></h3>
-<p>The <code>Waker</code> is the callback mechanism. When a future returns <code>Pending</code>, it <em>must</em> arrange for <code>waker.wake()</code> to be called later — otherwise the executor will never poll it again and the program hangs.</p>
+<h3 id="waker-契约"><a class="header" href="#waker-契约">Waker 契约</a></h3>
+<p><code>Waker</code> 是回调机制。当 future 返回 <code>Pending</code> 时，它<em>必须</em>安排稍后调用 <code>waker.wake()</code>——否则执行器永远不会再次 poll 它，程序就会挂起。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::task::{Context, Poll, Waker};
@@ -331,17 +331,17 @@ impl Future for Delay {
 }
 <span class="boring">}</span></code></pre>
 <blockquote>
-<p><strong>Key insight</strong>: In C#, the TaskScheduler handles waking automatically.
-In Rust, <strong>you</strong> (or the I/O library you use) are responsible for calling
-<code>waker.wake()</code>. Forget it, and your program silently hangs.</p>
+<p><strong>关键洞见</strong>：在 C# 中，TaskScheduler 会自动处理唤醒。
+在 Rust 中，<strong>你</strong>（或你使用的 I/O 库）负责调用
+<code>waker.wake()</code>。忘了这一步，程序就会静默挂起。</p>
 </blockquote>
-<h3 id="exercise-implement-a-countdownfuture"><a class="header" href="#exercise-implement-a-countdownfuture">Exercise: Implement a CountdownFuture</a></h3>
+<h3 id="练习实现-countdownfuture"><a class="header" href="#练习实现-countdownfuture">练习：实现 CountdownFuture</a></h3>
 <details>
-<summary>🏋️ Exercise (click to expand)</summary>
-<p><strong>Challenge</strong>: Implement a <code>CountdownFuture</code> that counts down from N to 0, printing the current count each time it’s polled. When it reaches 0, it completes with <code>Ready("Liftoff!")</code>.</p>
-<p><em>Hint</em>: The future needs to store the current count and decrement it on each poll. Remember to always re-register the waker!</p>
+<summary>🏋️ 练习（点击展开）</summary>
+<p><strong>挑战</strong>：实现一个 <code>CountdownFuture</code>，从 N 倒数到 0，每次被 poll 时打印当前计数。到达 0 时，以 <code>Ready("Liftoff!")</code> 完成。</p>
+<p><em>提示</em>：future 需要存储当前计数，并在每次 poll 时递减。记得始终重新注册 waker！</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::future::Future;
@@ -374,20 +374,20 @@ impl Future for CountdownFuture {
     }
 }
 <span class="boring">}</span></code></pre>
-<p><strong>Key takeaway</strong>: This future is polled once per count. Each time it returns <code>Pending</code>, it immediately wakes itself to be polled again. In production, you’d use a timer instead of busy-polling.</p>
+<p><strong>要点</strong>：该 future 每个计数被 poll 一次。每次返回 <code>Pending</code> 时，它立即唤醒自身以便再次 poll。在生产环境中，你会用定时器代替忙轮询。</p>
 </details>
 </details>
 <blockquote>
-<p><strong>Key Takeaways — The Future Trait</strong></p>
+<p><strong>要点回顾 — Future Trait</strong></p>
 <ul>
-<li><code>Future::poll()</code> returns <code>Poll::Ready(value)</code> or <code>Poll::Pending</code></li>
-<li>A future must register a <code>Waker</code> before returning <code>Pending</code> — the executor uses it to know when to re-poll</li>
-<li><code>Pin&lt;&amp;mut Self&gt;</code> guarantees the future won’t be moved in memory (needed for self-referential state machines — see Ch 4)</li>
-<li>Everything in async Rust — <code>async fn</code>, <code>.await</code>, combinators — is built on this one trait</li>
+<li><code>Future::poll()</code> 返回 <code>Poll::Ready(value)</code> 或 <code>Poll::Pending</code></li>
+<li>future 在返回 <code>Pending</code> 之前必须注册 <code>Waker</code>——执行器用它来判断何时重新 poll</li>
+<li><code>Pin&lt;&amp;mut Self&gt;</code> 保证 future 在内存中不会被移动（自引用状态机需要——见第 4 章）</li>
+<li>异步 Rust 中的一切——<code>async fn</code>、<code>.await</code>、组合子——都建立在这一个 trait 之上</li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch03-how-poll-works.html">Ch 3 — How Poll Works</a> for the executor loop, <a href="ch06-building-futures-by-hand.html">Ch 6 — Building Futures by Hand</a> for more complex implementations</p>
+<p><strong>另见：</strong> <a href="ch03-how-poll-works.html">第 3 章 — Poll 如何工作</a> 了解执行器循环，<a href="ch06-building-futures-by-hand.html">第 6 章 — 手写 Future</a> 了解更复杂的实现</p>
 </blockquote>
 <hr>
                     </main>

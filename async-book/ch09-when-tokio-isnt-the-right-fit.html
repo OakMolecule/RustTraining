@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>9. When Tokio Isn&#x27;t the Right Fit - Async Rust: From Futures to Production</title>
+        <title>9. 何时不该用 Tokio - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,26 +177,26 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="9-when-tokio-isnt-the-right-fit-"><a class="header" href="#9-when-tokio-isnt-the-right-fit-">9. When Tokio Isn’t the Right Fit 🟡</a></h1>
+                        <h1 id="9-何时不该用-tokio-"><a class="header" href="#9-何时不该用-tokio-">9. 何时不该用 Tokio 🟡</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>The <code>'static</code> problem: when <code>tokio::spawn</code> forces you into <code>Arc</code> everywhere</li>
-<li><code>LocalSet</code> for <code>!Send</code> futures</li>
-<li><code>FuturesUnordered</code> for borrow-friendly concurrency (no spawn needed)</li>
-<li><code>JoinSet</code> for managed task groups</li>
-<li>Writing runtime-agnostic libraries</li>
+<li><code>'static</code> 问题：<code>tokio::spawn</code> 如何迫使你到处使用 <code>Arc</code></li>
+<li>面向 <code>!Send</code> future 的 <code>LocalSet</code></li>
+<li>便于借用的并发：<code>FuturesUnordered</code>（无需 spawn）</li>
+<li>可管理的任务组：<code>JoinSet</code></li>
+<li>编写与运行时无关的库</li>
 </ul>
 </blockquote>
 <pre class="mermaid">graph TD
-    START["Need concurrent futures?"] --&gt; STATIC{"Can futures be 'static?"}
-    STATIC --&gt;|Yes| SEND{"Are futures Send?"}
-    STATIC --&gt;|No| FU["FuturesUnordered&lt;br/&gt;Runs on current task"]
-    SEND --&gt;|Yes| SPAWN["tokio::spawn&lt;br/&gt;Multi-threaded"]
-    SEND --&gt;|No| LOCAL["LocalSet&lt;br/&gt;Single-threaded"]
-    SPAWN --&gt; MANAGE{"Need to track/abort tasks?"}
-    MANAGE --&gt;|Yes| JOINSET["JoinSet / TaskTracker"]
-    MANAGE --&gt;|No| HANDLE["JoinHandle"]
+    START["需要并发 future？"] --&gt; STATIC{"future 能否是 'static？"}
+    STATIC --&gt;|是| SEND{"future 是否 Send？"}
+    STATIC --&gt;|否| FU["FuturesUnordered&lt;br/&gt;在当前任务上运行"]
+    SEND --&gt;|是| SPAWN["tokio::spawn&lt;br/&gt;多线程"]
+    SEND --&gt;|否| LOCAL["LocalSet&lt;br/&gt;单线程"]
+    SPAWN --&gt; MANAGE{"需要跟踪/取消任务？"}
+    MANAGE --&gt;|是| JOINSET["JoinSet / TaskTracker"]
+    MANAGE --&gt;|否| HANDLE["JoinHandle"]
 
     style START fill:#f5f5f5,stroke:#333,color:#000
     style FU fill:#d4efdf,stroke:#27ae60,color:#000
@@ -206,8 +206,8 @@
     style HANDLE fill:#e8f4f8,stroke:#2980b9,color:#000
 </pre>
 
-<h2 id="the-static-future-problem"><a class="header" href="#the-static-future-problem">The ’static Future Problem</a></h2>
-<p>Tokio’s <code>spawn</code> requires <code>'static</code> futures. This means you can’t borrow local data in spawned tasks:</p>
+<h2 id="static-future-问题"><a class="header" href="#static-future-问题">’static Future 问题</a></h2>
+<p>Tokio 的 <code>spawn</code> 要求 <code>'static</code> future。这意味着你不能在 spawn 的任务里借用局部数据：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>async fn process_items(items: &amp;[String]) {
@@ -236,10 +236,9 @@
     }
 }
 <span class="boring">}</span></code></pre>
-<p>This is annoying! In Go, you can just <code>go func() { use(item) }</code> with a closure. In Rust, the ownership system forces you to think about who owns what and how long it lives.</p>
-<h3 id="alternatives-to-tokiospawn"><a class="header" href="#alternatives-to-tokiospawn">Alternatives to <code>tokio::spawn</code></a></h3>
-<p>Not every problem requires <code>spawn</code>. Here are three tools that each solve a
-<em>different</em> constraint:</p>
+<p>这很烦人！在 Go 里你可以 <code>go func() { use(item) }</code> 用闭包就行。在 Rust 里，所有权系统迫使你思考谁拥有什么、能活多久。</p>
+<h3 id="tokiospawn-的替代方案"><a class="header" href="#tokiospawn-的替代方案"><code>tokio::spawn</code> 的替代方案</a></h3>
+<p>并非每个问题都需要 <code>spawn</code>。下面三个工具各自解决<em>不同</em>约束：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// 1. FuturesUnordered — avoids 'static entirely (no spawn!)
@@ -297,22 +296,22 @@ async fn with_joinset() {
 }
 <span class="boring">}</span></code></pre>
 <blockquote>
-<p><strong>Which tool solves which problem?</strong></p>
+<p><strong>哪种工具解决哪种问题？</strong></p>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>Constraint you hit</th><th>Tool</th><th>Avoids <code>'static</code>?</th><th>Avoids <code>Send</code>?</th></tr>
+<tr><th>遇到的约束</th><th>工具</th><th>避免 <code>'static</code>？</th><th>避免 <code>Send</code>？</th></tr>
 </thead>
 <tbody>
-<tr><td>Can’t make futures <code>'static</code></td><td><code>FuturesUnordered</code></td><td>✅ Yes</td><td>✅ Yes</td></tr>
-<tr><td>Futures are <code>'static</code> but <code>!Send</code></td><td><code>LocalSet</code></td><td>❌ No</td><td>✅ Yes</td></tr>
-<tr><td>Need to track / abort spawned tasks</td><td><code>JoinSet</code></td><td>❌ No</td><td>❌ No</td></tr>
+<tr><td>无法让 future 成为 <code>'static</code></td><td><code>FuturesUnordered</code></td><td>✅ 是</td><td>✅ 是</td></tr>
+<tr><td>future 是 <code>'static</code> 但 <code>!Send</code></td><td><code>LocalSet</code></td><td>❌ 否</td><td>✅ 是</td></tr>
+<tr><td>需要跟踪 / 取消 spawn 的任务</td><td><code>JoinSet</code></td><td>❌ 否</td><td>❌ 否</td></tr>
 </tbody>
 </table>
 </div>
 </blockquote>
-<h3 id="lightweight-runtimes-for-libraries"><a class="header" href="#lightweight-runtimes-for-libraries">Lightweight Runtimes for Libraries</a></h3>
-<p>If you’re writing a library — don’t force users into tokio:</p>
+<h3 id="库的轻量运行时"><a class="header" href="#库的轻量运行时">库的轻量运行时</a></h3>
+<p>如果你在写库——不要把用户绑死在 tokio 上：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// ❌ BAD: Library forces tokio on users
@@ -347,16 +346,16 @@ where
 }
 <span class="boring">}</span></code></pre>
 <blockquote>
-<p><strong>Rule of thumb</strong>: Libraries should depend on <code>futures</code> crate, not <code>tokio</code>.
-Applications should depend on <code>tokio</code> (or their chosen runtime).
-This keeps the ecosystem composable.</p>
+<p><strong>经验法则</strong>：库应依赖 <code>futures</code> crate，而非 <code>tokio</code>。
+应用应依赖 <code>tokio</code>（或所选运行时）。
+这样生态才能可组合。</p>
 </blockquote>
 <details>
-<summary><strong>🏋️ Exercise: FuturesUnordered vs Spawn</strong> (click to expand)</summary>
-<p><strong>Challenge</strong>: Write the same function two ways — once using <code>tokio::spawn</code> (requires <code>'static</code>) and once using <code>FuturesUnordered</code> (borrows data). The function receives <code>&amp;[String]</code> and returns the length of each string after a simulated async lookup.</p>
-<p>Compare: Which approach requires <code>.clone()</code>? Which can borrow the input slice?</p>
+<summary><strong>🏋️ 练习：FuturesUnordered 与 Spawn</strong>（点击展开）</summary>
+<p><strong>挑战</strong>：用两种方式写同一函数——一次用 <code>tokio::spawn</code>（需要 <code>'static</code>），一次用 <code>FuturesUnordered</code>（可借用数据）。函数接收 <code>&amp;[String]</code>，在模拟异步查找后返回每个字符串的长度。</p>
+<p>对比：哪种方式需要 <code>.clone()</code>？哪种可以借用输入切片？</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use futures::stream::{FuturesUnordered, StreamExt};
@@ -407,20 +406,20 @@ async fn test_both_versions() {
     assert_eq!(v2, vec![4, 5, 5]);
 }
 <span class="boring">}</span></code></pre>
-<p><strong>Key takeaway</strong>: <code>FuturesUnordered</code> avoids the <code>'static</code> requirement by running all futures on the current task (no thread migration). The trade-off: all futures share one task — if one blocks, the others stall. Use <code>spawn</code> for CPU-heavy work that should run on separate threads.</p>
+<p><strong>要点</strong>：<code>FuturesUnordered</code> 通过在当前任务上运行所有 future（无线程迁移）避免 <code>'static</code> 要求。代价：所有 future 共享一个任务——若一个阻塞，其他也会停滞。CPU 密集型、应在独立线程运行的工作请用 <code>spawn</code>。</p>
 </details>
 </details>
 <blockquote>
-<p><strong>Key Takeaways — When Tokio Isn’t the Right Fit</strong></p>
+<p><strong>要点回顾 — 何时不该用 Tokio</strong></p>
 <ul>
-<li><code>FuturesUnordered</code> runs futures concurrently on the current task — no <code>'static</code> requirement</li>
-<li><code>LocalSet</code> enables <code>!Send</code> futures on a single-threaded executor</li>
-<li><code>JoinSet</code> (tokio 1.21+) provides managed task groups with automatic cleanup</li>
-<li>For libraries: depend only on <code>std::future::Future</code> + <code>futures</code> crate, not tokio directly</li>
+<li><code>FuturesUnordered</code> 在当前任务上并发运行 future——无 <code>'static</code> 要求</li>
+<li><code>LocalSet</code> 让 <code>!Send</code> future 在单线程执行器上运行</li>
+<li><code>JoinSet</code>（tokio 1.21+）提供可管理任务组与自动清理</li>
+<li>库：仅依赖 <code>std::future::Future</code> + <code>futures</code> crate，不要直接依赖 tokio</li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch08-tokio-deep-dive.html">Ch 8 — Tokio Deep Dive</a> for when spawn is the right tool, <a href="ch11-streams-and-asynciterator.html">Ch 11 — Streams</a> for <code>buffer_unordered()</code> as another concurrency limiter</p>
+<p><strong>另见：</strong> <a href="ch08-tokio-deep-dive.html">第 8 章 — Tokio 深入</a> 了解何时 spawn 合适，<a href="ch11-streams-and-asynciterator.html">第 11 章 — Stream</a> 了解 <code>buffer_unordered()</code> 作为另一种并发限制手段</p>
 </blockquote>
 <hr>
                     </main>

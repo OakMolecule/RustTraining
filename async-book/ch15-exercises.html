@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>15. Exercises - Async Rust: From Futures to Production</title>
+        <title>15. 练习 - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,18 +177,18 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
-<h3 id="exercise-1-async-echo-server"><a class="header" href="#exercise-1-async-echo-server">Exercise 1: Async Echo Server</a></h3>
-<p>Build a TCP echo server that handles multiple clients concurrently.</p>
-<p><strong>Requirements</strong>:</p>
+                        <h2 id="练习"><a class="header" href="#练习">练习</a></h2>
+<h3 id="练习-1异步-echo-服务器"><a class="header" href="#练习-1异步-echo-服务器">练习 1：异步 Echo 服务器</a></h3>
+<p>构建一个并发处理多个客户端的 TCP echo 服务器。</p>
+<p><strong>要求</strong>：</p>
 <ul>
-<li>Listen on <code>127.0.0.1:8080</code></li>
-<li>Accept connections and echo back each line</li>
-<li>Handle client disconnections gracefully</li>
-<li>Print a log when clients connect/disconnect</li>
+<li>监听 <code>127.0.0.1:8080</code></li>
+<li>接受连接并回显每一行</li>
+<li>优雅处理客户端断开</li>
+<li>客户端连接/断开时打印日志</li>
 </ul>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust">use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
 use tokio::net::TcpListener;
 
@@ -231,10 +231,10 @@ async fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
 }</code></pre>
 </details>
 <hr>
-<h3 id="exercise-2-concurrent-url-fetcher-with-rate-limiting"><a class="header" href="#exercise-2-concurrent-url-fetcher-with-rate-limiting">Exercise 2: Concurrent URL Fetcher with Rate Limiting</a></h3>
-<p>Fetch a list of URLs concurrently, with at most 5 concurrent requests.</p>
+<h3 id="练习-2带限流的并发-url-抓取器"><a class="header" href="#练习-2带限流的并发-url-抓取器">练习 2：带限流的并发 URL 抓取器</a></h3>
+<p>并发抓取 URL 列表，最多 5 个并发请求。</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use futures::stream::{self, StreamExt};
@@ -270,15 +270,15 @@ async fn fetch_urls(urls: Vec&lt;String&gt;) -&gt; Vec&lt;Result&lt;String, Stri
 <span class="boring">}</span></code></pre>
 </details>
 <hr>
-<h3 id="exercise-3-graceful-shutdown-with-worker-pool"><a class="header" href="#exercise-3-graceful-shutdown-with-worker-pool">Exercise 3: Graceful Shutdown with Worker Pool</a></h3>
-<p>Build a task processor with:</p>
+<h3 id="练习-3带-worker-池的优雅关闭"><a class="header" href="#练习-3带-worker-池的优雅关闭">练习 3：带 Worker 池的优雅关闭</a></h3>
+<p>构建任务处理器，包含：</p>
 <ul>
-<li>A channel-based work queue</li>
-<li>N worker tasks consuming from the queue</li>
-<li>Graceful shutdown on Ctrl+C: stop accepting, finish in-flight work</li>
+<li>基于 channel 的工作队列</li>
+<li>N 个 worker 任务从队列消费</li>
+<li>Ctrl+C 优雅关闭：停止接受新任务，完成进行中的工作</li>
 </ul>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust">use tokio::sync::{mpsc, watch};
 use tokio::time::{sleep, Duration};
 
@@ -352,11 +352,11 @@ async fn main() {
 }</code></pre>
 </details>
 <hr>
-<h3 id="exercise-4-build-a-simple-async-mutex-from-scratch"><a class="header" href="#exercise-4-build-a-simple-async-mutex-from-scratch">Exercise 4: Build a Simple Async Mutex from Scratch</a></h3>
-<p>Implement an async-aware mutex using channels (without using <code>tokio::sync::Mutex</code>).</p>
-<p><em>Hint</em>: Use a <code>tokio::sync::Semaphore</code> with 1 permit to serialize access.</p>
+<h3 id="练习-4从零实现简单异步-mutex"><a class="header" href="#练习-4从零实现简单异步-mutex">练习 4：从零实现简单异步 Mutex</a></h3>
+<p>使用 channel 实现异步感知的 mutex（不使用 <code>tokio::sync::Mutex</code>）。</p>
+<p><em>提示</em>：使用许可数为 1 的 <code>tokio::sync::Semaphore</code> 来串行化访问。</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::cell::UnsafeCell;
@@ -420,27 +420,23 @@ impl&lt;T&gt; std::ops::DerefMut for SimpleGuard&lt;T&gt; {
 //     guard.push(4);
 // } // permit released here
 <span class="boring">}</span></code></pre>
-<p><strong>Key takeaway</strong>: Async mutexes are typically built on top of semaphores. The semaphore provides the async wait mechanism — when locked, <code>acquire()</code> suspends the task until the permit is released. This is exactly how <code>tokio::sync::Mutex</code> works internally.</p>
+<p><strong>要点</strong>：异步 mutex 通常建立在信号量（semaphore）之上。信号量提供异步等待机制——锁定时，<code>acquire()</code> 挂起任务直至许可释放。这正是 <code>tokio::sync::Mutex</code> 内部的工作方式。</p>
 <blockquote>
-<p><strong>Why <code>UnsafeCell</code> and not <code>std::sync::Mutex</code>?</strong> A previous version of this
-exercise used <code>Arc&lt;Mutex&lt;T&gt;&gt;</code> with <code>Deref</code>/<code>DerefMut</code> calling <code>.lock().unwrap()</code>.
-That doesn’t compile — the returned <code>&amp;T</code> borrows from a temporary <code>MutexGuard</code>
-that’s dropped immediately. <code>UnsafeCell</code> avoids the intermediate guard, and the
-semaphore-based serialization makes the <code>unsafe</code> sound.</p>
+<p><strong>为何用 <code>UnsafeCell</code> 而非 <code>std::sync::Mutex</code>？</strong> 本练习先前版本使用 <code>Arc&lt;Mutex&lt;T&gt;&gt;</code> 配合 <code>Deref</code>/<code>DerefMut</code> 调用 <code>.lock().unwrap()</code>。这无法编译——返回的 <code>&amp;T</code> 借用了立即被丢弃的临时 <code>MutexGuard</code>。<code>UnsafeCell</code> 避免中间 guard，基于信号量的串行化使 <code>unsafe</code> 成立。</p>
 </blockquote>
 </details>
 <hr>
-<h3 id="exercise-5-stream-pipeline"><a class="header" href="#exercise-5-stream-pipeline">Exercise 5: Stream Pipeline</a></h3>
-<p>Build a data processing pipeline using streams:</p>
+<h3 id="练习-5stream-流水线"><a class="header" href="#练习-5stream-流水线">练习 5：Stream 流水线</a></h3>
+<p>使用 stream 构建数据处理流水线：</p>
 <ol>
-<li>Generate numbers 1..=100</li>
-<li>Filter to even numbers</li>
-<li>Map each to its square</li>
-<li>Process 10 at a time concurrently (simulate with sleep)</li>
-<li>Collect results</li>
+<li>生成数字 1..=100</li>
+<li>过滤为偶数</li>
+<li>映射为平方</li>
+<li>每次并发处理 10 个（用 sleep 模拟）</li>
+<li>收集结果</li>
 </ol>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust">use futures::stream::{self, StreamExt};
 use tokio::time::{sleep, Duration};
 
@@ -467,11 +463,11 @@ async fn main() {
 }</code></pre>
 </details>
 <hr>
-<h3 id="exercise-6-implement-select-with-timeout"><a class="header" href="#exercise-6-implement-select-with-timeout">Exercise 6: Implement Select with Timeout</a></h3>
-<p>Without using <code>tokio::select!</code> or <code>tokio::time::timeout</code>, implement a function that races a future against a deadline and returns <code>Either::Left(result)</code> or <code>Either::Right(())</code> on timeout.</p>
-<p><em>Hint</em>: Build on the <code>Select</code> combinator from Chapter 6 and the <code>TimerFuture</code> from the same chapter.</p>
+<h3 id="练习-6实现带超时的-select"><a class="header" href="#练习-6实现带超时的-select">练习 6：实现带超时的 Select</a></h3>
+<p>不使用 <code>tokio::select!</code> 或 <code>tokio::time::timeout</code>，实现一个函数，让 Future 与截止时间竞速，超时时返回 <code>Either::Left(result)</code> 或 <code>Either::Right(())</code>。</p>
+<p><em>提示</em>：基于第 6 章的 <code>Select</code> 组合子与同期的 <code>TimerFuture</code>。</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre><code class="language-rust ignore">use std::future::Future;
 use std::pin::Pin;
 use std::task::{Context, Poll};
@@ -519,7 +515,7 @@ impl&lt;F: Future + Unpin&gt; Future for Timeout&lt;F&gt; {
 //     Either::Left(data) =&gt; println!("Got data: {data}"),
 //     Either::Right(()) =&gt; println!("Timed out!"),
 // }</code></pre>
-<p><strong>Key takeaway</strong>: <code>select</code>/<code>timeout</code> is just polling two futures and seeing which completes first. The entire async ecosystem is built from this simple primitive: poll, Pending/Ready, Waker.</p>
+<p><strong>要点</strong>：<code>select</code>/timeout 就是 poll 两个 Future 看哪个先完成。整个异步生态建立在这个简单原语之上：poll、<code>Pending</code>/<code>Ready</code>、<code>Waker</code>。</p>
 </details>
 <hr>
                     </main>

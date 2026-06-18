@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>4. Pin and Unpin - Async Rust: From Futures to Production</title>
+        <title>4. Pin 与 Unpin - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,20 +177,20 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="4-pin-and-unpin-"><a class="header" href="#4-pin-and-unpin-">4. Pin and Unpin 🔴</a></h1>
+                        <h1 id="4-pin-与-unpin-"><a class="header" href="#4-pin-与-unpin-">4. Pin 与 Unpin 🔴</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>Why self-referential structs break when moved in memory</li>
-<li>What <code>Pin&lt;P&gt;</code> guarantees and how it prevents moves</li>
-<li>The three practical pinning patterns: <code>Box::pin()</code>, <code>tokio::pin!()</code>, <code>Pin::new()</code></li>
-<li>When <code>Unpin</code> gives you an escape hatch</li>
+<li>为何自引用结构体在内存中移动时会失效</li>
+<li><code>Pin&lt;P&gt;</code> 保证什么以及它如何防止移动</li>
+<li>三种实用固定模式：<code>Box::pin()</code>、<code>tokio::pin!()</code>、<code>Pin::new()</code></li>
+<li>何时 <code>Unpin</code> 提供逃生口</li>
 </ul>
 </blockquote>
-<h2 id="why-pin-exists"><a class="header" href="#why-pin-exists">Why Pin Exists</a></h2>
-<p>This is the most confusing concept in async Rust. Let’s build the intuition step by step.</p>
-<h3 id="the-problem-self-referential-structs"><a class="header" href="#the-problem-self-referential-structs">The Problem: Self-Referential Structs</a></h3>
-<p>When the compiler transforms an <code>async fn</code> into a state machine, that state machine may contain references to its own fields. This creates a <em>self-referential struct</em> — and moving it in memory would invalidate those internal references.</p>
+<h2 id="pin-为何存在"><a class="header" href="#pin-为何存在">Pin 为何存在</a></h2>
+<p>这是异步 Rust 中最令人困惑的概念。我们一步步建立直觉。</p>
+<h3 id="问题自引用结构体"><a class="header" href="#问题自引用结构体">问题：自引用结构体</a></h3>
+<p>当编译器把 <code>async fn</code> 变换为状态机时，该状态机可能包含对自身字段的引用。这就形成了<em>自引用结构体</em>（self-referential struct）——在内存中移动它会使其内部引用失效。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// What the compiler generates (simplified) for:
@@ -215,16 +215,16 @@ enum ExampleStateMachine {
 }
 <span class="boring">}</span></code></pre>
 <pre class="mermaid">graph LR
-    subgraph "Before Move (Valid)"
-        A["data: [1,2,3]&lt;br/&gt;at addr 0x1000"]
-        B["reference: 0x1000&lt;br/&gt;(points to data)"]
-        B --&gt;|"valid"| A
+    subgraph "移动前（有效）"
+        A["data: [1,2,3]&lt;br/&gt;地址 0x1000"]
+        B["reference: 0x1000&lt;br/&gt;（指向 data）"]
+        B --&gt;|"有效"| A
     end
 
-    subgraph "After Move (INVALID)"
-        C["data: [1,2,3]&lt;br/&gt;at addr 0x2000"]
-        D["reference: 0x1000&lt;br/&gt;(still points to OLD location!)"]
-        D --&gt;|"dangling!"| E["💥 0x1000&lt;br/&gt;(freed/garbage)"]
+    subgraph "移动后（无效）"
+        C["data: [1,2,3]&lt;br/&gt;地址 0x2000"]
+        D["reference: 0x1000&lt;br/&gt;（仍指向旧位置！）"]
+        D --&gt;|"悬空！"| E["💥 0x1000&lt;br/&gt;（已释放/垃圾）"]
     end
 
     style E fill:#ffcdd2,color:#000
@@ -232,8 +232,8 @@ enum ExampleStateMachine {
     style B fill:#c8e6c9,color:#000
 </pre>
 
-<h3 id="self-referential-structs"><a class="header" href="#self-referential-structs">Self-Referential Structs</a></h3>
-<p>This isn’t an academic concern. Every <code>async fn</code> that holds a reference across an <code>.await</code> point creates a self-referential state machine:</p>
+<h3 id="自引用结构体"><a class="header" href="#自引用结构体">自引用结构体</a></h3>
+<p>这不是学术问题。每个在 <code>.await</code> 点之间持有引用的 <code>async fn</code> 都会创建自引用状态机：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>async fn problematic() {
@@ -247,8 +247,8 @@ enum ExampleStateMachine {
 // The generated state machine has `data: String` and `slice: &amp;str`
 // where slice points INTO data. Moving the state machine = dangling pointer.
 <span class="boring">}</span></code></pre>
-<h3 id="pin-in-practice"><a class="header" href="#pin-in-practice">Pin in Practice</a></h3>
-<p><code>Pin&lt;P&gt;</code> is a wrapper that prevents moving the value behind the pointer:</p>
+<h3 id="pin-实践"><a class="header" href="#pin-实践">Pin 实践</a></h3>
+<p><code>Pin&lt;P&gt;</code> 是一个包装器，防止指针背后的值被移动：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::pin::Pin;
@@ -266,7 +266,7 @@ println!("{}", pinned.as_ref().get_ref()); // "hello"
 // String IS Unpin, so this actually works for String.
 // But for self-referential state machines (which are !Unpin), it's blocked.
 <span class="boring">}</span></code></pre>
-<p>In real code, you mostly encounter Pin in three places:</p>
+<p>在实际代码中，你主要在三个地方遇到 Pin：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// 1. poll() signature — all futures are polled through Pin
@@ -279,8 +279,8 @@ let future: Pin&lt;Box&lt;dyn Future&lt;Output = i32&gt;&gt;&gt; = Box::pin(asyn
 tokio::pin!(my_future);
 // Now my_future: Pin&lt;&amp;mut impl Future&gt;
 <span class="boring">}</span></code></pre>
-<h3 id="the-unpin-escape-hatch"><a class="header" href="#the-unpin-escape-hatch">The Unpin Escape Hatch</a></h3>
-<p>Most types in Rust are <code>Unpin</code> — they don’t contain self-references, so pinning is a no-op. Only compiler-generated state machines (from <code>async fn</code>) are <code>!Unpin</code>.</p>
+<h3 id="unpin-逃生口"><a class="header" href="#unpin-逃生口">Unpin 逃生口</a></h3>
+<p>Rust 中大多数类型都是 <code>Unpin</code>——它们不包含自引用，因此固定是空操作。只有编译器生成的状态机（来自 <code>async fn</code>）是 <code>!Unpin</code>。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// These are all Unpin — pinning them does nothing special:
@@ -294,23 +294,23 @@ tokio::pin!(my_future);
 // implement Unpin to make it easier to work with:
 impl Unpin for MySimpleFuture {} // "I'm safe to move, trust me"
 <span class="boring">}</span></code></pre>
-<h3 id="quick-reference"><a class="header" href="#quick-reference">Quick Reference</a></h3>
+<h3 id="快速参考"><a class="header" href="#快速参考">快速参考</a></h3>
 <div class="table-wrapper">
 <table>
 <thead>
-<tr><th>What</th><th>When</th><th>How</th></tr>
+<tr><th>场景</th><th>时机</th><th>方法</th></tr>
 </thead>
 <tbody>
-<tr><td>Pin a future on the heap</td><td>Storing in a collection, returning from function</td><td><code>Box::pin(future)</code></td></tr>
-<tr><td>Pin a future on the stack</td><td>Local use in <code>select!</code> or manual polling</td><td><code>std::pin::pin!(future)</code> or <code>tokio::pin!(future)</code></td></tr>
-<tr><td>Pin in function signature</td><td>Accepting pinned futures</td><td><code>future: Pin&lt;&amp;mut F&gt;</code></td></tr>
-<tr><td>Require Unpin</td><td>When you need to move a future after creation</td><td><code>F: Future + Unpin</code></td></tr>
+<tr><td>在堆上固定 future</td><td>存入集合、从函数返回</td><td><code>Box::pin(future)</code></td></tr>
+<tr><td>在栈上固定 future</td><td>在 <code>select!</code> 或手动 poll 中本地使用</td><td><code>std::pin::pin!(future)</code> 或 <code>tokio::pin!(future)</code></td></tr>
+<tr><td>在函数签名中固定</td><td>接受已固定的 future</td><td><code>future: Pin&lt;&amp;mut F&gt;</code></td></tr>
+<tr><td>要求 Unpin</td><td>需要在创建后移动 future</td><td><code>F: Future + Unpin</code></td></tr>
 </tbody>
 </table>
 </div>
 <details>
-<summary><strong>🏋️ Exercise: Pin and Move</strong> (click to expand)</summary>
-<p><strong>Challenge</strong>: Which of these code snippets compile? For each one that doesn’t, explain why and fix it.</p>
+<summary><strong>🏋️ 练习：Pin 与移动</strong>（点击展开）</summary>
+<p><strong>挑战</strong>：以下哪些代码片段能编译？对于不能编译的，说明原因并修复。</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>// Snippet A
@@ -331,9 +331,9 @@ let mut fut = async { 42 };
 let pinned = Pin::new(&amp;mut fut);
 <span class="boring">}</span></code></pre>
 <details>
-<summary>🔑 Solution</summary>
-<p><strong>Snippet A</strong>: ✅ <strong>Compiles.</strong> <code>Box::pin()</code> puts the future on the heap. Moving the <code>Box</code> moves the <em>pointer</em>, not the future itself. The future stays pinned in its heap location.</p>
-<p><strong>Snippet B</strong>: ✅ <strong>Compiles.</strong> <code>tokio::pin!</code> pins the future to the stack and rebinds <code>fut</code> as <code>Pin&lt;&amp;mut ...&gt;</code>. <code>let moved = fut</code> moves the <strong><code>Pin</code> wrapper</strong> (a pointer), not the underlying future — the future stays pinned on the stack. This is just like <code>Box::pin</code>: moving the <code>Box</code> doesn’t move the heap allocation. However, <code>fut</code> is consumed by the move, so you can’t use <code>fut</code> afterwards — only <code>moved</code>:</p>
+<summary>🔑 解答</summary>
+<p><strong>片段 A</strong>：✅ <strong>能编译。</strong> <code>Box::pin()</code> 把 future 放在堆上。移动 <code>Box</code> 移动的是<em>指针</em>，而非 future 本身。future 仍固定在其堆位置。</p>
+<p><strong>片段 B</strong>：✅ <strong>能编译。</strong> <code>tokio::pin!</code> 把 future 固定在栈上，并将 <code>fut</code> 重新绑定为 <code>Pin&lt;&amp;mut ...&gt;</code>。<code>let moved = fut</code> 移动的是 <strong><code>Pin</code> 包装器</strong>（一个指针），而非底层 future——future 仍固定在栈上。这与 <code>Box::pin</code> 类似：移动 <code>Box</code> 不会移动堆分配。不过 <code>fut</code> 被移动消耗，之后不能再使用 <code>fut</code>——只能用 <code>moved</code>：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>let fut = async { 42 };
@@ -342,26 +342,26 @@ let moved = fut;        // Moves the Pin&lt;&amp;mut&gt; wrapper — OK
 // fut.await;           // ❌ Error: fut was moved
 let result = moved.await; // ✅ Use moved instead
 <span class="boring">}</span></code></pre>
-<p><strong>Snippet C</strong>: ❌ <strong>Does not compile.</strong> <code>Pin::new()</code> requires <code>T: Unpin</code>. Async blocks generate <code>!Unpin</code> types. <strong>Fix</strong>: Use <code>Box::pin()</code> or <code>unsafe Pin::new_unchecked()</code>:</p>
+<p><strong>片段 C</strong>：❌ <strong>不能编译。</strong> <code>Pin::new()</code> 要求 <code>T: Unpin</code>。async 块生成 <code>!Unpin</code> 类型。<strong>修复</strong>：使用 <code>Box::pin()</code> 或 <code>unsafe Pin::new_unchecked()</code>：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>let fut = async { 42 };
 let pinned = Box::pin(fut); // Heap-pin — works with !Unpin
 <span class="boring">}</span></code></pre>
-<p><strong>Key takeaway</strong>: <code>Box::pin()</code> is the safe, easy way to pin <code>!Unpin</code> futures. <code>tokio::pin!()</code> pins on the stack — you can move the <code>Pin&lt;&amp;mut&gt;</code> wrapper (it’s just a pointer), but the underlying future stays put. <code>Pin::new()</code> only works with <code>Unpin</code> types.</p>
+<p><strong>要点</strong>：<code>Box::pin()</code> 是固定 <code>!Unpin</code> future 的安全、简便方式。<code>tokio::pin!()</code> 在栈上固定——你可以移动 <code>Pin&lt;&amp;mut&gt;</code> 包装器（它只是指针），但底层 future 保持不动。<code>Pin::new()</code> 仅适用于 <code>Unpin</code> 类型。</p>
 </details>
 </details>
 <blockquote>
-<p><strong>Key Takeaways — Pin and Unpin</strong></p>
+<p><strong>要点回顾 — Pin 与 Unpin</strong></p>
 <ul>
-<li><code>Pin&lt;P&gt;</code> is a wrapper that <strong>prevents the pointee from being moved</strong> — essential for self-referential state machines</li>
-<li><code>Box::pin()</code> is the safe, easy default for pinning futures on the heap</li>
-<li><code>tokio::pin!()</code> pins on the stack — you can move the <code>Pin&lt;&amp;mut&gt;</code> wrapper, but the underlying future stays put</li>
-<li><code>Unpin</code> is an auto-trait opt-out: types that implement <code>Unpin</code> can be moved even when pinned (most types are <code>Unpin</code>; async blocks are not)</li>
+<li><code>Pin&lt;P&gt;</code> 是一个包装器，<strong>防止被指向的值被移动</strong>——自引用状态机所必需</li>
+<li><code>Box::pin()</code> 是在堆上固定 future 的安全、简便默认方式</li>
+<li><code>tokio::pin!()</code> 在栈上固定——你可以移动 <code>Pin&lt;&amp;mut&gt;</code> 包装器，但底层 future 保持不动</li>
+<li><code>Unpin</code> 是自动 trait 的退出机制：实现 <code>Unpin</code> 的类型即使被固定也可以移动（大多数类型是 <code>Unpin</code>；async 块不是）</li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch02-the-future-trait.html">Ch 2 — The Future Trait</a> for <code>Pin&lt;&amp;mut Self&gt;</code> in poll, <a href="ch05-the-state-machine-reveal.html">Ch 5 — The State Machine Reveal</a> for why async state machines are self-referential</p>
+<p><strong>另见：</strong> <a href="ch02-the-future-trait.html">第 2 章 — Future Trait</a> 了解 poll 中的 <code>Pin&lt;&amp;mut Self&gt;</code>，<a href="ch05-the-state-machine-reveal.html">第 5 章 — 状态机揭秘</a> 了解为何异步状态机是自引用的</p>
 </blockquote>
 <hr>
                     </main>

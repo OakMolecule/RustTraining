@@ -1,9 +1,9 @@
 <!DOCTYPE HTML>
-<html lang="en" class="light sidebar-visible" dir="ltr">
+<html lang="zh-CN" class="light sidebar-visible" dir="ltr">
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>6. Building Futures by Hand - Async Rust: From Futures to Production</title>
+        <title>6. 手动构建 Future - Async Rust：从 Future 到生产实践（非官方中文译本）</title>
 
 
         <!-- Custom HTML head -->
@@ -35,10 +35,10 @@
             const path_to_root = "";
             const default_light_theme = "light";
             const default_dark_theme = "ayu";
-            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+            window.path_to_searchindex_js = "searchindex-9ec56641.js";
         </script>
         <!-- Start loading toc.js asap -->
-        <script src="toc-fddf10a8.js"></script>
+        <script src="toc-ee012dd3.js"></script>
     </head>
     <body>
     <div id="mdbook-help-container">
@@ -137,7 +137,7 @@
                         </button>
                     </div>
 
-                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+                    <h1 class="menu-title">Async Rust：从 Future 到生产实践（非官方中文译本）</h1>
 
                     <div class="right-buttons">
                         <a href="print.html" title="Print this book" aria-label="Print this book">
@@ -177,19 +177,19 @@
 
                 <div id="mdbook-content" class="content">
                     <main>
-                        <h1 id="6-building-futures-by-hand-"><a class="header" href="#6-building-futures-by-hand-">6. Building Futures by Hand 🟡</a></h1>
+                        <h1 id="6-手动构建-future-"><a class="header" href="#6-手动构建-future-">6. 手动构建 Future 🟡</a></h1>
 <blockquote>
-<p><strong>What you’ll learn:</strong></p>
+<p><strong>你将学到：</strong></p>
 <ul>
-<li>Implementing a <code>TimerFuture</code> with thread-based waking</li>
-<li>Building a <code>Join</code> combinator: run two futures concurrently</li>
-<li>Building a <code>Select</code> combinator: race two futures</li>
-<li>How combinators compose — futures all the way down</li>
+<li>用基于线程的唤醒实现 <code>TimerFuture</code></li>
+<li>构建 <code>Join</code> 组合子：并发运行两个 future</li>
+<li>构建 <code>Select</code> 组合子：让两个 future 竞速</li>
+<li>组合子如何组合——层层嵌套的 future</li>
 </ul>
 </blockquote>
-<h2 id="a-simple-timer-future"><a class="header" href="#a-simple-timer-future">A Simple Timer Future</a></h2>
-<p>Now let’s build real, useful futures from scratch. This cements the theory from chapters 2-5.</p>
-<h3 id="timerfuture-a-complete-example"><a class="header" href="#timerfuture-a-complete-example">TimerFuture: A Complete Example</a></h3>
+<h2 id="一个简单的-timer-future"><a class="header" href="#一个简单的-timer-future">一个简单的 Timer Future</a></h2>
+<p>现在让我们从零开始构建真正有用的 future。这能巩固第 2–5 章的理论。</p>
+<h3 id="timerfuture完整示例"><a class="header" href="#timerfuture完整示例">TimerFuture：完整示例</a></h3>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::future::Future;
@@ -258,8 +258,8 @@ impl Future for TimerFuture {
 // production use `tokio::time::sleep` which is backed by a shared
 // timer wheel and requires zero extra threads.
 <span class="boring">}</span></code></pre>
-<h3 id="join-running-two-futures-concurrently"><a class="header" href="#join-running-two-futures-concurrently">Join: Running Two Futures Concurrently</a></h3>
-<p><code>Join</code> polls two futures and completes when <em>both</em> finish. This is how <code>tokio::join!</code> works internally:</p>
+<h3 id="join并发运行两个-future"><a class="header" href="#join并发运行两个-future">Join：并发运行两个 Future</a></h3>
+<p><code>Join</code> 会轮询两个 future，并在<em>两者都</em>完成时结束。这就是 <code>tokio::join!</code> 的内部实现方式：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::future::Future;
@@ -352,17 +352,17 @@ where
 // Both requests run concurrently!
 <span class="boring">}</span></code></pre>
 <blockquote>
-<p><strong>Key insight</strong>: “Concurrent” here means <em>interleaved on the same thread</em>.
-Join doesn’t spawn threads — it polls both futures in the same <code>poll()</code> call.
-This is cooperative concurrency, not parallelism.</p>
+<p><strong>关键洞见</strong>：此处的「并发」指<em>在同一线程上交错执行</em>。
+<code>Join</code> 不会创建线程——它在同一次 <code>poll()</code> 调用中轮询两个 future。
+这是协作式并发（cooperative concurrency），而非并行（parallelism）。</p>
 </blockquote>
 <pre class="mermaid">graph LR
-    subgraph "Future Combinators"
+    subgraph "Future 组合子"
         direction TB
-        TIMER["TimerFuture&lt;br/&gt;Single future, wake after delay"]
-        JOIN["Join&amp;lt;A, B&amp;gt;&lt;br/&gt;Wait for BOTH"]
-        SELECT["Select&amp;lt;A, B&amp;gt;&lt;br/&gt;Wait for FIRST"]
-        RETRY["RetryFuture&lt;br/&gt;Re-create on failure"]
+        TIMER["TimerFuture&lt;br/&gt;单个 future，延迟后唤醒"]
+        JOIN["Join&amp;lt;A, B&amp;gt;&lt;br/&gt;等待两者都完成"]
+        SELECT["Select&amp;lt;A, B&amp;gt;&lt;br/&gt;等待先完成者"]
+        RETRY["RetryFuture&lt;br/&gt;失败时重新创建"]
     end
 
     TIMER --&gt; JOIN
@@ -375,8 +375,8 @@ This is cooperative concurrency, not parallelism.</p>
     style RETRY fill:#fadbd8,stroke:#e74c3c,color:#000
 </pre>
 
-<h3 id="select-racing-two-futures"><a class="header" href="#select-racing-two-futures">Select: Racing Two Futures</a></h3>
-<p><code>Select</code> completes when <em>either</em> future finishes first (the other is dropped):</p>
+<h3 id="select让两个-future-竞速"><a class="header" href="#select让两个-future-竞速">Select：让两个 Future 竞速</a></h3>
+<p><code>Select</code> 在<em>任一</em> future 先完成时结束（另一个会被丢弃）：</p>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::future::Future;
@@ -433,15 +433,14 @@ where
 // }
 <span class="boring">}</span></code></pre>
 <blockquote>
-<p><strong>Fairness note</strong>: Our <code>Select</code> always polls A first — if both are ready, A
-always wins. Tokio’s <code>select!</code> macro randomizes the poll order for fairness.</p>
+<p><strong>公平性说明</strong>：我们的 <code>Select</code> 总是先轮询 A——若两者都已就绪，A 总是获胜。Tokio 的 <code>select!</code> 宏会随机化轮询顺序以保证公平性。</p>
 </blockquote>
 <details>
-<summary><strong>🏋️ Exercise: Build a RetryFuture</strong> (click to expand)</summary>
-<p><strong>Challenge</strong>: Build a <code>RetryFuture&lt;F, Fut&gt;</code> that takes a closure <code>F: Fn() -&gt; Fut</code> and retries up to N times if the inner future returns <code>Err</code>. It should return the first <code>Ok</code> result or the last <code>Err</code>.</p>
-<p><em>Hint</em>: You’ll need states for “running attempt” and “all attempts exhausted.”</p>
+<summary><strong>🏋️ 练习：构建 RetryFuture</strong>（点击展开）</summary>
+<p><strong>挑战</strong>：构建一个 <code>RetryFuture&lt;F, Fut&gt;</code>，它接受闭包 <code>F: Fn() -&gt; Fut</code>，若内部 future 返回 <code>Err</code> 则最多重试 N 次。应返回第一个 <code>Ok</code> 结果，或最后一次 <code>Err</code>。</p>
+<p><em>提示</em>：你需要「正在执行尝试」和「所有尝试已耗尽」等状态。</p>
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 <pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
 </span><span class="boring">fn main() {
 </span>use std::future::Future;
@@ -514,20 +513,20 @@ where
 //     http_get("https://flaky-server.com/api").await
 // }).await;
 <span class="boring">}</span></code></pre>
-<p><strong>Key takeaway</strong>: The retry future is itself a state machine: it holds the current attempt and creates new inner futures on failure. Wrapping the inner future in <code>Pin&lt;Box&lt;Fut&gt;&gt;</code> removes the <code>Fut: Unpin</code> bound — since <code>Pin&lt;Box&lt;T&gt;&gt;</code> is always <code>Unpin</code>, the struct remains easy to work with while supporting any future type. This is how combinators compose — futures all the way down.</p>
+<p><strong>要点</strong>：重试 future 本身也是状态机：它持有当前尝试，失败时创建新的内部 future。将内部 future 包在 <code>Pin&lt;Box&lt;Fut&gt;&gt;</code> 中可去掉 <code>Fut: Unpin</code> 约束——因为 <code>Pin&lt;Box&lt;T&gt;&gt;</code> 始终是 <code>Unpin</code>，结构体仍易于使用，同时支持任意 future 类型。组合子就是这样组合的——层层嵌套的 future。</p>
 </details>
 </details>
 <blockquote>
-<p><strong>Key Takeaways — Building Futures by Hand</strong></p>
+<p><strong>要点回顾 — 手动构建 Future</strong></p>
 <ul>
-<li>A future needs three things: state, a <code>poll()</code> implementation, and a waker registration</li>
-<li><code>Join</code> polls both sub-futures; <code>Select</code> returns whichever finishes first</li>
-<li>Combinators are themselves futures wrapping other futures — it’s turtles all the way down</li>
-<li>Building futures by hand gives deep insight, but in production use <code>tokio::join!</code>/<code>select!</code></li>
+<li>一个 future 需要三样东西：状态、<code>poll()</code> 实现，以及 waker 注册</li>
+<li><code>Join</code> 轮询两个子 future；<code>Select</code> 返回先完成的那一个</li>
+<li>组合子本身也是包装其他 future 的 future——层层嵌套</li>
+<li>手动构建 future 能加深理解，但生产环境请用 <code>tokio::join!</code>/<code>select!</code></li>
 </ul>
 </blockquote>
 <blockquote>
-<p><strong>See also:</strong> <a href="ch02-the-future-trait.html">Ch 2 — The Future Trait</a> for the trait definition, <a href="ch08-tokio-deep-dive.html">Ch 8 — Tokio Deep Dive</a> for production-grade equivalents</p>
+<p><strong>另见：</strong> <a href="ch02-the-future-trait.html">第 2 章 — Future Trait</a> 了解 Trait 定义，<a href="ch08-tokio-deep-dive.html">第 8 章 — Tokio 深入</a> 了解生产级等价实现</p>
 </blockquote>
 <hr>
                     </main>
