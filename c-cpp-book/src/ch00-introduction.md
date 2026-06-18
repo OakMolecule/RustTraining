@@ -1,10 +1,10 @@
 # 面向 C/C++ 程序员的 Rust 入门课程
 
 > **版权与署名说明（非官方译本）**
-> 本文档为 [microsoft/RustTraining](https://github.com/microsoft/RustTraining) 中 `c-cpp-book` 的中文翻译与改编版本。
-> 译文主要由 AI 生成，未经过人工校对与修订。
-> 原作版权归 Microsoft Corporation 所有；文档许可为 [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)。
-> 本译本为社区非官方版本，不代表 Microsoft 官方立场。
+> - 本文档为 [microsoft/RustTraining](https://github.com/microsoft/RustTraining) 中 `c-cpp-book` 的中文翻译与改编版本。
+> - 译文主要由 AI 生成，未经过人工校对与修订。
+> - 原作版权归 Microsoft Corporation 所有；文档许可为 [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)。
+> - 本译本为社区非官方版本，不代表 Microsoft 官方立场。
 
 ## 课程概览
 - 课程概览

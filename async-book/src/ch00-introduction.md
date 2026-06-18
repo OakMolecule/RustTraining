@@ -1,10 +1,10 @@
 # Async Rust：从 Future 到生产实践
 
 > **版权与署名说明（非官方译本）**
-> 本文档为 [microsoft/RustTraining](https://github.com/microsoft/RustTraining) 中 `async-book` 的中文翻译与改编版本。
-> 译文主要由 AI 生成，未经过人工校对与修订。
-> 原作版权归 Microsoft Corporation 所有；文档许可为 [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)。
-> 本译本为社区非官方版本，不代表 Microsoft 官方立场。
+> - 本文档为 [microsoft/RustTraining](https://github.com/microsoft/RustTraining) 中 `async-book` 的中文翻译与改编版本。
+> - 译文主要由 AI 生成，未经过人工校对与修订。
+> - 原作版权归 Microsoft Corporation 所有；文档许可为 [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)。
+> - 本译本为社区非官方版本，不代表 Microsoft 官方立场。
 
 ## 讲师介绍
 
