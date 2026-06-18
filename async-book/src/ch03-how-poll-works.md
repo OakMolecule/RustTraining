@@ -1,31 +1,31 @@
-# 3. How Poll Works 🟡
+# 3. Poll 如何工作 🟡
 
-> **What you'll learn:**
-> - The executor's poll loop: poll → pending → wake → poll again
-> - How to build a minimal executor from scratch
-> - Spurious wake rules and why they matter
-> - Utility functions: `poll_fn()` and `yield_now()`
+> **你将学到：**
+> - 执行器的 poll 循环：poll → pending → wake → 再次 poll
+> - 如何从零构建最小执行器
+> - 虚假唤醒（spurious wake）规则及其重要性
+> - 实用函数：`poll_fn()` 和 `yield_now()`
 
-## The Polling State Machine
+## 轮询状态机
 
-The executor runs a loop: poll a future, if it's `Pending`, park it until its waker fires, then poll again. This is fundamentally different from OS threads where the kernel handles scheduling.
+执行器运行一个循环：poll future，若为 `Pending` 则停放它直到 waker 触发，然后再次 poll。这与 OS 线程根本不同——后者由内核负责调度。
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Idle : Future created
-    Idle --> Polling : executor calls poll()
+    [*] --> Idle : Future 已创建
+    Idle --> Polling : 执行器调用 poll()
     Polling --> Complete : Ready(value)
     Polling --> Waiting : Pending
-    Waiting --> Polling : waker.wake() called
-    Complete --> [*] : Value returned
+    Waiting --> Polling : 调用 waker.wake()
+    Complete --> [*] : 返回值
 ```
 
-> **Important:** While in the *Waiting* state the future **must** have registered
-> the waker with an I/O source. No registration = hang forever.
+> **重要：** 在 *Waiting* 状态下，future **必须**已向 I/O 源注册了
+> waker。未注册 = 永远挂起。
 
-### A Minimal Executor
+### 最小执行器
 
-To demystify executors, let's build the simplest possible one:
+为揭开执行器的面纱，我们来构建最简单的一个：
 
 ```rust
 use std::future::Future;
@@ -74,13 +74,13 @@ fn main() {
 }
 ```
 
-> **Don't use this in production!** It busy-loops, wasting CPU. Real executors
-> (tokio, smol) use `epoll`/`kqueue`/`io_uring` to sleep until I/O is ready.
-> But this shows the core idea: an executor is just a loop that calls `poll()`.
+> **不要在生产环境使用！** 它会忙循环，浪费 CPU。真正的执行器
+> （tokio、smol）使用 `epoll`/`kqueue`/`io_uring` 休眠直到 I/O 就绪。
+> 但这展示了核心思想：执行器就是一个调用 `poll()` 的循环。
 
-### Wake-Up Notifications
+### 唤醒通知
 
-A real executor is event-driven. When all futures are `Pending`, the executor sleeps. The waker is an interrupt mechanism:
+真正的执行器是事件驱动的。当所有 future 都是 `Pending` 时，执行器休眠。waker 是一种中断机制：
 
 ```rust
 // Conceptual model of a real executor's main loop:
@@ -101,9 +101,9 @@ fn executor_loop(tasks: &mut TaskQueue) {
 }
 ```
 
-### Spurious Wakes
+### 虚假唤醒
 
-A future may be polled even when its I/O isn't ready. This is called a *spurious wake*. Futures must handle this correctly:
+future 可能在其 I/O 尚未就绪时就被 poll。这称为*虚假唤醒*（spurious wake）。future 必须正确处理这种情况：
 
 ```rust
 impl Future for MyFuture {
@@ -126,21 +126,21 @@ impl Future for MyFuture {
 }
 ```
 
-**Rules for implementing `poll()`**:
-1. **Never block** — return `Pending` immediately if not ready
-2. **Always re-register the waker** — it may have changed between polls
-3. **Handle spurious wakes** — check the actual condition, don't assume readiness
-4. **Don't poll after `Ready`** — behavior is **unspecified** (may panic, return `Pending`, or repeat `Ready`). Only `FusedFuture` guarantees safe post-completion polling
+**实现 `poll()` 的规则**：
+1. **绝不阻塞** — 若未就绪，立即返回 `Pending`
+2. **始终重新注册 waker** — 两次 poll 之间它可能已改变
+3. **处理虚假唤醒** — 检查实际条件，不要假设已就绪
+4. **不要在 `Ready` 之后 poll** — 行为是**未定义的**（可能 panic、返回 `Pending` 或重复 `Ready`）。只有 `FusedFuture` 保证完成后 poll 是安全的
 
 <details>
-<summary><strong>🏋️ Exercise: Spurious-Wake-Safe Flag Future</strong> (click to expand)</summary>
+<summary><strong>🏋️ 练习：可应对虚假唤醒的 Flag Future</strong>（点击展开）</summary>
 
-**Challenge**: Implement a `FlagFuture` that wraps a shared `Arc<AtomicBool>` flag. When polled, it checks whether the flag is `true`. If so, it completes with `Ready(())`. If not, it stores the waker and returns `Pending`. The twist: the future must handle **spurious wakes** correctly — it must re-check the flag on every poll, never assuming the flag is set just because it was woken.
+**挑战**：实现一个 `FlagFuture`，包装共享的 `Arc<AtomicBool>` 标志。被 poll 时，检查标志是否为 `true`。若是，以 `Ready(())` 完成。若否，存储 waker 并返回 `Pending`。难点：future 必须正确处理**虚假唤醒**——每次 poll 都要重新检查标志，绝不能仅因被唤醒就假设标志已设置。
 
-*Hint*: You'll need an `Arc<Mutex<Option<Waker>>>` (or similar) so an external thread can set the flag and wake the future. Use `poll_fn` for a concise alternative solution.
+*提示*：你需要 `Arc<Mutex<Option<Waker>>>`（或类似结构），以便外部线程可以设置标志并唤醒 future。也可用 `poll_fn` 写出更简洁的替代方案。
 
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 
 ```rust
 use std::future::Future;
@@ -204,14 +204,14 @@ fn set_flag(flag: &AtomicBool, waker_slot: &Mutex<Option<Waker>>) {
 // }
 ```
 
-**Key takeaway**: The double-check pattern (check → store waker → check again) is essential to avoid a race between the condition changing and the waker being registered. This is the real-world pattern that all I/O futures use internally, and it demonstrates why handling spurious wakes matters.
+**要点**：双重检查模式（检查 → 存储 waker → 再次检查）对于避免条件变化与 waker 注册之间的竞态至关重要。这是所有 I/O future 内部使用的真实模式，也说明了为何处理虚假唤醒很重要。
 
 </details>
 </details>
 
-### Handy Utilities: `poll_fn` and `yield_now`
+### 实用工具：`poll_fn` 和 `yield_now`
 
-Two utilities from the standard library and tokio that avoid writing full `Future` impls:
+标准库和 tokio 提供的两个工具，可避免编写完整的 `Future` 实现：
 
 ```rust
 use std::future::poll_fn;
@@ -244,17 +244,16 @@ async fn cpu_heavy_work(items: &[Item]) {
 }
 ```
 
-> **When to use `yield_now()`**: If your async function does CPU work in a loop
-> without any `.await` points, it monopolizes the executor thread. Insert
-> `yield_now().await` periodically to enable cooperative multitasking.
+> **何时使用 `yield_now()`**：若你的异步函数在循环中做 CPU 工作且没有任何 `.await` 点，它会独占执行器线程。定期插入
+> `yield_now().await` 以实现协作式多任务。
 
-> **Key Takeaways — How Poll Works**
-> - An executor repeatedly calls `poll()` on futures that have been woken
-> - Futures must handle **spurious wakes** — always re-check the actual condition
-> - `poll_fn()` lets you create ad-hoc futures from closures
-> - `yield_now()` is a cooperative scheduling escape hatch for CPU-heavy async code
+> **要点回顾 — Poll 如何工作**
+> - 执行器反复对已唤醒的 future 调用 `poll()`
+> - future 必须处理**虚假唤醒**——始终重新检查实际条件
+> - `poll_fn()` 让你用闭包创建临时 future
+> - `yield_now()` 是 CPU 密集型异步代码的协作式调度逃生口
 
-> **See also:** [Ch 2 — The Future Trait](ch02-the-future-trait.md) for the trait definition, [Ch 5 — The State Machine Reveal](ch05-the-state-machine-reveal.md) for what the compiler generates
+> **另见：** [第 2 章 — Future Trait](ch02-the-future-trait.md) 了解 trait 定义，[第 5 章 — 状态机揭秘](ch05-the-state-machine-reveal.md) 了解编译器生成了什么
 
 ***
 

@@ -1,16 +1,16 @@
-# 5. The State Machine Reveal 🟢
+# 5. 状态机揭秘 🟢
 
-> **What you'll learn:**
-> - How the compiler transforms `async fn` into an enum state machine
-> - Side-by-side comparison: source code vs generated states
-> - Why large stack allocations in `async fn` blow up future sizes
-> - The drop optimization: values drop as soon as they're no longer needed
+> **你将学到：**
+> - 编译器如何将 `async fn` 变换为枚举状态机
+> - 并排对比：源代码 vs 生成的状态
+> - 为何 `async fn` 中的大型栈分配会撑大 future 尺寸
+> - drop 优化：值在不再需要时立即释放
 
-## What the Compiler Actually Generates
+## 编译器实际生成了什么
 
-When you write `async fn`, the compiler transforms your sequential-looking code into an enum-based state machine. Understanding this transformation is the key to understanding async Rust's performance characteristics and many of its quirks.
+当你写 `async fn` 时，编译器把你的顺序式代码变换为基于枚举的状态机。理解这一变换是理解异步 Rust 性能特征及其诸多怪异行为的关键。
 
-### Side-by-Side: async fn vs State Machine
+### 并排对比：async fn 与状态机
 
 ```rust
 // What you write:
@@ -21,7 +21,7 @@ async fn fetch_two_pages() -> String {
 }
 ```
 
-The compiler generates something conceptually like this:
+编译器在概念上生成类似下面的代码：
 
 ```rust
 enum FetchTwoPagesStateMachine {
@@ -77,31 +77,31 @@ impl Future for FetchTwoPagesStateMachine {
 }
 ```
 
-> **Note**: This desugaring is *conceptual*. The real compiler output uses
-> `unsafe` pin projections — the `get_mut()` calls shown here require
-> `Unpin`, but async state machines are `!Unpin`. The goal is to illustrate
-> state transitions, not produce compilable code.
+> **注意**：这种脱糖（desugaring）是*概念性的*。真实编译器输出使用
+> `unsafe` pin 投影——此处展示的 `get_mut()` 调用需要
+> `Unpin`，但异步状态机是 `!Unpin`。目的是说明
+> 状态转换，而非产出可编译代码。
 
 ```mermaid
 stateDiagram-v2
     [*] --> Start
-    Start --> WaitingPage1: Create http_get future #1
+    Start --> WaitingPage1: 创建 http_get future #1
     WaitingPage1 --> WaitingPage1: poll() → Pending
     WaitingPage1 --> WaitingPage2: poll() → Ready(page1)
     WaitingPage2 --> WaitingPage2: poll() → Pending
     WaitingPage2 --> Complete: poll() → Ready(page2)
-    Complete --> [*]: Return format!("{page1}\\n{page2}")
+    Complete --> [*]: 返回 format!("{page1}\\n{page2}")
 ```
 
-> **State contents:**
-> - **WaitingPage1** — stores `fut1: HttpGetFuture` (page2 not yet allocated)
-> - **WaitingPage2** — stores `page1: String`, `fut2: HttpGetFuture` (fut1 has been dropped)
+> **各状态内容：**
+> - **WaitingPage1** — 存储 `fut1: HttpGetFuture`（page2 尚未分配）
+> - **WaitingPage2** — 存储 `page1: String`、`fut2: HttpGetFuture`（fut1 已被 drop）
 
-### Why This Matters for Performance
+### 为何这对性能很重要
 
-**Zero-cost**: The state machine is a stack-allocated enum. No heap allocation per future, no garbage collector, no boxing — unless you explicitly use `Box::pin()`.
+**零成本**：状态机是栈分配的枚举。每个 future 无需堆分配、无垃圾回收器、无装箱——除非你显式使用 `Box::pin()`。
 
-**Size**: The enum's size is the maximum of all its variants. Each `.await` point creates a new variant. This means:
+**尺寸**：枚举的大小是其所有变体中的最大值。每个 `.await` 点创建一个新变体。这意味着：
 
 ```rust
 async fn small() {
@@ -123,18 +123,18 @@ async fn big() {
 // Use Vec<u8> or Box<[u8]> instead.
 ```
 
-**Drop optimization**: When a state machine transitions, it drops values no longer needed. In the example above, `fut1` is dropped when we transition from `WaitingPage1` to `WaitingPage2` — the compiler inserts the drop automatically.
+**drop 优化**：状态机转换时，会 drop 不再需要的值。在上例中，从 `WaitingPage1` 转换到 `WaitingPage2` 时 `fut1` 被 drop——编译器会自动插入 drop。
 
-> **Practical rule**: Large stack allocations in `async fn` blow up the future's
-> size. If you see stack overflows in async code, check for large arrays or
-> deeply nested futures. Use `Box::pin()` to heap-allocate sub-futures if needed.
+> **实用规则**：`async fn` 中的大型栈分配会撑大 future 的
+> 尺寸。若在异步代码中出现栈溢出，检查是否有大型数组或
+> 深度嵌套的 future。必要时用 `Box::pin()` 在堆上分配子 future。
 
-### Exercise: Predict the State Machine
+### 练习：预测状态机
 
 <details>
-<summary>🏋️ Exercise (click to expand)</summary>
+<summary>🏋️ 练习（点击展开）</summary>
 
-**Challenge**: Given this async function, sketch the state machine the compiler generates. How many states (enum variants) does it have? What values are stored in each?
+**挑战**：给定以下异步函数，勾勒编译器生成的状态机。有多少个状态（枚举变体）？每个状态存储什么值？
 
 ```rust
 async fn pipeline(url: &str) -> Result<usize, Error> {
@@ -146,28 +146,28 @@ async fn pipeline(url: &str) -> Result<usize, Error> {
 ```
 
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 
-Five states:
+五个状态：
 
-1. **Start** — stores `url`
-2. **WaitingFetch** — stores `url`, `fetch` future
-3. **WaitingText** — stores `response`, `text()` future
-4. **WaitingParse** — stores `body`, `parse` future
-5. **Done** — returned `Ok(parsed.len())`
+1. **Start** — 存储 `url`
+2. **WaitingFetch** — 存储 `url`、`fetch` future
+3. **WaitingText** — 存储 `response`、`text()` future
+4. **WaitingParse** — 存储 `body`、`parse` future
+5. **Done** — 返回 `Ok(parsed.len())`
 
-Each `.await` creates a yield point = a new enum variant. The `?` adds early-exit paths but doesn't add extra states — it's just a `match` on the `Poll::Ready` value.
+每个 `.await` 创建一个让出点 = 一个新的枚举变体。`?` 增加提前退出路径但不增加额外状态——它只是在 `Poll::Ready` 值上做 `match`。
 
 </details>
 </details>
 
-> **Key Takeaways — The State Machine Reveal**
-> - `async fn` compiles to an enum with one variant per `.await` point
-> - The future's **size** = max of all variant sizes — large stack values blow it up
-> - The compiler inserts **drops** at state transitions automatically
-> - Use `Box::pin()` or heap allocation when future size becomes a problem
+> **要点回顾 — 状态机揭秘**
+> - `async fn` 编译为枚举，每个 `.await` 点对应一个变体
+> - future 的**尺寸** = 所有变体尺寸的最大值——大型栈值会撑大它
+> - 编译器在状态转换时自动插入 **drop**
+> - future 尺寸成为问题时，使用 `Box::pin()` 或堆分配
 
-> **See also:** [Ch 4 — Pin and Unpin](ch04-pin-and-unpin.md) for why the generated enum needs pinning, [Ch 6 — Building Futures by Hand](ch06-building-futures-by-hand.md) to build these state machines yourself
+> **另见：** [第 4 章 — Pin 与 Unpin](ch04-pin-and-unpin.md) 了解生成的枚举为何需要固定，[第 6 章 — 手写 Future](ch06-building-futures-by-hand.md) 了解如何自己构建这些状态机
 
 ***
 

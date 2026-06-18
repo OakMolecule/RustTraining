@@ -1,16 +1,16 @@
-# 6. Building Futures by Hand 🟡
+# 6. 手动构建 Future 🟡
 
-> **What you'll learn:**
-> - Implementing a `TimerFuture` with thread-based waking
-> - Building a `Join` combinator: run two futures concurrently
-> - Building a `Select` combinator: race two futures
-> - How combinators compose — futures all the way down
+> **你将学到：**
+> - 用基于线程的唤醒实现 `TimerFuture`
+> - 构建 `Join` 组合子：并发运行两个 future
+> - 构建 `Select` 组合子：让两个 future 竞速
+> - 组合子如何组合——层层嵌套的 future
 
-## A Simple Timer Future
+## 一个简单的 Timer Future
 
-Now let's build real, useful futures from scratch. This cements the theory from chapters 2-5.
+现在让我们从零开始构建真正有用的 future。这能巩固第 2–5 章的理论。
 
-### TimerFuture: A Complete Example
+### TimerFuture：完整示例
 
 ```rust
 use std::future::Future;
@@ -80,9 +80,9 @@ impl Future for TimerFuture {
 // timer wheel and requires zero extra threads.
 ```
 
-### Join: Running Two Futures Concurrently
+### Join：并发运行两个 Future
 
-`Join` polls two futures and completes when *both* finish. This is how `tokio::join!` works internally:
+`Join` 会轮询两个 future，并在*两者都*完成时结束。这就是 `tokio::join!` 的内部实现方式：
 
 ```rust
 use std::future::Future;
@@ -175,18 +175,18 @@ where
 // Both requests run concurrently!
 ```
 
-> **Key insight**: "Concurrent" here means *interleaved on the same thread*.
-> Join doesn't spawn threads — it polls both futures in the same `poll()` call.
-> This is cooperative concurrency, not parallelism.
+> **关键洞见**：此处的「并发」指*在同一线程上交错执行*。
+> `Join` 不会创建线程——它在同一次 `poll()` 调用中轮询两个 future。
+> 这是协作式并发（cooperative concurrency），而非并行（parallelism）。
 
 ```mermaid
 graph LR
-    subgraph "Future Combinators"
+    subgraph "Future 组合子"
         direction TB
-        TIMER["TimerFuture<br/>Single future, wake after delay"]
-        JOIN["Join&lt;A, B&gt;<br/>Wait for BOTH"]
-        SELECT["Select&lt;A, B&gt;<br/>Wait for FIRST"]
-        RETRY["RetryFuture<br/>Re-create on failure"]
+        TIMER["TimerFuture<br/>单个 future，延迟后唤醒"]
+        JOIN["Join&lt;A, B&gt;<br/>等待两者都完成"]
+        SELECT["Select&lt;A, B&gt;<br/>等待先完成者"]
+        RETRY["RetryFuture<br/>失败时重新创建"]
     end
 
     TIMER --> JOIN
@@ -199,9 +199,9 @@ graph LR
     style RETRY fill:#fadbd8,stroke:#e74c3c,color:#000
 ```
 
-### Select: Racing Two Futures
+### Select：让两个 Future 竞速
 
-`Select` completes when *either* future finishes first (the other is dropped):
+`Select` 在*任一* future 先完成时结束（另一个会被丢弃）：
 
 ```rust
 use std::future::Future;
@@ -258,18 +258,17 @@ where
 // }
 ```
 
-> **Fairness note**: Our `Select` always polls A first — if both are ready, A
-> always wins. Tokio's `select!` macro randomizes the poll order for fairness.
+> **公平性说明**：我们的 `Select` 总是先轮询 A——若两者都已就绪，A 总是获胜。Tokio 的 `select!` 宏会随机化轮询顺序以保证公平性。
 
 <details>
-<summary><strong>🏋️ Exercise: Build a RetryFuture</strong> (click to expand)</summary>
+<summary><strong>🏋️ 练习：构建 RetryFuture</strong>（点击展开）</summary>
 
-**Challenge**: Build a `RetryFuture<F, Fut>` that takes a closure `F: Fn() -> Fut` and retries up to N times if the inner future returns `Err`. It should return the first `Ok` result or the last `Err`.
+**挑战**：构建一个 `RetryFuture<F, Fut>`，它接受闭包 `F: Fn() -> Fut`，若内部 future 返回 `Err` 则最多重试 N 次。应返回第一个 `Ok` 结果，或最后一次 `Err`。
 
-*Hint*: You'll need states for "running attempt" and "all attempts exhausted."
+*提示*：你需要「正在执行尝试」和「所有尝试已耗尽」等状态。
 
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 
 ```rust
 use std::future::Future;
@@ -343,19 +342,18 @@ where
 // }).await;
 ```
 
-**Key takeaway**: The retry future is itself a state machine: it holds the current attempt and creates new inner futures on failure. Wrapping the inner future in `Pin<Box<Fut>>` removes the `Fut: Unpin` bound — since `Pin<Box<T>>` is always `Unpin`, the struct remains easy to work with while supporting any future type. This is how combinators compose — futures all the way down.
+**要点**：重试 future 本身也是状态机：它持有当前尝试，失败时创建新的内部 future。将内部 future 包在 `Pin<Box<Fut>>` 中可去掉 `Fut: Unpin` 约束——因为 `Pin<Box<T>>` 始终是 `Unpin`，结构体仍易于使用，同时支持任意 future 类型。组合子就是这样组合的——层层嵌套的 future。
 
 </details>
 </details>
 
-> **Key Takeaways — Building Futures by Hand**
-> - A future needs three things: state, a `poll()` implementation, and a waker registration
-> - `Join` polls both sub-futures; `Select` returns whichever finishes first
-> - Combinators are themselves futures wrapping other futures — it's turtles all the way down
-> - Building futures by hand gives deep insight, but in production use `tokio::join!`/`select!`
+> **要点回顾 — 手动构建 Future**
+> - 一个 future 需要三样东西：状态、`poll()` 实现，以及 waker 注册
+> - `Join` 轮询两个子 future；`Select` 返回先完成的那一个
+> - 组合子本身也是包装其他 future 的 future——层层嵌套
+> - 手动构建 future 能加深理解，但生产环境请用 `tokio::join!`/`select!`
 
-> **See also:** [Ch 2 — The Future Trait](ch02-the-future-trait.md) for the trait definition, [Ch 8 — Tokio Deep Dive](ch08-tokio-deep-dive.md) for production-grade equivalents
+> **另见：** [第 2 章 — Future Trait](ch02-the-future-trait.md) 了解 Trait 定义，[第 8 章 — Tokio 深入](ch08-tokio-deep-dive.md) 了解生产级等价实现
 
 ***
-
 

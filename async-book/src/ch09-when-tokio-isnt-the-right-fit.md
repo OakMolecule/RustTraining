@@ -1,22 +1,22 @@
-# 9. When Tokio Isn't the Right Fit 🟡
+# 9. 何时不该用 Tokio 🟡
 
-> **What you'll learn:**
-> - The `'static` problem: when `tokio::spawn` forces you into `Arc` everywhere
-> - `LocalSet` for `!Send` futures
-> - `FuturesUnordered` for borrow-friendly concurrency (no spawn needed)
-> - `JoinSet` for managed task groups
-> - Writing runtime-agnostic libraries
+> **你将学到：**
+> - `'static` 问题：`tokio::spawn` 如何迫使你到处使用 `Arc`
+> - 面向 `!Send` future 的 `LocalSet`
+> - 便于借用的并发：`FuturesUnordered`（无需 spawn）
+> - 可管理的任务组：`JoinSet`
+> - 编写与运行时无关的库
 
 ```mermaid
 graph TD
-    START["Need concurrent futures?"] --> STATIC{"Can futures be 'static?"}
-    STATIC -->|Yes| SEND{"Are futures Send?"}
-    STATIC -->|No| FU["FuturesUnordered<br/>Runs on current task"]
-    SEND -->|Yes| SPAWN["tokio::spawn<br/>Multi-threaded"]
-    SEND -->|No| LOCAL["LocalSet<br/>Single-threaded"]
-    SPAWN --> MANAGE{"Need to track/abort tasks?"}
-    MANAGE -->|Yes| JOINSET["JoinSet / TaskTracker"]
-    MANAGE -->|No| HANDLE["JoinHandle"]
+    START["需要并发 future？"] --> STATIC{"future 能否是 'static？"}
+    STATIC -->|是| SEND{"future 是否 Send？"}
+    STATIC -->|否| FU["FuturesUnordered<br/>在当前任务上运行"]
+    SEND -->|是| SPAWN["tokio::spawn<br/>多线程"]
+    SEND -->|否| LOCAL["LocalSet<br/>单线程"]
+    SPAWN --> MANAGE{"需要跟踪/取消任务？"}
+    MANAGE -->|是| JOINSET["JoinSet / TaskTracker"]
+    MANAGE -->|否| HANDLE["JoinHandle"]
 
     style START fill:#f5f5f5,stroke:#333,color:#000
     style FU fill:#d4efdf,stroke:#27ae60,color:#000
@@ -26,9 +26,9 @@ graph TD
     style HANDLE fill:#e8f4f8,stroke:#2980b9,color:#000
 ```
 
-## The 'static Future Problem
+## 'static Future 问题
 
-Tokio's `spawn` requires `'static` futures. This means you can't borrow local data in spawned tasks:
+Tokio 的 `spawn` 要求 `'static` future。这意味着你不能在 spawn 的任务里借用局部数据：
 
 ```rust
 async fn process_items(items: &[String]) {
@@ -58,12 +58,11 @@ async fn process_items(items: &[String]) {
 }
 ```
 
-This is annoying! In Go, you can just `go func() { use(item) }` with a closure. In Rust, the ownership system forces you to think about who owns what and how long it lives.
+这很烦人！在 Go 里你可以 `go func() { use(item) }` 用闭包就行。在 Rust 里，所有权系统迫使你思考谁拥有什么、能活多久。
 
-### Alternatives to `tokio::spawn`
+### `tokio::spawn` 的替代方案
 
-Not every problem requires `spawn`. Here are three tools that each solve a
-*different* constraint:
+并非每个问题都需要 `spawn`。下面三个工具各自解决*不同*约束：
 
 ```rust
 // 1. FuturesUnordered — avoids 'static entirely (no spawn!)
@@ -121,17 +120,17 @@ async fn with_joinset() {
 }
 ```
 
-> **Which tool solves which problem?**
+> **哪种工具解决哪种问题？**
 >
-> | Constraint you hit | Tool | Avoids `'static`? | Avoids `Send`? |
+> | 遇到的约束 | 工具 | 避免 `'static`？ | 避免 `Send`？ |
 > |---|---|---|---|
-> | Can't make futures `'static` | `FuturesUnordered` | ✅ Yes | ✅ Yes |
-> | Futures are `'static` but `!Send` | `LocalSet` | ❌ No | ✅ Yes |
-> | Need to track / abort spawned tasks | `JoinSet` | ❌ No | ❌ No |
+> | 无法让 future 成为 `'static` | `FuturesUnordered` | ✅ 是 | ✅ 是 |
+> | future 是 `'static` 但 `!Send` | `LocalSet` | ❌ 否 | ✅ 是 |
+> | 需要跟踪 / 取消 spawn 的任务 | `JoinSet` | ❌ 否 | ❌ 否 |
 
-### Lightweight Runtimes for Libraries
+### 库的轻量运行时
 
-If you're writing a library — don't force users into tokio:
+如果你在写库——不要把用户绑死在 tokio 上：
 
 ```rust
 // ❌ BAD: Library forces tokio on users
@@ -166,19 +165,19 @@ where
 }
 ```
 
-> **Rule of thumb**: Libraries should depend on `futures` crate, not `tokio`.
-> Applications should depend on `tokio` (or their chosen runtime).
-> This keeps the ecosystem composable.
+> **经验法则**：库应依赖 `futures` crate，而非 `tokio`。
+> 应用应依赖 `tokio`（或所选运行时）。
+> 这样生态才能可组合。
 
 <details>
-<summary><strong>🏋️ Exercise: FuturesUnordered vs Spawn</strong> (click to expand)</summary>
+<summary><strong>🏋️ 练习：FuturesUnordered 与 Spawn</strong>（点击展开）</summary>
 
-**Challenge**: Write the same function two ways — once using `tokio::spawn` (requires `'static`) and once using `FuturesUnordered` (borrows data). The function receives `&[String]` and returns the length of each string after a simulated async lookup.
+**挑战**：用两种方式写同一函数——一次用 `tokio::spawn`（需要 `'static`），一次用 `FuturesUnordered`（可借用数据）。函数接收 `&[String]`，在模拟异步查找后返回每个字符串的长度。
 
-Compare: Which approach requires `.clone()`? Which can borrow the input slice?
+对比：哪种方式需要 `.clone()`？哪种可以借用输入切片？
 
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 
 ```rust
 use futures::stream::{FuturesUnordered, StreamExt};
@@ -230,19 +229,18 @@ async fn test_both_versions() {
 }
 ```
 
-**Key takeaway**: `FuturesUnordered` avoids the `'static` requirement by running all futures on the current task (no thread migration). The trade-off: all futures share one task — if one blocks, the others stall. Use `spawn` for CPU-heavy work that should run on separate threads.
+**要点**：`FuturesUnordered` 通过在当前任务上运行所有 future（无线程迁移）避免 `'static` 要求。代价：所有 future 共享一个任务——若一个阻塞，其他也会停滞。CPU 密集型、应在独立线程运行的工作请用 `spawn`。
 
 </details>
 </details>
 
-> **Key Takeaways — When Tokio Isn't the Right Fit**
-> - `FuturesUnordered` runs futures concurrently on the current task — no `'static` requirement
-> - `LocalSet` enables `!Send` futures on a single-threaded executor
-> - `JoinSet` (tokio 1.21+) provides managed task groups with automatic cleanup
-> - For libraries: depend only on `std::future::Future` + `futures` crate, not tokio directly
+> **要点回顾 — 何时不该用 Tokio**
+> - `FuturesUnordered` 在当前任务上并发运行 future——无 `'static` 要求
+> - `LocalSet` 让 `!Send` future 在单线程执行器上运行
+> - `JoinSet`（tokio 1.21+）提供可管理任务组与自动清理
+> - 库：仅依赖 `std::future::Future` + `futures` crate，不要直接依赖 tokio
 
-> **See also:** [Ch 8 — Tokio Deep Dive](ch08-tokio-deep-dive.md) for when spawn is the right tool, [Ch 11 — Streams](ch11-streams-and-asynciterator.md) for `buffer_unordered()` as another concurrency limiter
+> **另见：** [第 8 章 — Tokio 深入](ch08-tokio-deep-dive.md) 了解何时 spawn 合适，[第 11 章 — Stream](ch11-streams-and-asynciterator.md) 了解 `buffer_unordered()` 作为另一种并发限制手段
 
 ***
-
 

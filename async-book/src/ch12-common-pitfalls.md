@@ -1,15 +1,15 @@
-# 12. Common Pitfalls 🔴
+# 12. 常见陷阱 🔴
 
-> **What you'll learn:**
-> - 9 common async Rust bugs and how to fix each one
-> - Why blocking the executor is the #1 mistake (and how `spawn_blocking` fixes it)
-> - Cancellation hazards: what happens when a future is dropped mid-await
-> - Debugging: `tokio-console`, `tracing`, `#[instrument]`
-> - Testing: `#[tokio::test]`, `time::pause()`, trait-based mocking
+> **你将学到：**
+> - 9 种常见异步 Rust bug 及各自的修复方法
+> - 为何阻塞执行器（executor）是头号错误（以及 `spawn_blocking` 如何修复）
+> - 取消（cancellation）风险：Future 在 `.await` 中途被丢弃时会发生什么
+> - 调试：`tokio-console`、`tracing`、`#[instrument]`
+> - 测试：`#[tokio::test]`、`time::pause()`、基于 Trait 的 mock
 
-## Blocking the Executor
+## 阻塞执行器
 
-The #1 mistake in async Rust: running blocking code on the async executor thread. This starves other tasks.
+异步 Rust 的头号错误：在异步执行器线程上运行阻塞代码。这会饿死其他任务。
 
 ```rust
 // ❌ WRONG: Blocks the entire executor thread
@@ -35,24 +35,24 @@ async fn also_good_handler() -> String {
 
 ```mermaid
 graph TB
-    subgraph "❌ Blocking Call on Executor"
-        T1_BAD["Thread 1: std::fs::read()<br/>🔴 BLOCKED for 500ms"]
-        T2_BAD["Thread 2: handling requests<br/>🟢 Working alone"]
-        TASKS_BAD["100 pending tasks<br/>⏳ Starved"]
-        T1_BAD -->|"can't poll"| TASKS_BAD
+    subgraph "❌ 在执行器上阻塞调用"
+        T1_BAD["线程 1: std::fs::read()<br/>🔴 阻塞 500ms"]
+        T2_BAD["线程 2: 处理请求<br/>🟢 独自工作"]
+        TASKS_BAD["100 个待处理任务<br/>⏳ 被饿死"]
+        T1_BAD -->|"无法 poll"| TASKS_BAD
     end
 
     subgraph "✅ spawn_blocking"
-        T1_GOOD["Thread 1: polling futures<br/>🟢 Available"]
-        T2_GOOD["Thread 2: polling futures<br/>🟢 Available"]
-        BT["Blocking pool thread:<br/>std::fs::read()<br/>🔵 Separate pool"]
-        TASKS_GOOD["100 tasks<br/>✅ All making progress"]
-        T1_GOOD -->|"polls"| TASKS_GOOD
-        T2_GOOD -->|"polls"| TASKS_GOOD
+        T1_GOOD["线程 1: poll Future<br/>🟢 可用"]
+        T2_GOOD["线程 2: poll Future<br/>🟢 可用"]
+        BT["阻塞池线程:<br/>std::fs::read()<br/>🔵 独立线程池"]
+        TASKS_GOOD["100 个任务<br/>✅ 全部推进"]
+        T1_GOOD -->|"poll"| TASKS_GOOD
+        T2_GOOD -->|"poll"| TASKS_GOOD
     end
 ```
 
-### std::thread::sleep vs tokio::time::sleep
+### std::thread::sleep 与 tokio::time::sleep
 
 ```rust
 // ❌ WRONG: Blocks the executor thread for 5 seconds
@@ -66,7 +66,7 @@ async fn good_delay() {
 }
 ```
 
-### Holding MutexGuard Across .await
+### 在 `.await` 期间持有 MutexGuard
 
 ```rust
 use std::sync::Mutex; // std Mutex — NOT async-aware
@@ -84,18 +84,11 @@ async fn bad_mutex(data: &Mutex<Vec<String>>) {
 // However, tokio::spawn(bad_mutex(data)) will fail with a Send bound error.
 ```
 
-**Why this is usually a problem** — but not always:
+**为何这通常是问题**——但并非总是：
 
-Holding a `std::sync::Mutex` across `.await` blocks the **OS thread** for the
-duration of the I/O, preventing the executor from polling other tasks on that
-thread. For short critical sections this is wasteful; for long I/O it's a
-performance trap.
+在 `.await` 期间持有 `std::sync::Mutex` 会在 I/O 持续时间内阻塞 **OS 线程**，使执行器无法在该线程上 poll 其他任务。对于短临界区这是浪费；对于长 I/O 则是性能陷阱。
 
-**However**, there are legitimate cases where you *must* hold a lock across an
-`.await` — the same way a database transaction holds a lock between read and
-commit. Dropping and re-acquiring the lock introduces a **TOCTOU (time-of-check
-to time-of-use) race**: another task can modify the data between your two
-critical sections. The right fix depends on the use case:
+**然而**，有些合法场景下你 *必须* 在 `.await` 期间持有锁——就像数据库事务在读取与提交之间持有锁一样。丢弃并重新获取锁会引入 **TOCTOU（time-of-check to time-of-use，检查时间与使用时间）竞态**：另一个任务可以在你的两个临界区之间修改数据。正确修复取决于具体用例：
 
 ```rust
 // OPTION 1: Scope the guard — works when operations are independent
@@ -128,20 +121,16 @@ async fn async_mutex(data: &AsyncMutex<Vec<String>>) {
 }
 ```
 
-> **When to use which Mutex**:
-> - `std::sync::Mutex`: Short critical sections with no `.await` inside
-> - `tokio::sync::Mutex`: When you need to hold the lock across `.await` points
->   (transactional semantics, TOCTOU avoidance)
-> - `parking_lot::Mutex`: Drop-in `std` replacement, faster, smaller, still no `.await`
+> **何时使用哪种 Mutex**：
+> - `std::sync::Mutex`：短临界区，内部无 `.await`
+> - `tokio::sync::Mutex`：需要在 `.await` 点持有锁时（事务语义、避免 TOCTOU）
+> - `parking_lot::Mutex`：`std` 的直接替代，更快更小，仍不可 `.await`
 >
-> **Rule of thumb**: Don't blindly split a critical section around an `.await`.
-> Ask whether the two halves are truly independent. If they aren't — if the
-> second half depends on state from the first — use `tokio::sync::Mutex` or
-> redesign the data flow.
+> **经验法则**：不要盲目在 `.await` 两侧拆分临界区。问自己两半是否真正独立。若不是——若后半依赖前半的状态——使用 `tokio::sync::Mutex` 或重新设计数据流。
 
-### Cancellation Hazards
+### 取消风险
 
-Dropping a future cancels it — but this can leave things in an inconsistent state:
+丢弃 Future 会取消它——但这可能使事物处于不一致状态：
 
 ```rust
 // ❌ DANGEROUS: Resource leak on cancellation
@@ -172,9 +161,9 @@ tokio::select! {
 }
 ```
 
-### No Async Drop
+### 没有异步 Drop
 
-Rust's `Drop` trait is synchronous — you **cannot** `.await` inside `drop()`. This is a frequent source of confusion:
+Rust 的 `Drop` Trait 是同步的——你 **不能** 在 `drop()` 内 `.await`。这是常见的困惑来源：
 
 ```rust
 struct DbConnection { /* ... */ }
@@ -196,9 +185,9 @@ impl Drop for DbConnection {
 }
 ```
 
-**Best practice**: Provide an explicit `async fn close(self)` method and document that callers should use it. Rely on `Drop` only as a safety net, not the primary cleanup path.
+**最佳实践**：提供显式的 `async fn close(self)` 方法，并文档说明调用者应使用它。仅将 `Drop` 作为安全网，而非主要清理路径。
 
-### select! Fairness and Starvation
+### select! 公平性与饥饿
 
 ```rust
 use tokio::sync::mpsc;
@@ -228,7 +217,7 @@ async fn fair(mut fast: mpsc::Receiver<i32>, mut slow: mpsc::Receiver<i32>) {
 }
 ```
 
-### Accidental Sequential Execution
+### 意外的顺序执行
 
 ```rust
 // ❌ SEQUENTIAL: Takes 2 seconds total
@@ -253,39 +242,38 @@ async fn also_fast() {
 }
 ```
 
-> **Trap**: `let a = fetch(url).await; let b = fetch(url).await;` is sequential!
-> The second `.await` doesn't start until the first finishes. Use `join!` or
-> `spawn` for concurrency.
+> **陷阱**：`let a = fetch(url).await; let b = fetch(url).await;` 是顺序执行！
+> 第二个 `.await` 要等第一个完成后才开始。并发请用 `join!` 或 `spawn`。
 
-## Case Study: Debugging a Hung Production Service
+## 案例研究：调试挂起的生产服务
 
-A real-world scenario: a service handles requests fine for 10 minutes, then stops responding. No errors in logs. CPU at 0%.
+真实场景：服务前 10 分钟正常处理请求，随后停止响应。日志无错误。CPU 为 0%。
 
-**Diagnosis steps:**
+**诊断步骤：**
 
-1. **Attach `tokio-console`** — reveals 200+ tasks stuck in `Pending` state
-2. **Check task details** — all waiting on the same `Mutex::lock().await`
-3. **Root cause** — one task held a `std::sync::MutexGuard` across an `.await` and panicked, poisoning the mutex. All other tasks now fail on `lock().unwrap()`
+1. **附加 `tokio-console`**——显示 200+ 个任务卡在 `Pending` 状态
+2. **查看任务详情**——全部等待同一个 `Mutex::lock().await`
+3. **根因**——一个任务在 `.await` 期间持有 `std::sync::MutexGuard` 并 panic，毒化了 mutex。其他任务在 `lock().unwrap()` 时全部失败
 
-**The fix:**
+**修复：**
 
-| Before (broken) | After (fixed) |
+| 修复前（损坏） | 修复后 |
 |-----------------|---------------|
 | `std::sync::Mutex` | `tokio::sync::Mutex` |
-| `.lock().unwrap()` across `.await` | Scope lock before `.await` |
-| No timeout on lock acquisition | `tokio::time::timeout(dur, mutex.lock())` |
-| No recovery on poisoned mutex | `tokio::sync::Mutex` doesn't poison |
+| 在 `.await` 期间 `.lock().unwrap()` | 在 `.await` 前限定锁的作用域 |
+| 获取锁无超时 | `tokio::time::timeout(dur, mutex.lock())` |
+| 毒化 mutex 无恢复 | `tokio::sync::Mutex` 不会毒化 |
 
-**Prevention checklist:**
-- [ ] Use `tokio::sync::Mutex` if the guard crosses any `.await`
-- [ ] Add `#[tracing::instrument]` to async functions for span tracking
-- [ ] Run `tokio-console` in staging to catch hung tasks early
-- [ ] Add health check endpoints that verify task responsiveness
+**预防清单：**
+- [ ] 若 guard 跨越任何 `.await`，使用 `tokio::sync::Mutex`
+- [ ] 为异步函数添加 `#[tracing::instrument]` 以跟踪 span
+- [ ] 在预发环境运行 `tokio-console`，及早发现挂起任务
+- [ ] 添加健康检查端点，验证任务响应性
 
 <details>
-<summary><strong>🏋️ Exercise: Spot the Bugs</strong> (click to expand)</summary>
+<summary><strong>🏋️ 练习：找出 Bug</strong>（点击展开）</summary>
 
-**Challenge**: Find all the async pitfalls in this code and fix them.
+**挑战**：找出以下代码中所有异步陷阱并修复。
 
 ```rust
 use std::sync::Mutex;
@@ -306,14 +294,14 @@ async fn process_requests(urls: Vec<String>) -> Vec<String> {
 ```
 
 <details>
-<summary>🔑 Solution</summary>
+<summary>🔑 解答</summary>
 
-**Bugs found:**
+**发现的 Bug：**
 
-1. **Sequential fetches** — URLs are fetched one at a time instead of concurrently
-2. **`std::thread::sleep`** — Blocks the executor thread
-3. **MutexGuard held across `.await`** — `guard` is alive when `expensive_parse` is awaited
-4. **No concurrency** — Should use `join!` or `FuturesUnordered`
+1. **顺序抓取**——URL 逐个抓取而非并发
+2. **`std::thread::sleep`**——阻塞执行器线程
+3. **在 `.await` 期间持有 MutexGuard**——`guard` 在 `expensive_parse` 被 await 时仍存活
+4. **无并发**——应使用 `join!` 或 `FuturesUnordered`
 
 ```rust
 use tokio::sync::Mutex;
@@ -342,20 +330,20 @@ async fn process_requests(urls: Vec<String>) -> Vec<String> {
 }
 ```
 
-**Key takeaway**: Often you can restructure async code to eliminate mutexes entirely. Collect results with streams/join, then process. Simpler, faster, no deadlock risk.
+**要点**：通常可以重构异步代码以完全消除 mutex。用 stream/join 收集结果，再处理。更简单、更快、无死锁风险。
 
 </details>
 </details>
 
 ---
 
-### Debugging Async Code
+### 调试异步代码
 
-Async stack traces are notoriously cryptic — they show the executor's poll loop rather than your logical call chain. Here are the essential debugging tools.
+异步堆栈跟踪出了名的晦涩——显示的是执行器的 poll 循环，而非你的逻辑调用链。以下是必备调试工具。
 
-#### tokio-console: Real-Time Task Inspector
+#### tokio-console：实时任务检查器
 
-[tokio-console](https://github.com/tokio-rs/console) gives you an `htop`-like view of every spawned task: its state, poll duration, waker activity, and resource usage.
+[tokio-console](https://github.com/tokio-rs/console) 提供类似 `htop` 的视图，展示每个已 spawn 的任务：状态、poll 时长、waker 活动与资源使用。
 
 ```toml
 # Cargo.toml
@@ -372,16 +360,16 @@ async fn main() {
 }
 ```
 
-Then in another terminal:
+然后在另一个终端：
 
 ```bash
 $ RUSTFLAGS="--cfg tokio_unstable" cargo run   # Required compile-time flag
 $ tokio-console                                # Connects to 127.0.0.1:6669
 ```
 
-#### tracing + #[instrument]: Structured Logging for Async
+#### tracing + #[instrument]：异步的结构化日志
 
-The [`tracing`](https://docs.rs/tracing) crate understands `Future` lifetimes. Spans stay open across `.await` points, giving you a logical call stack even when the OS thread has moved on:
+[`tracing`](https://docs.rs/tracing) crate 理解 `Future` 生命周期（lifetime）。Span 在 `.await` 点保持打开，即使 OS 线程已切换，也能给出逻辑调用栈：
 
 ```rust
 use tracing::{info, instrument};
@@ -396,30 +384,29 @@ async fn handle_request(user_id: u64, db_pool: &Pool) -> Result<Response> {
 }
 ```
 
-Output (with `tracing_subscriber::fmt::json()`):
+输出（使用 `tracing_subscriber::fmt::json()`）：
 
 ```json
 {"timestamp":"...","level":"INFO","span":{"name":"handle_request","user_id":"42"},"message":"looking up user"}
 {"timestamp":"...","level":"INFO","span":{"name":"handle_request","user_id":"42"},"fields":{"email":"a@b.com"},"message":"found user"}
 ```
 
-#### Debugging Checklist
+#### 调试清单
 
-| Symptom | Likely Cause | Tool |
+| 症状 | 可能原因 | 工具 |
 |---------|-------------|------|
-| Task hangs forever | Missing `.await` or deadlocked `Mutex` | `tokio-console` task view |
-| Low throughput | Blocking call on async thread | `tokio-console` poll-time histogram |
-| `Future is not Send` | Non-Send type held across `.await` | Compiler error + `#[instrument]` to locate |
-| Mysterious cancellation | Parent `select!` dropped a branch | `tracing` span lifecycle events |
+| 任务永远挂起 | 缺少 `.await` 或 `Mutex` 死锁 | `tokio-console` 任务视图 |
+| 吞吐量低 | 在异步线程上阻塞调用 | `tokio-console` poll 时间直方图 |
+| `Future is not Send` | 在 `.await` 期间持有非 `Send` 类型 | 编译器错误 + `#[instrument]` 定位 |
+| 神秘取消 | 父级 `select!` 丢弃了分支 | `tracing` span 生命周期事件 |
 
-> **Tip**: Enable `RUSTFLAGS="--cfg tokio_unstable"` to get task-level metrics
-> in tokio-console. This is a compile-time flag, not a runtime one.
+> **提示**：启用 `RUSTFLAGS="--cfg tokio_unstable"` 以在 tokio-console 中获取任务级指标。这是编译期标志，非运行时标志。
 
-### Testing Async Code
+### 测试异步代码
 
-Async code introduces unique testing challenges — you need a runtime, time control, and strategies for testing concurrent behavior.
+异步代码带来独特的测试挑战——你需要运行时、时间控制，以及测试并发行为的策略。
 
-**Basic async tests** with `#[tokio::test]`:
+**基础异步测试** 使用 `#[tokio::test]`：
 
 ```rust
 // Cargo.toml
@@ -457,7 +444,7 @@ async fn test_concurrent_behavior() {
 }
 ```
 
-**Time manipulation** — test timeouts without actually waiting:
+**时间操控**——测试超时而无需真实等待：
 
 ```rust
 use tokio::time::{self, Duration, Instant};
@@ -506,7 +493,7 @@ async fn test_deadline_exceeded() {
 }
 ```
 
-**Mocking async dependencies** — use trait objects or generics:
+**Mock 异步依赖**——使用 trait 对象或泛型：
 
 ```rust
 // Define a trait for the dependency:
@@ -574,7 +561,7 @@ async fn test_cache_miss_then_hit() {
 }
 ```
 
-**Testing channels and task communication**:
+**测试 channel 与任务通信**：
 
 ```rust
 #[tokio::test]
@@ -597,23 +584,22 @@ async fn test_producer_consumer() {
 }
 ```
 
-| Test Pattern | When to Use | Key Tool |
+| 测试模式 | 适用场景 | 关键工具 |
 |-------------|-------------|----------|
-| `#[tokio::test]` | All async tests | `tokio = { features = ["macros", "rt"] }` |
-| `time::pause()` | Testing timeouts, retries, periodic tasks | `tokio::time::pause()` |
-| Trait mocking | Testing business logic without I/O | Generic `<S: Storage>` |
-| `current_thread` flavor | Testing `!Send` types or deterministic scheduling | `#[tokio::test(flavor = "current_thread")]` |
-| `multi_thread` flavor | Testing race conditions | `#[tokio::test(flavor = "multi_thread")]` |
+| `#[tokio::test]` | 所有异步测试 | `tokio = { features = ["macros", "rt"] }` |
+| `time::pause()` | 测试超时、重试、周期性任务 | `tokio::time::pause()` |
+| Trait mock | 无 I/O 测试业务逻辑 | 泛型 `<S: Storage>` |
+| `current_thread` flavor | 测试 `!Send` 类型或确定性调度 | `#[tokio::test(flavor = "current_thread")]` |
+| `multi_thread` flavor | 测试竞态条件 | `#[tokio::test(flavor = "multi_thread")]` |
 
-> **Key Takeaways — Common Pitfalls**
-> - Never block the executor — use `spawn_blocking` for CPU/sync work
-> - Never hold a `MutexGuard` across `.await` — scope locks tightly or use `tokio::sync::Mutex`
-> - Cancellation drops the future instantly — use "cancel-safe" patterns for partial operations
-> - Use `tokio-console` and `#[tracing::instrument]` for debugging async code
-> - Test async code with `#[tokio::test]` and `time::pause()` for deterministic timing
+> **要点回顾 — 常见陷阱**
+> - 永远不要阻塞执行器——CPU/同步工作使用 `spawn_blocking`
+> - 永远不要在 `.await` 期间持有 `MutexGuard`——严格限定锁作用域或使用 `tokio::sync::Mutex`
+> - 取消会立即丢弃 Future——对部分操作使用「可安全取消」模式
+> - 使用 `tokio-console` 和 `#[tracing::instrument]` 调试异步代码
+> - 用 `#[tokio::test]` 和 `time::pause()` 进行确定性时序测试
 
-> **See also:** [Ch 8 — Tokio Deep Dive](ch08-tokio-deep-dive.md) for sync primitives, [Ch 13 — Production Patterns](ch13-production-patterns.md) for graceful shutdown and structured concurrency
+> **另见：** [第 8 章 — Tokio 深入](ch08-tokio-deep-dive.md) 了解同步原语，[第 13 章 — 生产模式](ch13-production-patterns.md) 了解优雅关闭与结构化并发
 
 ***
-
 

@@ -1,16 +1,16 @@
-# 13. Production Patterns 🔴
+# 13. 生产模式 🔴
 
-> **What you'll learn:**
-> - Graceful shutdown with `watch` channels and `select!`
-> - Backpressure: bounded channels prevent OOM
-> - Structured concurrency: `JoinSet` and `TaskTracker`
-> - Timeouts, retries, and exponential backoff
-> - Error handling: `thiserror` vs `anyhow`, the double-`?` pattern
-> - Tower: the middleware pattern used by axum, tonic, and hyper
+> **你将学到：**
+> - 使用 `watch` channel 和 `select!` 实现优雅关闭
+> - 背压（backpressure）：有界 channel 防止 OOM
+> - 结构化并发（structured concurrency）：`JoinSet` 与 `TaskTracker`
+> - 超时、重试与指数退避
+> - 错误处理：`thiserror` 与 `anyhow`、双重 `?` 模式
+> - Tower：axum、tonic、hyper 使用的中间件模式
 
-## Graceful Shutdown
+## 优雅关闭
 
-Production servers must shut down cleanly — finish in-flight requests, flush buffers, close connections:
+生产服务器必须干净关闭——完成进行中的请求、刷新缓冲区、关闭连接：
 
 ```rust
 use tokio::signal;
@@ -84,8 +84,8 @@ async fn handle_connection(conn: Connection, mut shutdown: watch::Receiver<bool>
 
 ```mermaid
 sequenceDiagram
-    participant OS as OS Signal
-    participant Main as Main Task
+    participant OS as OS 信号
+    participant Main as 主任务
     participant WCH as watch Channel
     participant W1 as Worker 1
     participant W2 as Worker 2
@@ -95,17 +95,17 @@ sequenceDiagram
     WCH-->>W1: changed()
     WCH-->>W2: changed()
 
-    Note over W1: Finish current request
-    Note over W2: Finish current request
+    Note over W1: 完成当前请求
+    Note over W2: 完成当前请求
 
-    W1-->>Main: Task complete
-    W2-->>Main: Task complete
-    Main->>Main: All workers done → exit
+    W1-->>Main: 任务完成
+    W2-->>Main: 任务完成
+    Main->>Main: 所有 worker 完成 → 退出
 ```
 
-### Backpressure with Bounded Channels
+### 有界 Channel 的背压
 
-Unbounded channels can lead to OOM if the producer is faster than the consumer. Always use bounded channels in production:
+无界 channel 在生产者快于消费者时可能导致 OOM。生产环境应始终使用有界 channel：
 
 ```rust
 use tokio::sync::mpsc;
@@ -138,9 +138,9 @@ async fn backpressure_example() {
 // Producer can fill memory indefinitely
 ```
 
-### Structured Concurrency: JoinSet and TaskTracker
+### 结构化并发：JoinSet 与 TaskTracker
 
-`JoinSet` groups related tasks and ensures they all complete:
+`JoinSet` 将相关任务分组，并确保它们全部完成：
 
 ```rust
 use tokio::task::JoinSet;
@@ -189,7 +189,7 @@ async fn with_tracker() {
 }
 ```
 
-### Timeouts and Retries
+### 超时与重试
 
 ```rust
 use tokio::time::{timeout, sleep, Duration};
@@ -239,16 +239,13 @@ where
 // }).await?;
 ```
 
-> **Production tip — add jitter**: The function above uses pure exponential backoff, but in
-> production many clients failing simultaneously will all retry at the same intervals (thundering
-> herd). Add random *jitter* — e.g., `sleep(delay + rand_jitter)` where `rand_jitter` is
-> `0..delay/4` — so retries spread out over time.
+> **生产提示 — 添加抖动（jitter）**：上述函数使用纯指数退避，但生产中大量客户端同时失败会在相同间隔重试（惊群效应，thundering herd）。添加随机 *抖动*——例如 `sleep(delay + rand_jitter)`，其中 `rand_jitter` 为 `0..delay/4`——使重试在时间上分散。
 
-### Error Handling in Async Code
+### 异步代码中的错误处理
 
-Async introduces unique error propagation challenges — spawned tasks create error boundaries, timeout errors wrap inner errors, and `?` interacts differently when futures cross task boundaries.
+异步带来独特的错误传播挑战——spawn 的任务形成错误边界，超时错误包装内部错误，`?` 在 Future 跨越任务边界时行为不同。
 
-**`thiserror` vs `anyhow`** — choosing the right tool:
+**`thiserror` 与 `anyhow`**——选择合适工具：
 
 ```rust
 // thiserror: Define typed errors for libraries and public APIs
@@ -288,13 +285,13 @@ async fn run_diagnostics() -> Result<()> {
 // anyhow prints: "GPU diagnostic failed: IPMI command failed: timeout"
 ```
 
-| Crate | Use When | Error Type | Matching |
+| Crate | 适用场景 | 错误类型 | 模式匹配 |
 |-------|----------|-----------|----------|
-| `thiserror` | Library code, public APIs | `enum MyError { ... }` | `match err { MyError::Timeout => ... }` |
-| `anyhow` | Applications, CLI tools, scripts | `anyhow::Error` (type-erased) | `err.downcast_ref::<MyError>()` |
-| Both together | Library exposes `thiserror`, app wraps with `anyhow` | Best of both | Library errors are typed, app doesn't care |
+| `thiserror` | 库代码、公开 API | `enum MyError { ... }` | `match err { MyError::Timeout => ... }` |
+| `anyhow` | 应用、CLI 工具、脚本 | `anyhow::Error`（类型擦除） | `err.downcast_ref::<MyError>()` |
+| 两者结合 | 库暴露 `thiserror`，应用用 `anyhow` 包装 | 两全其美 | 库错误有类型，应用不关心 |
 
-**The double-`?` pattern** with `tokio::spawn`:
+**与 `tokio::spawn` 的双重 `?` 模式**：
 
 ```rust
 use thiserror::Error;
@@ -321,7 +318,7 @@ async fn spawn_with_errors() -> Result<String, AppError> {
 }
 ```
 
-**The error boundary problem** — `tokio::spawn` erases context:
+**错误边界问题**——`tokio::spawn` 擦除上下文：
 
 ```rust
 // ❌ Error context is lost across spawn boundaries:
@@ -350,7 +347,7 @@ async fn good_error_handling() -> Result<()> {
 }
 ```
 
-**Timeout errors** — wrapping vs replacing:
+**超时错误**——包装 vs 替换：
 
 ```rust
 use tokio::time::{timeout, Duration};
@@ -365,9 +362,9 @@ async fn with_timeout_context() -> Result<String, DiagError> {
 }
 ```
 
-### Tower: The Middleware Pattern
+### Tower：中间件模式
 
-The [Tower](https://docs.rs/tower) crate defines a composable `Service` trait — the backbone of async middleware in Rust (used by `axum`, `tonic`, `hyper`):
+[Tower](https://docs.rs/tower) crate 定义了可组合的 `Service` Trait——Rust 异步中间件的骨干（被 `axum`、`tonic`、`hyper` 使用）：
 
 ```rust
 // Tower's core trait (simplified):
@@ -381,7 +378,7 @@ pub trait Service<Request> {
 }
 ```
 
-Middleware wraps a `Service` to add cross-cutting behavior — logging, timeouts, rate-limiting — without modifying inner logic:
+中间件包装 `Service` 以添加横切行为——日志、超时、限流——而无需修改内部逻辑：
 
 ```rust
 use tower::{ServiceBuilder, timeout::TimeoutLayer, limit::RateLimitLayer};
@@ -393,17 +390,17 @@ let service = ServiceBuilder::new()
     .service(my_handler);                                     // Innermost: your code
 ```
 
-**Why this matters**: If you've used ASP.NET middleware or Express.js middleware, Tower is the Rust equivalent. It's how production Rust services add cross-cutting concerns without code duplication.
+**为何重要**：若你用过 ASP.NET 中间件或 Express.js 中间件，Tower 就是 Rust 等价物。生产 Rust 服务借此添加横切关注点而无需重复代码。
 
-### Exercise: Graceful Shutdown with Worker Pool
-
-<details>
-<summary>🏋️ Exercise (click to expand)</summary>
-
-**Challenge**: Build a task processor with a channel-based work queue, N worker tasks, and graceful shutdown on Ctrl+C. Workers should finish in-flight work before exiting.
+### 练习：带 Worker 池的优雅关闭
 
 <details>
-<summary>🔑 Solution</summary>
+<summary>🏋️ 练习（点击展开）</summary>
+
+**挑战**：构建基于 channel 工作队列的任务处理器，含 N 个 worker 任务，并在 Ctrl+C 时优雅关闭。Worker 应在退出前完成进行中的工作。
+
+<details>
+<summary>🔑 解答</summary>
 
 ```rust
 use tokio::sync::{mpsc, watch};
@@ -461,15 +458,14 @@ async fn main() {
 </details>
 </details>
 
-> **Key Takeaways — Production Patterns**
-> - Use a `watch` channel + `select!` for coordinated graceful shutdown
-> - Bounded channels (`mpsc::channel(N)`) provide **backpressure** — senders block when the buffer is full
-> - `JoinSet` and `TaskTracker` provide **structured concurrency**: track, abort, and await task groups
-> - Always add timeouts to network operations — `tokio::time::timeout(dur, fut)`
-> - Tower's `Service` trait is the standard middleware pattern for production Rust services
+> **要点回顾 — 生产模式**
+> - 使用 `watch` channel + `select!` 实现协调的优雅关闭
+> - 有界 channel（`mpsc::channel(N)`）提供 **背压**——缓冲区满时发送方阻塞
+> - `JoinSet` 与 `TaskTracker` 提供 **结构化并发**：跟踪、中止并等待任务组
+> - 网络操作始终加超时——`tokio::time::timeout(dur, fut)`
+> - Tower 的 `Service` Trait 是生产 Rust 服务的标准中间件模式
 
-> **See also:** [Ch 8 — Tokio Deep Dive](ch08-tokio-deep-dive.md) for channels and sync primitives, [Ch 12 — Common Pitfalls](ch12-common-pitfalls.md) for cancellation hazards during shutdown
+> **另见：** [第 8 章 — Tokio 深入](ch08-tokio-deep-dive.md) 了解 channel 与同步原语，[第 12 章 — 常见陷阱](ch12-common-pitfalls.md) 了解关闭期间的取消风险
 
 ***
-
 

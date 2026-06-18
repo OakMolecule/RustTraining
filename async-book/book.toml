@@ -1,7 +1,7 @@
 [book]
-title = "Async Rust: From Futures to Production"
+title = "Async Rust：从 Future 到生产实践（非官方中文译本）"
 authors = ["Rust Training Team"]
-language = "en"
+language = "zh-CN"
 src = "src"
 
 [build]
