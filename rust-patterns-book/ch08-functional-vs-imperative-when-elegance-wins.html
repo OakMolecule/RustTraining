@@ -1,0 +1,974 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>8. Functional vs. Imperative: When Elegance Wins - Rust Patterns &amp; Engineering How-Tos</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-64960533.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-51b340c9.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Patterns &amp; Engineering How-Tos</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="8-functional-vs-imperative-when-elegance-wins-and-when-it-doesnt"><a class="header" href="#8-functional-vs-imperative-when-elegance-wins-and-when-it-doesnt">8. Functional vs. Imperative: When Elegance Wins (and When It Doesn’t)</a></h1>
+<blockquote>
+<p><strong>Difficulty:</strong> 🟡 Intermediate | <strong>Time:</strong> 2–3 hours | <strong>Prerequisites:</strong> <a href="ch07-closures-and-higher-order-functions.html">Ch 7 — Closures</a></p>
+</blockquote>
+<p>Rust gives you genuine parity between functional and imperative styles. Unlike Haskell (functional by fiat) or C (imperative by default), Rust lets you choose — and the right choice depends on what you’re expressing. This chapter builds the judgment to pick well.</p>
+<p><strong>The core principle:</strong> Functional style shines when you’re <em>transforming data through a pipeline</em>. Imperative style shines when you’re <em>managing state transitions with side effects</em>. Most real code has both, and the skill is knowing where the boundary falls.</p>
+<hr>
+<h2 id="81-the-combinator-you-didnt-know-you-wanted"><a class="header" href="#81-the-combinator-you-didnt-know-you-wanted">8.1 The Combinator You Didn’t Know You Wanted</a></h2>
+<p>Many Rust developers write this:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let value = if let Some(x) = maybe_config() {
+    x
+} else {
+    default_config()
+};
+process(value);
+<span class="boring">}</span></code></pre>
+<p>When they could write this:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>process(maybe_config().unwrap_or_else(default_config));
+<span class="boring">}</span></code></pre>
+<p>Or this common pattern:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let display_name = if let Some(name) = user.nickname() {
+    name.to_uppercase()
+} else {
+    "ANONYMOUS".to_string()
+};
+<span class="boring">}</span></code></pre>
+<p>Which is:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let display_name = user.nickname()
+    .map(|n| n.to_uppercase())
+    .unwrap_or_else(|| "ANONYMOUS".to_string());
+<span class="boring">}</span></code></pre>
+<p>The functional version isn’t just shorter — it tells you <em>what</em> is happening (transform, then default) without making you trace control flow. The <code>if let</code> version makes you read the branches to figure out that both paths end up in the same place.</p>
+<h3 id="the-option-combinator-family"><a class="header" href="#the-option-combinator-family">The Option combinator family</a></h3>
+<p>Here’s the mental model: <code>Option&lt;T&gt;</code> is a one-element-or-empty collection. Every combinator on <code>Option</code> has an analogy to a collection operation.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>You write…</th><th>Instead of…</th><th>What it communicates</th></tr>
+</thead>
+<tbody>
+<tr><td><code>opt.unwrap_or(default)</code></td><td><code>if let Some(x) = opt { x } else { default }</code></td><td>“Use this value or fall back”</td></tr>
+<tr><td><code>opt.unwrap_or_else(|| expensive())</code></td><td><code>if let Some(x) = opt { x } else { expensive() }</code></td><td>Same, but default is lazy</td></tr>
+<tr><td><code>opt.map(f)</code></td><td><code>match opt { Some(x) =&gt; Some(f(x)), None =&gt; None }</code></td><td>“Transform the inside, propagate absence”</td></tr>
+<tr><td><code>opt.and_then(f)</code></td><td><code>match opt { Some(x) =&gt; f(x), None =&gt; None }</code></td><td>“Chain fallible operations” (flatmap)</td></tr>
+<tr><td><code>opt.filter(|x| pred(x))</code></td><td><code>match opt { Some(x) if pred(&amp;x) =&gt; Some(x), _ =&gt; None }</code></td><td>“Keep only if it passes”</td></tr>
+<tr><td><code>opt.zip(other)</code></td><td><code>if let (Some(a), Some(b)) = (opt, other) { Some((a,b)) } else { None }</code></td><td>“Both or neither”</td></tr>
+<tr><td><code>opt.or(fallback)</code></td><td><code>if opt.is_some() { opt } else { fallback }</code></td><td>“First available”</td></tr>
+<tr><td><code>opt.or_else(|| try_another())</code></td><td><code>if opt.is_some() { opt } else { try_another() }</code></td><td>“Try alternatives in order”</td></tr>
+<tr><td><code>opt.map_or(default, f)</code></td><td><code>if let Some(x) = opt { f(x) } else { default }</code></td><td>“Transform or default” — one-liner</td></tr>
+<tr><td><code>opt.map_or_else(default_fn, f)</code></td><td><code>if let Some(x) = opt { f(x) } else { default_fn() }</code></td><td>Same, both sides are closures</td></tr>
+<tr><td><code>opt?</code></td><td><code>match opt { Some(x) =&gt; x, None =&gt; return None }</code></td><td>“Propagate absence upward”</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-result-combinator-family"><a class="header" href="#the-result-combinator-family">The Result combinator family</a></h3>
+<p>The same pattern applies to <code>Result&lt;T, E&gt;</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>You write…</th><th>Instead of…</th><th>What it communicates</th></tr>
+</thead>
+<tbody>
+<tr><td><code>res.map(f)</code></td><td><code>match res { Ok(x) =&gt; Ok(f(x)), Err(e) =&gt; Err(e) }</code></td><td>Transform the success path</td></tr>
+<tr><td><code>res.map_err(f)</code></td><td><code>match res { Ok(x) =&gt; Ok(x), Err(e) =&gt; Err(f(e)) }</code></td><td>Transform the error</td></tr>
+<tr><td><code>res.and_then(f)</code></td><td><code>match res { Ok(x) =&gt; f(x), Err(e) =&gt; Err(e) }</code></td><td>Chain fallible operations</td></tr>
+<tr><td><code>res.unwrap_or_else(|e| default(e))</code></td><td><code>match res { Ok(x) =&gt; x, Err(e) =&gt; default(e) }</code></td><td>Recover from error</td></tr>
+<tr><td><code>res.ok()</code></td><td><code>match res { Ok(x) =&gt; Some(x), Err(_) =&gt; None }</code></td><td>“I don’t care about the error”</td></tr>
+<tr><td><code>res?</code></td><td><code>match res { Ok(x) =&gt; x, Err(e) =&gt; return Err(e.into()) }</code></td><td>Propagate errors upward</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="when-if-let-is-better"><a class="header" href="#when-if-let-is-better">When <code>if let</code> IS better</a></h3>
+<p>The combinators lose when:</p>
+<ul>
+<li><strong>You need multiple statements in the <code>Some</code> branch.</strong> A map closure with 5 lines is worse than an <code>if let</code> with 5 lines.</li>
+<li><strong>The control flow is the point.</strong> <code>if let Some(connection) = pool.try_get() { /* use it */ } else { /* log, retry, alert */ }</code> — the two branches are genuinely different code paths, not a transform-or-default.</li>
+<li><strong>Side effects dominate.</strong> If both branches do I/O with different error handling, the combinator version obscures the important differences.</li>
+</ul>
+<p><strong>Rule of thumb:</strong> If the <code>else</code> branch produces the <em>same type</em> as the <code>Some</code> branch and the bodies are short expressions, use a combinator. If the branches do fundamentally different things, use <code>if let</code> or <code>match</code>.</p>
+<hr>
+<h2 id="82-bool-combinators-then-and-then_some"><a class="header" href="#82-bool-combinators-then-and-then_some">8.2 Bool Combinators: <code>.then()</code> and <code>.then_some()</code></a></h2>
+<p>Another pattern that’s more common than it should be:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let label = if is_admin {
+    Some("ADMIN")
+} else {
+    None
+};
+<span class="boring">}</span></code></pre>
+<p>Rust 1.62+ gives you:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let label = is_admin.then_some("ADMIN");
+<span class="boring">}</span></code></pre>
+<p>Or with a computed value:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let permissions = is_admin.then(|| compute_admin_permissions());
+<span class="boring">}</span></code></pre>
+<p>This is especially powerful in chains:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Imperative
+let mut tags = Vec::new();
+if user.is_admin { tags.push("admin"); }
+if user.is_verified { tags.push("verified"); }
+if user.score &gt; 100 { tags.push("power-user"); }
+
+// Functional
+let tags: Vec&lt;&amp;str&gt; = [
+    user.is_admin.then_some("admin"),
+    user.is_verified.then_some("verified"),
+    (user.score &gt; 100).then_some("power-user"),
+]
+.into_iter()
+.flatten()
+.collect();
+<span class="boring">}</span></code></pre>
+<p>The functional version makes the pattern explicit: “build a list from conditional elements.” The imperative version makes you read each <code>if</code> to confirm they all do the same thing (push a tag).</p>
+<hr>
+<h2 id="83-iterator-chains-vs-loops-the-decision-framework"><a class="header" href="#83-iterator-chains-vs-loops-the-decision-framework">8.3 Iterator Chains vs. Loops: The Decision Framework</a></h2>
+<p>Ch 7 showed the mechanics. This section builds the judgment.</p>
+<h3 id="when-iterators-win"><a class="header" href="#when-iterators-win">When iterators win</a></h3>
+<p><strong>Data pipelines</strong> — transforming a collection through a series of steps:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Imperative: 8 lines, 2 mutable variables
+let mut results = Vec::new();
+for item in inventory {
+    if item.category == Category::Server {
+        if let Some(temp) = item.last_temperature() {
+            if temp &gt; 80.0 {
+                results.push((item.id, temp));
+            }
+        }
+    }
+}
+
+// Functional: 6 lines, 0 mutable variables, one pipeline
+let results: Vec&lt;_&gt; = inventory.iter()
+    .filter(|item| item.category == Category::Server)
+    .filter_map(|item| item.last_temperature().map(|t| (item.id, t)))
+    .filter(|(_, temp)| *temp &gt; 80.0)
+    .collect();
+<span class="boring">}</span></code></pre>
+<p>The functional version wins because:</p>
+<ul>
+<li>Each filter is independently readable</li>
+<li>No <code>mut</code> — the data flows in one direction</li>
+<li>You can add/remove/reorder pipeline stages without restructuring</li>
+<li>LLVM inlines iterator adapters to the same machine code as the loop</li>
+</ul>
+<p><strong>Aggregation</strong> — computing a single value from a collection:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Imperative
+let mut total_power = 0.0;
+let mut count = 0;
+for server in fleet {
+    total_power += server.power_draw();
+    count += 1;
+}
+let avg = total_power / count as f64;
+
+// Functional
+let (total_power, count) = fleet.iter()
+    .map(|s| s.power_draw())
+    .fold((0.0, 0usize), |(sum, n), p| (sum + p, n + 1));
+let avg = total_power / count as f64;
+<span class="boring">}</span></code></pre>
+<p>Or even simpler if you just need the sum:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let total: f64 = fleet.iter().map(|s| s.power_draw()).sum();
+<span class="boring">}</span></code></pre>
+<h3 id="when-loops-win"><a class="header" href="#when-loops-win">When loops win</a></h3>
+<p><strong>Early exit with complex state:</strong></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// This is clear and direct
+let mut best_candidate = None;
+for server in fleet {
+    let score = evaluate(server);
+    if score &gt; threshold {
+        if server.is_available() {
+            best_candidate = Some(server);
+            break; // Found one — stop immediately
+        }
+    }
+}
+
+// The functional version is strained
+let best_candidate = fleet.iter()
+    .filter(|s| evaluate(s) &gt; threshold)
+    .find(|s| s.is_available());
+<span class="boring">}</span></code></pre>
+<p>Wait — that functional version is actually pretty clean. Let’s try a case where it genuinely loses:</p>
+<p><strong>Building multiple outputs simultaneously:</strong></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Imperative: clear, each branch does something different
+let mut warnings = Vec::new();
+let mut errors = Vec::new();
+let mut stats = Stats::default();
+
+for event in log_stream {
+    match event.severity {
+        Severity::Warn =&gt; {
+            warnings.push(event.clone());
+            stats.warn_count += 1;
+        }
+        Severity::Error =&gt; {
+            errors.push(event.clone());
+            stats.error_count += 1;
+            if event.is_critical() {
+                alert_oncall(&amp;event);
+            }
+        }
+        _ =&gt; stats.other_count += 1,
+    }
+}
+
+// Functional version: forced, awkward, nobody wants to read this
+let (warnings, errors, stats) = log_stream.iter().fold(
+    (Vec::new(), Vec::new(), Stats::default()),
+    |(mut w, mut e, mut s), event| {
+        match event.severity {
+            Severity::Warn =&gt; { w.push(event.clone()); s.warn_count += 1; }
+            Severity::Error =&gt; {
+                e.push(event.clone()); s.error_count += 1;
+                if event.is_critical() { alert_oncall(event); }
+            }
+            _ =&gt; s.other_count += 1,
+        }
+        (w, e, s)
+    },
+);
+<span class="boring">}</span></code></pre>
+<p>The fold version is <em>longer</em>, <em>harder to read</em>, and has mutation anyway (the <code>mut</code> deconstructed accumulators). The loop wins because:</p>
+<ul>
+<li>Multiple outputs being built in parallel</li>
+<li>Side effects (alerting) mixed into the logic</li>
+<li>Branch bodies are statements, not expressions</li>
+</ul>
+<p><strong>State machines with I/O:</strong></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// A parser that reads tokens — the loop IS the algorithm
+let mut state = ParseState::Start;
+loop {
+    let token = lexer.next_token()?;
+    state = match state {
+        ParseState::Start =&gt; match token {
+            Token::Keyword(k) =&gt; ParseState::GotKeyword(k),
+            Token::Eof =&gt; break,
+            _ =&gt; return Err(ParseError::UnexpectedToken(token)),
+        },
+        ParseState::GotKeyword(k) =&gt; match token {
+            Token::Ident(name) =&gt; ParseState::GotName(k, name),
+            _ =&gt; return Err(ParseError::ExpectedIdentifier),
+        },
+        // ...more states
+    };
+}
+<span class="boring">}</span></code></pre>
+<p>No functional equivalent is cleaner. The loop with <code>match state</code> is the natural expression of a state machine.</p>
+<h3 id="the-decision-flowchart"><a class="header" href="#the-decision-flowchart">The decision flowchart</a></h3>
+<pre class="mermaid">flowchart TB
+    START{What are you doing?}
+
+    START --&gt;|"Transforming a collection&lt;br/&gt;into another collection"| PIPE[Use iterator chain]
+    START --&gt;|"Computing a single value&lt;br/&gt;from a collection"| AGG{How complex?}
+    START --&gt;|"Multiple outputs from&lt;br/&gt;one pass"| LOOP[Use a for loop]
+    START --&gt;|"State machine with&lt;br/&gt;I/O or side effects"| LOOP
+    START --&gt;|"One Option/Result&lt;br/&gt;transform + default"| COMB[Use combinators]
+
+    AGG --&gt;|"Sum, count, min, max"| BUILTIN["Use .sum(), .count(),&lt;br/&gt;.min(), .max()"]
+    AGG --&gt;|"Custom accumulation"| FOLD{Accumulator has mutation&lt;br/&gt;or side effects?}
+    FOLD --&gt;|"No"| FOLDF["Use .fold()"]
+    FOLD --&gt;|"Yes"| LOOP
+
+    style PIPE fill:#d4efdf,stroke:#27ae60,color:#000
+    style COMB fill:#d4efdf,stroke:#27ae60,color:#000
+    style BUILTIN fill:#d4efdf,stroke:#27ae60,color:#000
+    style FOLDF fill:#d4efdf,stroke:#27ae60,color:#000
+    style LOOP fill:#fef9e7,stroke:#f1c40f,color:#000
+</pre>
+
+<h3 id="sidebar-scoped-mutability--imperative-inside-functional-outside"><a class="header" href="#sidebar-scoped-mutability--imperative-inside-functional-outside">Sidebar: Scoped mutability — imperative inside, functional outside</a></h3>
+<p>Rust blocks are expressions. This lets you confine mutation to a construction phase and
+bind the result immutably:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use rand::random;
+
+let samples = {
+    let mut buf = Vec::with_capacity(10);
+    while buf.len() &lt; 10 {
+        let reading: f64 = random();
+        buf.push(reading);
+        if random::&lt;u8&gt;() % 3 == 0 { break; } // randomly stop early
+    }
+    buf
+};
+// samples is immutable — contains between 1 and 10 elements
+<span class="boring">}</span></code></pre>
+<p>The inner <code>buf</code> is mutable only inside the block. Once the block yields, the outer binding
+<code>samples</code> is immutable and the compiler will reject any later <code>samples.push(...)</code>.</p>
+<p><strong>Why not an iterator chain?</strong> You might try:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let samples: Vec&lt;f64&gt; = std::iter::from_fn(|| Some(random()))
+    .take(10)
+    .take_while(|_| random::&lt;u8&gt;() % 3 != 0)
+    .collect();
+<span class="boring">}</span></code></pre>
+<p>But <code>take_while</code> <em>excludes</em> the element that fails the predicate, producing anywhere from
+zero to ten elements instead of the guaranteed-at-least-one the imperative version provides. You can work around it with <code>scan</code> or <code>chain</code>, but the imperative version
+is clearer.</p>
+<p><strong>When scoped mutability genuinely wins:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Scenario</th><th>Why iterators struggle</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Sort-then-freeze</strong> (<code>sort_unstable()</code> + <code>dedup()</code>)</td><td>Both return <code>()</code> — no chainable output (itertools offers <code>.sorted().dedup()</code> if available)</td></tr>
+<tr><td><strong>Stateful termination</strong> (stop on a condition unrelated to the data)</td><td><code>take_while</code> drops the boundary element</td></tr>
+<tr><td><strong>Multi-step struct population</strong> (field-by-field from different sources)</td><td>No natural single pipeline</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Honest calibration:</strong> For most collection-building tasks, iterator chains or
+<a href="https://docs.rs/itertools">itertools</a> are preferred. Reach for scoped mutability when the
+construction logic has branching, early exit, or in-place mutation that doesn’t map to a
+single pipeline. The pattern’s real value is teaching that <em>mutation scope can be smaller
+than variable lifetime</em> — a Rust fundamental that surprises developers coming from
+C++, C#, and Python.</p>
+<hr>
+<h2 id="84-the--operator-where-functional-meets-imperative"><a class="header" href="#84-the--operator-where-functional-meets-imperative">8.4 The <code>?</code> Operator: Where Functional Meets Imperative</a></h2>
+<p>The <code>?</code> operator is Rust’s most elegant synthesis of both styles. It’s essentially <code>.and_then()</code> combined with early return:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// This chain of and_then...
+fn load_config() -&gt; Result&lt;Config, Error&gt; {
+    read_file("config.toml")
+        .and_then(|contents| parse_toml(&amp;contents))
+        .and_then(|table| validate_config(table))
+        .and_then(|valid| Config::from_validated(valid))
+}
+
+// ...is exactly equivalent to this
+fn load_config() -&gt; Result&lt;Config, Error&gt; {
+    let contents = read_file("config.toml")?;
+    let table = parse_toml(&amp;contents)?;
+    let valid = validate_config(table)?;
+    Config::from_validated(valid)
+}
+<span class="boring">}</span></code></pre>
+<p>Both are functional in spirit (they propagate errors automatically) but the <code>?</code> version gives you named intermediate variables, which matter when:</p>
+<ul>
+<li>You need to use <code>contents</code> again later</li>
+<li>You want to add <code>.context("while parsing config")?</code> per step</li>
+<li>You’re debugging and want to inspect intermediate values</li>
+</ul>
+<p><strong>The anti-pattern:</strong> long <code>.and_then()</code> chains when <code>?</code> is available. If every closure in the chain is <code>|x| next_step(x)</code>, you’ve reinvented <code>?</code> without the readability.</p>
+<p><strong>When <code>.and_then()</code> IS better than <code>?</code>:</strong></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Transforming inside an Option, without early return
+let port: Option&lt;u16&gt; = config.get("port")
+    .and_then(|v| v.parse::&lt;u16&gt;().ok())
+    .filter(|&amp;p| p &gt; 0 &amp;&amp; p &lt; 65535);
+<span class="boring">}</span></code></pre>
+<p>You can’t use <code>?</code> here because there’s no enclosing function to return from — you’re building an <code>Option</code>, not propagating it.</p>
+<hr>
+<h2 id="85-collection-building-collect-vs-push-loops"><a class="header" href="#85-collection-building-collect-vs-push-loops">8.5 Collection Building: <code>collect()</code> vs. Push Loops</a></h2>
+<p><code>collect()</code> is more powerful than most developers realize:</p>
+<h3 id="collecting-into-a-result"><a class="header" href="#collecting-into-a-result">Collecting into a Result</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Imperative: parse a list, fail on first error
+let mut numbers = Vec::new();
+for s in input_strings {
+    let n: i64 = s.parse().map_err(|_| Error::BadInput(s.clone()))?;
+    numbers.push(n);
+}
+
+// Functional: collect into Result&lt;Vec&lt;_&gt;, _&gt;
+let numbers: Vec&lt;i64&gt; = input_strings.iter()
+    .map(|s| s.parse::&lt;i64&gt;().map_err(|_| Error::BadInput(s.clone())))
+    .collect::&lt;Result&lt;_, _&gt;&gt;()?;
+<span class="boring">}</span></code></pre>
+<p>The <code>collect::&lt;Result&lt;Vec&lt;_&gt;, _&gt;&gt;()</code> trick works because <code>Result</code> implements <code>FromIterator</code>. It short-circuits on the first <code>Err</code>, just like the loop with <code>?</code>.</p>
+<h3 id="collecting-into-a-hashmap"><a class="header" href="#collecting-into-a-hashmap">Collecting into a HashMap</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Imperative
+let mut index = HashMap::new();
+for server in fleet {
+    index.insert(server.id.clone(), server);
+}
+
+// Functional
+let index: HashMap&lt;_, _&gt; = fleet.into_iter()
+    .map(|s| (s.id.clone(), s))
+    .collect();
+<span class="boring">}</span></code></pre>
+<h3 id="collecting-into-a-string"><a class="header" href="#collecting-into-a-string">Collecting into a String</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Imperative
+let mut csv = String::new();
+for (i, field) in fields.iter().enumerate() {
+    if i &gt; 0 { csv.push(','); }
+    csv.push_str(field);
+}
+
+// Functional
+let csv = fields.join(",");
+
+// Or for more complex formatting:
+let csv: String = fields.iter()
+    .map(|f| format!("\"{f}\""))
+    .collect::&lt;Vec&lt;_&gt;&gt;()
+    .join(",");
+<span class="boring">}</span></code></pre>
+<h3 id="when-the-loop-version-wins"><a class="header" href="#when-the-loop-version-wins">When the loop version wins</a></h3>
+<p><code>collect()</code> allocates a new collection. If you’re <em>modifying in place</em>, the loop is both clearer and more efficient:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// In-place update — no functional equivalent that's better
+for server in &amp;mut fleet {
+    if server.needs_refresh() {
+        server.refresh_telemetry()?;
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>The functional version would require <code>.iter_mut().for_each(|s| { ... })</code>, which is just a loop with extra syntax.</p>
+<hr>
+<h2 id="86-pattern-matching-as-function-dispatch"><a class="header" href="#86-pattern-matching-as-function-dispatch">8.6 Pattern Matching as Function Dispatch</a></h2>
+<p>Rust’s <code>match</code> is a functional construct that most developers use imperatively. Here’s the functional lens:</p>
+<h3 id="match-as-a-lookup-table"><a class="header" href="#match-as-a-lookup-table">Match as a lookup table</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Imperative thinking: "check each case"
+fn status_message(code: StatusCode) -&gt; &amp;'static str {
+    if code == StatusCode::OK { "Success" }
+    else if code == StatusCode::NOT_FOUND { "Not found" }
+    else if code == StatusCode::INTERNAL { "Server error" }
+    else { "Unknown" }
+}
+
+// Functional thinking: "map from domain to range"
+fn status_message(code: StatusCode) -&gt; &amp;'static str {
+    match code {
+        StatusCode::OK =&gt; "Success",
+        StatusCode::NOT_FOUND =&gt; "Not found",
+        StatusCode::INTERNAL =&gt; "Server error",
+        _ =&gt; "Unknown",
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>The <code>match</code> version isn’t just style — the compiler verifies exhaustiveness. Add a new variant, and every <code>match</code> that doesn’t handle it becomes a compile error. The <code>if/else</code> chain silently falls through to the default.</p>
+<h3 id="match--destructuring-as-a-pipeline"><a class="header" href="#match--destructuring-as-a-pipeline">Match + destructuring as a pipeline</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Parsing a command — each arm extracts and transforms
+fn execute(cmd: Command) -&gt; Result&lt;Response, Error&gt; {
+    match cmd {
+        Command::Get { key } =&gt; db.get(&amp;key).map(Response::Value),
+        Command::Set { key, value } =&gt; db.set(key, value).map(|_| Response::Ok),
+        Command::Delete { key } =&gt; db.delete(&amp;key).map(|_| Response::Ok),
+        Command::Batch(cmds) =&gt; cmds.into_iter()
+            .map(execute)
+            .collect::&lt;Result&lt;Vec&lt;_&gt;, _&gt;&gt;()
+            .map(Response::Batch),
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>Each arm is an expression that returns the same type. This is pattern matching as function dispatch — the <code>match</code> arms are essentially a function table indexed by the enum variant.</p>
+<hr>
+<h2 id="87-chaining-methods-on-custom-types"><a class="header" href="#87-chaining-methods-on-custom-types">8.7 Chaining Methods on Custom Types</a></h2>
+<p>The functional style extends beyond standard library types. Builder patterns and fluent APIs are functional programming in disguise:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// This is a combinator chain over your own type
+let query = QueryBuilder::new("servers")
+    .filter("status", Eq, "active")
+    .filter("rack", In, &amp;["A1", "A2", "B1"])
+    .order_by("temperature", Desc)
+    .limit(50)
+    .build();
+<span class="boring">}</span></code></pre>
+<p><strong>The key insight:</strong> if your type has methods that take <code>self</code> and return <code>Self</code> (or a transformed type), you’ve built a combinator. The same functional/imperative judgment applies:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Good: chainable because each step is a simple transform
+let config = Config::default()
+    .with_timeout(Duration::from_secs(30))
+    .with_retries(3)
+    .with_tls(true);
+
+// Bad: chainable but the chain is doing too many unrelated things
+let result = processor
+    .load_data(path)?       // I/O
+    .validate()             // Pure
+    .transform(rule_set)    // Pure
+    .save_to_disk(output)?  // I/O
+    .notify_downstream()?;  // Side effect
+
+// Better: separate the pure pipeline from the I/O bookends
+let data = load_data(path)?;
+let processed = data.validate().transform(rule_set);
+save_to_disk(output, &amp;processed)?;
+notify_downstream()?;
+<span class="boring">}</span></code></pre>
+<p>The chain fails when it mixes pure transforms with I/O. The reader can’t tell which calls might fail, which have side effects, and where the actual data transformations happen.</p>
+<hr>
+<h2 id="88-performance-theyre-the-same"><a class="header" href="#88-performance-theyre-the-same">8.8 Performance: They’re the Same</a></h2>
+<p>A common misconception: “functional style is slower because of all the closures and allocations.”</p>
+<p>In Rust, <strong>iterator chains compile to the same machine code as hand-written loops.</strong> LLVM inlines the closure calls, eliminates the iterator adapter structs, and often produces identical assembly. This is called <em>zero-cost abstraction</em> and it’s not aspirational — it’s measured.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// These produce identical assembly on release builds:
+
+// Functional
+let sum: i64 = (0..1000).filter(|n| n % 2 == 0).map(|n| n * n).sum();
+
+// Imperative
+let mut sum: i64 = 0;
+for n in 0..1000 {
+    if n % 2 == 0 {
+        sum += n * n;
+    }
+}
+<span class="boring">}</span></code></pre>
+<p><strong>The one exception:</strong> <code>.collect()</code> allocates. If you’re chaining <code>.map().collect().iter().map().collect()</code> with intermediate collections, you’re paying for allocations the loop version avoids. The fix: eliminate intermediate collects by chaining adapters directly, or use a loop if you need the intermediate collections for other reasons.</p>
+<hr>
+<h2 id="89-the-taste-test-a-catalog-of-transformations"><a class="header" href="#89-the-taste-test-a-catalog-of-transformations">8.9 The Taste Test: A Catalog of Transformations</a></h2>
+<p>Here’s a reference table for the most common “I wrote 6 lines but there’s a one-liner” patterns:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Imperative pattern</th><th>Functional equivalent</th><th>When to prefer functional</th></tr>
+</thead>
+<tbody>
+<tr><td><code>if let Some(x) = opt { f(x) } else { default }</code></td><td><code>opt.map_or(default, f)</code></td><td>Short expressions on both sides</td></tr>
+<tr><td><code>if let Some(x) = opt { Some(g(x)) } else { None }</code></td><td><code>opt.map(g)</code></td><td>Always — this is what <code>map</code> is for</td></tr>
+<tr><td><code>if condition { Some(x) } else { None }</code></td><td><code>condition.then_some(x)</code></td><td>Always</td></tr>
+<tr><td><code>if condition { Some(compute()) } else { None }</code></td><td><code>condition.then(compute)</code></td><td>Always</td></tr>
+<tr><td><code>match opt { Some(x) if pred(x) =&gt; Some(x), _ =&gt; None }</code></td><td><code>opt.filter(pred)</code></td><td>Always</td></tr>
+<tr><td><code>for x in iter { if pred(x) { result.push(f(x)); } }</code></td><td><code>iter.filter(pred).map(f).collect()</code></td><td>When the pipeline is readable in one screen</td></tr>
+<tr><td><code>if a.is_some() &amp;&amp; b.is_some() { Some((a?, b?)) }</code></td><td><code>a.zip(b)</code></td><td>Always — <code>.zip()</code> is exactly this</td></tr>
+<tr><td><code>match (a, b) { (Some(x), Some(y)) =&gt; x + y, _ =&gt; 0 }</code></td><td><code>a.zip(b).map(|(x,y)| x + y).unwrap_or(0)</code></td><td>Judgment call — depends on complexity</td></tr>
+<tr><td><code>iter.map(f).collect::&lt;Vec&lt;_&gt;&gt;()[0]</code></td><td><code>iter.map(f).next().unwrap()</code></td><td>Don’t allocate a Vec for one element</td></tr>
+<tr><td><code>let mut v = vec; v.sort(); v</code></td><td><code>{ let mut v = vec; v.sort(); v }</code></td><td>Rust doesn’t have a <code>.sorted()</code> in std (use itertools)</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="810-the-anti-patterns"><a class="header" href="#810-the-anti-patterns">8.10 The Anti-Patterns</a></h2>
+<h3 id="over-functionalizing-the-5-deep-chain-nobody-can-read"><a class="header" href="#over-functionalizing-the-5-deep-chain-nobody-can-read">Over-functionalizing: the 5-deep chain nobody can read</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// This is not elegant. This is a puzzle.
+let result = data.iter()
+    .filter_map(|x| x.metadata.as_ref())
+    .flat_map(|m| m.tags.iter())
+    .filter(|t| t.starts_with("env:"))
+    .map(|t| t.strip_prefix("env:").unwrap())
+    .filter(|env| allowed_envs.contains(env))
+    .map(|env| env.to_uppercase())
+    .collect::&lt;HashSet&lt;_&gt;&gt;()
+    .into_iter()
+    .sorted()
+    .collect::&lt;Vec&lt;_&gt;&gt;();
+<span class="boring">}</span></code></pre>
+<p>When a chain exceeds ~4 adapters, break it up with named intermediate variables or extract a helper:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>let env_tags = data.iter()
+    .filter_map(|x| x.metadata.as_ref())
+    .flat_map(|m| m.tags.iter());
+
+let allowed: Vec&lt;_&gt; = env_tags
+    .filter_map(|t| t.strip_prefix("env:"))
+    .filter(|env| allowed_envs.contains(env))
+    .map(|env| env.to_uppercase())
+    .sorted()
+    .collect();
+<span class="boring">}</span></code></pre>
+<h3 id="under-functionalizing-the-c-style-loop-that-rust-has-a-word-for"><a class="header" href="#under-functionalizing-the-c-style-loop-that-rust-has-a-word-for">Under-functionalizing: the C-style loop that Rust has a word for</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// This is just .any()
+let mut found = false;
+for item in &amp;list {
+    if item.is_expired() {
+        found = true;
+        break;
+    }
+}
+
+// Write this instead
+let found = list.iter().any(|item| item.is_expired());
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// This is just .find()
+let mut target = None;
+for server in &amp;fleet {
+    if server.id == target_id {
+        target = Some(server);
+        break;
+    }
+}
+
+// Write this instead
+let target = fleet.iter().find(|s| s.id == target_id);
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// This is just .all()
+let mut all_healthy = true;
+for server in &amp;fleet {
+    if !server.is_healthy() {
+        all_healthy = false;
+        break;
+    }
+}
+
+// Write this instead
+let all_healthy = fleet.iter().all(|s| s.is_healthy());
+<span class="boring">}</span></code></pre>
+<p>The standard library has these for a reason. Learn the vocabulary and the patterns become obvious.</p>
+<hr>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<blockquote>
+<ul>
+<li><strong>Option and Result are one-element collections.</strong> Their combinators (<code>.map()</code>, <code>.and_then()</code>, <code>.unwrap_or_else()</code>, <code>.filter()</code>, <code>.zip()</code>) replace most <code>if let</code> / <code>match</code> boilerplate.</li>
+<li><strong>Use <code>bool::then_some()</code></strong> — it replaces <code>if cond { Some(x) } else { None }</code> in every case.</li>
+<li><strong>Iterator chains win for data pipelines</strong> — filter/map/collect with zero mutable state. They compile to the same machine code as loops.</li>
+<li><strong>Loops win for multi-output state machines</strong> — when you’re building multiple collections, doing I/O in branches, or managing a state transition.</li>
+<li><strong>The <code>?</code> operator is the best of both worlds</strong> — functional error propagation with imperative readability.</li>
+<li><strong>Break chains at ~4 adapters</strong> — use named intermediates for readability. Over-functionalizing is as bad as under-functionalizing.</li>
+<li><strong>Learn the standard-library vocabulary</strong> — <code>.any()</code>, <code>.all()</code>, <code>.find()</code>, <code>.position()</code>, <code>.sum()</code>, <code>.min_by_key()</code> — each one replaces a multi-line loop with a single intent-revealing call.</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>See also:</strong> <a href="ch07-closures-and-higher-order-functions.html">Ch 7</a> for closure mechanics and the <code>Fn</code> trait hierarchy. <a href="ch10-error-handling-patterns.html">Ch 10</a> for error combinator patterns. <a href="ch15-crate-architecture-and-api-design.html">Ch 15</a> for fluent API design.</p>
+</blockquote>
+<hr>
+<h3 id="exercise-refactoring-imperative-to-functional--30-min"><a class="header" href="#exercise-refactoring-imperative-to-functional--30-min">Exercise: Refactoring Imperative to Functional ★★ (~30 min)</a></h3>
+<p>Refactor the following function from imperative to functional style. Then identify one place where the functional version is <em>worse</em> and explain why.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn summarize_fleet(fleet: &amp;[Server]) -&gt; FleetSummary {
+    let mut healthy = Vec::new();
+    let mut degraded = Vec::new();
+    let mut failed = Vec::new();
+    let mut total_power = 0.0;
+    let mut max_temp = f64::NEG_INFINITY;
+
+    for server in fleet {
+        match server.health_status() {
+            Health::Healthy =&gt; healthy.push(server.id.clone()),
+            Health::Degraded(reason) =&gt; degraded.push((server.id.clone(), reason)),
+            Health::Failed(err) =&gt; failed.push((server.id.clone(), err)),
+        }
+        total_power += server.power_draw();
+        if server.max_temperature() &gt; max_temp {
+            max_temp = server.max_temperature();
+        }
+    }
+
+    FleetSummary {
+        healthy,
+        degraded,
+        failed,
+        avg_power: total_power / fleet.len() as f64,
+        max_temp,
+    }
+}
+<span class="boring">}</span></code></pre>
+<details>
+<summary>🔑 Solution</summary>
+<p>The <code>total_power</code> and <code>max_temp</code> are clean functional rewrites:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn summarize_fleet(fleet: &amp;[Server]) -&gt; FleetSummary {
+    let avg_power: f64 = fleet.iter().map(|s| s.power_draw()).sum::&lt;f64&gt;()
+        / fleet.len() as f64;
+
+    let max_temp = fleet.iter()
+        .map(|s| s.max_temperature())
+        .fold(f64::NEG_INFINITY, f64::max);
+
+    // But the three-way partition is BETTER as a loop.
+    // Functional version would require three separate passes
+    // or an awkward fold with three mutable accumulators.
+    let mut healthy = Vec::new();
+    let mut degraded = Vec::new();
+    let mut failed = Vec::new();
+
+    for server in fleet {
+        match server.health_status() {
+            Health::Healthy =&gt; healthy.push(server.id.clone()),
+            Health::Degraded(reason) =&gt; degraded.push((server.id.clone(), reason)),
+            Health::Failed(err) =&gt; failed.push((server.id.clone(), err)),
+        }
+    }
+
+    FleetSummary { healthy, degraded, failed, avg_power, max_temp }
+}
+<span class="boring">}</span></code></pre>
+<p><strong>Why the loop is better for the three-way partition:</strong> A functional version would either require three <code>.filter().collect()</code> passes (3x iteration), or a <code>.fold()</code> with three <code>mut Vec</code> accumulators inside a tuple — which is just the loop rewritten with worse syntax. The imperative single-pass loop is clearer, more efficient, and easier to extend.</p>
+</details>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch07-closures-and-higher-order-functions.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch09-smart-pointers-and-interior-mutability.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch07-closures-and-higher-order-functions.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch09-smart-pointers-and-interior-mutability.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

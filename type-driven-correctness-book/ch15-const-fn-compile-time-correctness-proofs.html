@@ -1,0 +1,1017 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>10. Const Fn — Compile-Time Correctness Proofs - Type-Driven Correctness in Rust</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-df8e101b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-f24cd47a.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Type-Driven Correctness in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="const-fn--compile-time-correctness-proofs-"><a class="header" href="#const-fn--compile-time-correctness-proofs-">Const Fn — Compile-Time Correctness Proofs 🟠</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong> How <code>const fn</code> and <code>assert!</code> turn the compiler into a proof engine — verifying SRAM memory maps, register layouts, protocol frames, bitfield masks, clock trees, and lookup tables at compile time with zero runtime cost.</p>
+<p><strong>Cross-references:</strong> <a href="ch04-capability-tokens-zero-cost-proof-of-aut.html">ch04</a> (capability tokens), <a href="ch06-dimensional-analysis-making-the-compiler.html">ch06</a> (dimensional analysis), <a href="ch09-phantom-types-for-resource-tracking.html">ch09</a> (phantom types)</p>
+</blockquote>
+<h2 id="the-problem-memory-maps-that-lie"><a class="header" href="#the-problem-memory-maps-that-lie">The Problem: Memory Maps That Lie</a></h2>
+<p>In embedded and systems programming, memory maps are the foundation of everything — they define where bootloaders, firmware, data sections, and stacks live. Get a boundary wrong, and two subsystems silently corrupt each other. In C, these maps are typically <code>#define</code> constants with no structural relationship:</p>
+<pre><code class="language-c">/* STM32F4 SRAM layout — 256 KB at 0x20000000 */
+#define SRAM_BASE       0x20000000
+#define SRAM_SIZE       (256 * 1024)
+
+#define BOOT_BASE       0x20000000
+#define BOOT_SIZE       (16 * 1024)
+
+#define FW_BASE         0x20004000
+#define FW_SIZE         (128 * 1024)
+
+#define DATA_BASE       0x20024000
+#define DATA_SIZE       (80 * 1024)     /* Someone bumped this from 64K to 80K */
+
+#define STACK_BASE      0x20038000
+#define STACK_SIZE      (48 * 1024)     /* 0x20038000 + 48K = 0x20044000 — past SRAM end! */
+</code></pre>
+<p>The bug: <code>16 + 128 + 80 + 48 = 272 KB</code>, but SRAM is only 256 KB. The stack extends 16 KB past the end of physical memory. No compiler warning, no linker error, no runtime check — just silent corruption when the stack grows into unmapped space.</p>
+<p><strong>Every failure mode is discovered after deployment</strong> — potentially as a mysterious crash that only happens under heavy stack usage, weeks after the data section was resized.</p>
+<h2 id="const-fn-turning-the-compiler-into-a-proof-engine"><a class="header" href="#const-fn-turning-the-compiler-into-a-proof-engine">Const Fn: Turning the Compiler into a Proof Engine</a></h2>
+<p>Rust’s <code>const fn</code> functions can run at compile time. When a <code>const fn</code> panics during compile-time evaluation, the panic becomes a <strong>compile error</strong>. Combined with <code>assert!</code>, this turns the compiler into a theorem prover for your invariants:</p>
+<pre class="playground"><code class="language-rust">pub const fn checked_add(a: u32, b: u32) -&gt; u32 {
+    let sum = a as u64 + b as u64;
+    assert!(sum &lt;= u32::MAX as u64, "overflow");
+    sum as u32
+}
+
+// ✅ Compiles — 100 + 200 fits in u32
+const X: u32 = checked_add(100, 200);
+
+// ❌ Compile error: "overflow"
+// const Y: u32 = checked_add(u32::MAX, 1);
+
+fn main() {
+    println!("{X}");
+}</code></pre>
+<blockquote>
+<p><strong>The key insight:</strong> <code>const fn</code> + <code>assert!</code> = a proof obligation. Each assertion is a theorem that the compiler must verify. If the proof fails, the program does not compile. No test suite needed, no code review catch — the compiler itself is the auditor.</p>
+</blockquote>
+<h2 id="building-a-verified-sram-memory-map"><a class="header" href="#building-a-verified-sram-memory-map">Building a Verified SRAM Memory Map</a></h2>
+<h3 id="the-region-type"><a class="header" href="#the-region-type">The Region Type</a></h3>
+<p>A <code>Region</code> represents a contiguous block of memory. Its constructor is a <code>const fn</code> that enforces basic validity:</p>
+<pre class="playground"><code class="language-rust">#[derive(Debug, Clone, Copy)]
+pub struct Region {
+    pub base: u32,
+    pub size: u32,
+}
+
+impl Region {
+    /// Create a region. Panics at compile time if invariants fail.
+    pub const fn new(base: u32, size: u32) -&gt; Self {
+        assert!(size &gt; 0, "region size must be non-zero");
+        assert!(
+            base as u64 + size as u64 &lt;= u32::MAX as u64,
+            "region overflows 32-bit address space"
+        );
+        Self { base, size }
+    }
+
+    pub const fn end(&amp;self) -&gt; u32 {
+        self.base + self.size
+    }
+
+    /// True if `inner` fits entirely within `self`.
+    pub const fn contains(&amp;self, inner: &amp;Region) -&gt; bool {
+        inner.base &gt;= self.base &amp;&amp; inner.end() &lt;= self.end()
+    }
+
+    /// True if two regions share any addresses.
+    pub const fn overlaps(&amp;self, other: &amp;Region) -&gt; bool {
+        self.base &lt; other.end() &amp;&amp; other.base &lt; self.end()
+    }
+
+    /// True if `addr` falls within this region.
+    pub const fn contains_addr(&amp;self, addr: u32) -&gt; bool {
+        addr &gt;= self.base &amp;&amp; addr &lt; self.end()
+    }
+}
+
+// Every Region is born valid — you cannot construct an invalid one
+const R: Region = Region::new(0x2000_0000, 1024);
+
+fn main() {
+    println!("Region: {:#010X}..{:#010X}", R.base, R.end());
+}</code></pre>
+<h3 id="the-verified-memory-map"><a class="header" href="#the-verified-memory-map">The Verified Memory Map</a></h3>
+<p>Now we compose regions into a full SRAM map. The constructor proves six overlap-freedom invariants and four containment invariants — all at compile time:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#[derive(Debug, Clone, Copy)]
+</span><span class="boring">pub struct Region { pub base: u32, pub size: u32 }
+</span><span class="boring">impl Region {
+</span><span class="boring">    pub const fn new(base: u32, size: u32) -&gt; Self {
+</span><span class="boring">        assert!(size &gt; 0, "region size must be non-zero");
+</span><span class="boring">        assert!(base as u64 + size as u64 &lt;= u32::MAX as u64, "overflow");
+</span><span class="boring">        Self { base, size }
+</span><span class="boring">    }
+</span><span class="boring">    pub const fn end(&amp;self) -&gt; u32 { self.base + self.size }
+</span><span class="boring">    pub const fn contains(&amp;self, inner: &amp;Region) -&gt; bool {
+</span><span class="boring">        inner.base &gt;= self.base &amp;&amp; inner.end() &lt;= self.end()
+</span><span class="boring">    }
+</span><span class="boring">    pub const fn overlaps(&amp;self, other: &amp;Region) -&gt; bool {
+</span><span class="boring">        self.base &lt; other.end() &amp;&amp; other.base &lt; self.end()
+</span><span class="boring">    }
+</span><span class="boring">}
+</span>pub struct SramMap {
+    pub total:      Region,
+    pub bootloader: Region,
+    pub firmware:   Region,
+    pub data:       Region,
+    pub stack:      Region,
+}
+
+impl SramMap {
+    pub const fn verified(
+        total: Region,
+        bootloader: Region,
+        firmware: Region,
+        data: Region,
+        stack: Region,
+    ) -&gt; Self {
+        // ── Containment: every sub-region fits within total SRAM ──
+        assert!(total.contains(&amp;bootloader), "bootloader exceeds SRAM");
+        assert!(total.contains(&amp;firmware),   "firmware exceeds SRAM");
+        assert!(total.contains(&amp;data),       "data section exceeds SRAM");
+        assert!(total.contains(&amp;stack),      "stack exceeds SRAM");
+
+        // ── Overlap freedom: no pair of sub-regions shares an address ──
+        assert!(!bootloader.overlaps(&amp;firmware), "bootloader/firmware overlap");
+        assert!(!bootloader.overlaps(&amp;data),     "bootloader/data overlap");
+        assert!(!bootloader.overlaps(&amp;stack),    "bootloader/stack overlap");
+        assert!(!firmware.overlaps(&amp;data),       "firmware/data overlap");
+        assert!(!firmware.overlaps(&amp;stack),      "firmware/stack overlap");
+        assert!(!data.overlaps(&amp;stack),          "data/stack overlap");
+
+        Self { total, bootloader, firmware, data, stack }
+    }
+}
+
+// ✅ All 10 invariants verified at compile time — zero runtime cost
+const SRAM: SramMap = SramMap::verified(
+    Region::new(0x2000_0000, 256 * 1024),   // 256 KB total SRAM
+    Region::new(0x2000_0000,  16 * 1024),   // bootloader: 16 KB
+    Region::new(0x2000_4000, 128 * 1024),   // firmware:  128 KB
+    Region::new(0x2002_4000,  64 * 1024),   // data:       64 KB
+    Region::new(0x2003_4000,  48 * 1024),   // stack:      48 KB
+);
+
+fn main() {
+    println!("SRAM:  {:#010X} — {} KB", SRAM.total.base, SRAM.total.size / 1024);
+    println!("Boot:  {:#010X} — {} KB", SRAM.bootloader.base, SRAM.bootloader.size / 1024);
+    println!("FW:    {:#010X} — {} KB", SRAM.firmware.base, SRAM.firmware.size / 1024);
+    println!("Data:  {:#010X} — {} KB", SRAM.data.base, SRAM.data.size / 1024);
+    println!("Stack: {:#010X} — {} KB", SRAM.stack.base, SRAM.stack.size / 1024);
+}</code></pre>
+<p>Ten compile-time checks, zero runtime instructions. The binary contains only the verified constants.</p>
+<h3 id="breaking-the-map"><a class="header" href="#breaking-the-map">Breaking the Map</a></h3>
+<p>Suppose someone increases the data section from 64 KB to 80 KB without adjusting anything else:</p>
+<pre><code class="language-rust ignore">// ❌ Does not compile
+const BAD_SRAM: SramMap = SramMap::verified(
+    Region::new(0x2000_0000, 256 * 1024),
+    Region::new(0x2000_0000,  16 * 1024),
+    Region::new(0x2000_4000, 128 * 1024),
+    Region::new(0x2002_4000,  80 * 1024),   // 80 KB — 16 KB too large
+    Region::new(0x2003_8000,  48 * 1024),   // stack pushed past SRAM end
+);</code></pre>
+<p>The compiler reports:</p>
+<pre><code class="language-text">error[E0080]: evaluation of constant value failed
+  --&gt; src/main.rs:38:9
+   |
+38 |         assert!(total.contains(&amp;stack), "stack exceeds SRAM");
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |         the evaluated program panicked at 'stack exceeds SRAM'
+</code></pre>
+<blockquote>
+<p><strong>The bug that would have been a mysterious field failure is now a compile error.</strong> No unit test needed, no code review catch — the compiler proves it impossible. Compare this to C, where the same bug would ship silently and surface as a stack corruption months later in the field.</p>
+</blockquote>
+<h2 id="layering-access-control-with-phantom-types"><a class="header" href="#layering-access-control-with-phantom-types">Layering Access Control with Phantom Types</a></h2>
+<p>Combine <code>const fn</code> verification with phantom-typed access permissions (<a href="ch09-phantom-types-for-resource-tracking.html">ch09</a>) to enforce read/write constraints at the type level:</p>
+<pre class="playground"><code class="language-rust">use std::marker::PhantomData;
+
+pub struct ReadOnly;
+pub struct ReadWrite;
+
+pub struct TypedRegion&lt;Access&gt; {
+    base: u32,
+    size: u32,
+    _access: PhantomData&lt;Access&gt;,
+}
+
+impl&lt;A&gt; TypedRegion&lt;A&gt; {
+    pub const fn new(base: u32, size: u32) -&gt; Self {
+        assert!(size &gt; 0, "region size must be non-zero");
+        Self { base, size, _access: PhantomData }
+    }
+}
+
+// Read is available for any access level
+fn read_word&lt;A&gt;(region: &amp;TypedRegion&lt;A&gt;, offset: u32) -&gt; u32 {
+    assert!(offset + 4 &lt;= region.size, "read out of bounds");
+    // In real firmware: unsafe { core::ptr::read_volatile((region.base + offset) as *const u32) }
+    0 // stub
+}
+
+// Write requires ReadWrite — the function signature enforces it
+fn write_word(region: &amp;TypedRegion&lt;ReadWrite&gt;, offset: u32, value: u32) {
+    assert!(offset + 4 &lt;= region.size, "write out of bounds");
+    // In real firmware: unsafe { core::ptr::write_volatile(...) }
+    let _ = value; // stub
+}
+
+const BOOTLOADER: TypedRegion&lt;ReadOnly&gt;  = TypedRegion::new(0x2000_0000, 16 * 1024);
+const DATA:       TypedRegion&lt;ReadWrite&gt; = TypedRegion::new(0x2002_4000, 64 * 1024);
+
+fn main() {
+    read_word(&amp;BOOTLOADER, 0);      // ✅ read from read-only region
+    read_word(&amp;DATA, 0);            // ✅ read from read-write region
+    write_word(&amp;DATA, 0, 42);       // ✅ write to read-write region
+    // write_word(&amp;BOOTLOADER, 0, 42); // ❌ Compile error: expected ReadWrite, found ReadOnly
+}</code></pre>
+<p>The bootloader region is physically writeable (it’s SRAM), but the type system prevents accidental writes. This distinction between <strong>hardware capability</strong> and <strong>software permission</strong> is exactly what correct-by-construction means.</p>
+<h2 id="pointer-provenance-proving-addresses-belong-to-regions"><a class="header" href="#pointer-provenance-proving-addresses-belong-to-regions">Pointer Provenance: Proving Addresses Belong to Regions</a></h2>
+<p>Taking it further, we can create verified addresses — values that are statically proven to lie within a specific region:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#[derive(Debug, Clone, Copy)]
+</span><span class="boring">pub struct Region { pub base: u32, pub size: u32 }
+</span><span class="boring">impl Region {
+</span><span class="boring">    pub const fn new(base: u32, size: u32) -&gt; Self {
+</span><span class="boring">        assert!(size &gt; 0);
+</span><span class="boring">        assert!(base as u64 + size as u64 &lt;= u32::MAX as u64);
+</span><span class="boring">        Self { base, size }
+</span><span class="boring">    }
+</span><span class="boring">    pub const fn end(&amp;self) -&gt; u32 { self.base + self.size }
+</span><span class="boring">    pub const fn contains_addr(&amp;self, addr: u32) -&gt; bool {
+</span><span class="boring">        addr &gt;= self.base &amp;&amp; addr &lt; self.end()
+</span><span class="boring">    }
+</span><span class="boring">}
+</span>/// An address proven at compile time to lie within a Region.
+pub struct VerifiedAddr {
+    addr: u32, // private — can only be created through the checked constructor
+}
+
+impl VerifiedAddr {
+    /// Panics at compile time if `addr` is outside `region`.
+    pub const fn new(region: &amp;Region, addr: u32) -&gt; Self {
+        assert!(region.contains_addr(addr), "address outside region");
+        Self { addr }
+    }
+
+    pub const fn raw(&amp;self) -&gt; u32 {
+        self.addr
+    }
+}
+
+const DATA: Region = Region::new(0x2002_4000, 64 * 1024);
+
+// ✅ Proven at compile time to be inside the data region
+const STATUS_WORD: VerifiedAddr = VerifiedAddr::new(&amp;DATA, 0x2002_4000);
+const CONFIG_WORD: VerifiedAddr = VerifiedAddr::new(&amp;DATA, 0x2002_5000);
+
+// ❌ Would not compile: address is in the bootloader region, not data
+// const BAD_ADDR: VerifiedAddr = VerifiedAddr::new(&amp;DATA, 0x2000_0000);
+
+fn main() {
+    println!("Status register at {:#010X}", STATUS_WORD.raw());
+    println!("Config register at {:#010X}", CONFIG_WORD.raw());
+}</code></pre>
+<p><strong>Provenance established at compile time</strong> — no runtime bounds check needed when accessing these addresses. The constructor is private, so a <code>VerifiedAddr</code> can only exist if the compiler has proven it valid.</p>
+<h2 id="beyond-memory-maps"><a class="header" href="#beyond-memory-maps">Beyond Memory Maps</a></h2>
+<p>The <code>const fn</code> proof pattern applies wherever you have <strong>compile-time-known values with structural invariants</strong>. The SRAM map above proved <em>inter-region</em> properties (containment, non-overlap). The same technique scales to increasingly fine-grained domains:</p>
+<pre class="mermaid">flowchart TD
+    subgraph coarse["Coarse-Grained"]
+        MEM["Memory Maps&lt;br/&gt;regions don't overlap"]
+        REG["Register Maps&lt;br/&gt;offsets are aligned &amp; disjoint"]
+    end
+
+    subgraph fine["Fine-Grained"]
+        BIT["Bitfield Layouts&lt;br/&gt;masks are disjoint within a register"]
+        FRAME["Protocol Frames&lt;br/&gt;fields are contiguous, total ≤ max"]
+    end
+
+    subgraph derived["Derived-Value Chains"]
+        PLL["Clock Trees / PLL&lt;br/&gt;each intermediate freq in range"]
+        LUT["Lookup Tables&lt;br/&gt;computed &amp; verified at compile time"]
+    end
+
+    MEM --&gt; REG --&gt; BIT
+    MEM --&gt; FRAME
+    REG --&gt; PLL
+    PLL --&gt; LUT
+
+    style MEM fill:#c8e6c9,color:#000
+    style REG fill:#c8e6c9,color:#000
+    style BIT fill:#e1f5fe,color:#000
+    style FRAME fill:#e1f5fe,color:#000
+    style PLL fill:#fff3e0,color:#000
+    style LUT fill:#fff3e0,color:#000
+</pre>
+
+<p>Each subsection below follows the same pattern: define a type with a <code>const fn</code> constructor that encodes the invariants, then use <code>const _: () = { ... }</code> or a <code>const</code> binding to trigger verification.</p>
+<h3 id="register-maps"><a class="header" href="#register-maps">Register Maps</a></h3>
+<p>Hardware register blocks have fixed offsets and widths. A misaligned or overlapping register definition is always a bug:</p>
+<pre class="playground"><code class="language-rust">#[derive(Debug, Clone, Copy)]
+pub struct Register {
+    pub offset: u32,
+    pub width: u32,
+}
+
+impl Register {
+    pub const fn new(offset: u32, width: u32) -&gt; Self {
+        assert!(
+            width == 1 || width == 2 || width == 4,
+            "register width must be 1, 2, or 4 bytes"
+        );
+        assert!(offset % width == 0, "register must be naturally aligned");
+        Self { offset, width }
+    }
+
+    pub const fn end(&amp;self) -&gt; u32 {
+        self.offset + self.width
+    }
+}
+
+const fn disjoint(a: &amp;Register, b: &amp;Register) -&gt; bool {
+    a.end() &lt;= b.offset || b.end() &lt;= a.offset
+}
+
+// UART peripheral registers
+const DATA:   Register = Register::new(0x00, 4);
+const STATUS: Register = Register::new(0x04, 4);
+const CTRL:   Register = Register::new(0x08, 4);
+const BAUD:   Register = Register::new(0x0C, 4);
+
+// Compile-time proof: no register overlaps another
+const _: () = {
+    assert!(disjoint(&amp;DATA,   &amp;STATUS));
+    assert!(disjoint(&amp;DATA,   &amp;CTRL));
+    assert!(disjoint(&amp;DATA,   &amp;BAUD));
+    assert!(disjoint(&amp;STATUS, &amp;CTRL));
+    assert!(disjoint(&amp;STATUS, &amp;BAUD));
+    assert!(disjoint(&amp;CTRL,   &amp;BAUD));
+};
+
+fn main() {
+    println!("UART DATA:   offset={:#04X}, width={}", DATA.offset, DATA.width);
+    println!("UART STATUS: offset={:#04X}, width={}", STATUS.offset, STATUS.width);
+}</code></pre>
+<p>Note the <code>const _: () = { ... };</code> idiom — an unnamed constant whose only purpose is to run compile-time assertions. If any assertion fails, the constant can’t be evaluated and compilation stops.</p>
+<h4 id="mini-exercise-spi-register-bank"><a class="header" href="#mini-exercise-spi-register-bank">Mini-Exercise: SPI Register Bank</a></h4>
+<p>Given these SPI controller registers, add const fn assertions proving:</p>
+<ol>
+<li>Every register is naturally aligned (offset % width == 0)</li>
+<li>No two registers overlap</li>
+<li>All registers fit within a 64-byte register block</li>
+</ol>
+<details>
+<summary>Hint</summary>
+<p>Reuse the <code>Register</code> and <code>disjoint</code> functions from the UART example above. Define three or four <code>const Register</code> values (e.g., <code>CTRL</code> at offset 0x00 width 4, <code>STATUS</code> at 0x04 width 4, <code>TX_DATA</code> at 0x08 width 1, <code>RX_DATA</code> at 0x0C width 1) and assert the three properties.</p>
+</details>
+<h3 id="protocol-frame-layouts"><a class="header" href="#protocol-frame-layouts">Protocol Frame Layouts</a></h3>
+<p>Network or bus protocol frames have fields at specific offsets. The <code>then()</code> method makes contiguity structural — gaps and overlaps are impossible by construction:</p>
+<pre class="playground"><code class="language-rust">#[derive(Debug, Clone, Copy)]
+pub struct Field {
+    pub offset: usize,
+    pub size: usize,
+}
+
+impl Field {
+    pub const fn new(offset: usize, size: usize) -&gt; Self {
+        assert!(size &gt; 0, "field size must be non-zero");
+        Self { offset, size }
+    }
+
+    pub const fn end(&amp;self) -&gt; usize {
+        self.offset + self.size
+    }
+
+    /// Create the next field immediately after this one.
+    pub const fn then(&amp;self, size: usize) -&gt; Field {
+        Field::new(self.end(), size)
+    }
+}
+
+const MAX_FRAME: usize = 256;
+
+const HEADER:  Field = Field::new(0, 4);
+const SEQ_NUM: Field = HEADER.then(2);
+const PAYLOAD: Field = SEQ_NUM.then(246);
+const CRC:     Field = PAYLOAD.then(4);
+
+// Compile-time proof: frame fits within maximum size
+const _: () = assert!(CRC.end() &lt;= MAX_FRAME, "frame exceeds maximum size");
+
+fn main() {
+    println!("Header:  [{}..{})", HEADER.offset, HEADER.end());
+    println!("SeqNum:  [{}..{})", SEQ_NUM.offset, SEQ_NUM.end());
+    println!("Payload: [{}..{})", PAYLOAD.offset, PAYLOAD.end());
+    println!("CRC:     [{}..{})", CRC.offset, CRC.end());
+    println!("Total:   {}/{} bytes", CRC.end(), MAX_FRAME);
+}</code></pre>
+<p>Fields are contiguous by construction — each starts exactly where the previous one ends. The final assertion proves the frame fits within the protocol’s maximum size.</p>
+<h3 id="inline-const-blocks-for-generic-validation"><a class="header" href="#inline-const-blocks-for-generic-validation">Inline Const Blocks for Generic Validation</a></h3>
+<p>Since Rust 1.79, <code>const { ... }</code> blocks let you validate const generic parameters at the point of use — perfect for DMA buffer size constraints or alignment requirements:</p>
+<pre><code class="language-rust ignore">fn dma_transfer&lt;const N: usize&gt;(buf: &amp;[u8; N]) {
+    const { assert!(N % 4 == 0, "DMA buffer must be 4-byte aligned in size") };
+    const { assert!(N &lt;= 65536, "DMA transfer exceeds maximum size") };
+    // ... initiate transfer ...
+}
+
+dma_transfer(&amp;[0u8; 1024]);   // ✅ 1024 is divisible by 4 and ≤ 65536
+// dma_transfer(&amp;[0u8; 1023]); // ❌ Compile error: not 4-byte aligned</code></pre>
+<p>The assertions are evaluated when the function is monomorphized — each call site with a different <code>N</code> gets its own compile-time check.</p>
+<h3 id="bitfield-layouts-within-a-register"><a class="header" href="#bitfield-layouts-within-a-register">Bitfield Layouts Within a Register</a></h3>
+<p>Register maps prove that registers don’t <em>overlap each other</em> — but what about the <strong>bits within a single register</strong>? Control registers pack multiple fields into one word. If two fields share a bit position, reads and writes silently corrupt each other. In C, this is typically caught (or not) by manual review of mask constants.</p>
+<p>A <code>const fn</code> can prove that every field’s mask/shift pair is disjoint from every other field in the same register:</p>
+<pre class="playground"><code class="language-rust">#[derive(Debug, Clone, Copy)]
+pub struct BitField {
+    pub mask: u32,
+    pub shift: u8,
+}
+
+impl BitField {
+    pub const fn new(shift: u8, width: u8) -&gt; Self {
+        assert!(width &gt; 0, "bit field width must be non-zero");
+        assert!(shift as u32 + width as u32 &lt;= 32, "bit field exceeds 32-bit register");
+        // Build mask: `width` ones starting at bit `shift`
+        let mask = ((1u64 &lt;&lt; width as u64) - 1) as u32;
+        Self { mask: mask &lt;&lt; shift as u32, shift }
+    }
+
+    pub const fn positioned_mask(&amp;self) -&gt; u32 {
+        self.mask
+    }
+
+    pub const fn encode(&amp;self, value: u32) -&gt; u32 {
+        assert!(value &amp; !( self.mask &gt;&gt; self.shift as u32 ) == 0, "value exceeds field width");
+        value &lt;&lt; self.shift as u32
+    }
+}
+
+const fn fields_disjoint(a: &amp;BitField, b: &amp;BitField) -&gt; bool {
+    a.positioned_mask() &amp; b.positioned_mask() == 0
+}
+
+// SPI Control Register fields: enable[0], mode[1:2], clock_div[4:7], irq_en[8]
+const SPI_EN:     BitField = BitField::new(0, 1);   // bit 0
+const SPI_MODE:   BitField = BitField::new(1, 2);   // bits 1–2
+const SPI_CLKDIV: BitField = BitField::new(4, 4);   // bits 4–7
+const SPI_IRQ:    BitField = BitField::new(8, 1);   // bit 8
+
+// Compile-time proof: no field shares a bit position
+const _: () = {
+    assert!(fields_disjoint(&amp;SPI_EN,   &amp;SPI_MODE));
+    assert!(fields_disjoint(&amp;SPI_EN,   &amp;SPI_CLKDIV));
+    assert!(fields_disjoint(&amp;SPI_EN,   &amp;SPI_IRQ));
+    assert!(fields_disjoint(&amp;SPI_MODE, &amp;SPI_CLKDIV));
+    assert!(fields_disjoint(&amp;SPI_MODE, &amp;SPI_IRQ));
+    assert!(fields_disjoint(&amp;SPI_CLKDIV, &amp;SPI_IRQ));
+};
+
+fn main() {
+    let ctrl = SPI_EN.encode(1)
+             | SPI_MODE.encode(0b10)
+             | SPI_CLKDIV.encode(0b0110)
+             | SPI_IRQ.encode(1);
+    println!("SPI_CTRL = {:#010b} ({:#06X})", ctrl, ctrl);
+}</code></pre>
+<p>This complements the register map pattern above — register maps prove <em>inter-register</em> disjointness while bitfield layouts prove <em>intra-register</em> disjointness. Together they provide full coverage from the register block down to individual bits.</p>
+<h3 id="clock-tree--pll-configuration"><a class="header" href="#clock-tree--pll-configuration">Clock Tree / PLL Configuration</a></h3>
+<p>Microcontrollers derive peripheral clocks through multiplier/divider chains. A PLL produces <code>f_vco = f_in × N / M</code>, and the VCO frequency must stay within a hardware-specified range. Get any parameter wrong for a specific board, and the chip outputs garbage clocks or refuses to lock. These constraints are perfect for <code>const fn</code>:</p>
+<pre class="playground"><code class="language-rust">#[derive(Debug, Clone, Copy)]
+pub struct PllConfig {
+    pub input_khz: u32,     // external oscillator
+    pub m: u32,             // input divider
+    pub n: u32,             // VCO multiplier
+    pub p: u32,             // system clock divider
+}
+
+impl PllConfig {
+    pub const fn verified(input_khz: u32, m: u32, n: u32, p: u32) -&gt; Self {
+        // Input divider produces the PLL input frequency
+        let pll_input = input_khz / m;
+        assert!(pll_input &gt;= 1_000 &amp;&amp; pll_input &lt;= 2_000,
+            "PLL input must be 1–2 MHz");
+
+        // VCO frequency must be within hardware limits
+        let vco = pll_input as u64 * n as u64;
+        assert!(vco &gt;= 192_000 &amp;&amp; vco &lt;= 432_000,
+            "VCO must be 192–432 MHz");
+
+        // System clock divider must be even (hardware constraint)
+        assert!(p == 2 || p == 4 || p == 6 || p == 8,
+            "P must be 2, 4, 6, or 8");
+
+        // Final system clock
+        let sysclk = vco / p as u64;
+        assert!(sysclk &lt;= 168_000,
+            "system clock exceeds 168 MHz maximum");
+
+        Self { input_khz, m, n, p }
+    }
+
+    pub const fn vco_khz(&amp;self) -&gt; u32 {
+        (self.input_khz / self.m) * self.n
+    }
+
+    pub const fn sysclk_khz(&amp;self) -&gt; u32 {
+        self.vco_khz() / self.p
+    }
+}
+
+// STM32F4 with 8 MHz HSE crystal → 168 MHz system clock
+const PLL: PllConfig = PllConfig::verified(8_000, 8, 336, 2);
+
+// ❌ Would not compile: VCO = 480 MHz exceeds 432 MHz limit
+// const BAD: PllConfig = PllConfig::verified(8_000, 8, 480, 2);
+
+fn main() {
+    println!("VCO:    {} MHz", PLL.vco_khz() / 1_000);
+    println!("SYSCLK: {} MHz", PLL.sysclk_khz() / 1_000);
+}</code></pre>
+<p>Uncommenting the <code>BAD</code> constant produces a compile-time error that pinpoints the violated constraint:</p>
+<pre><code class="language-text">error[E0080]: evaluation of constant value failed
+  --&gt; src/main.rs:18:9
+   |
+18 |         assert!(vco &gt;= 192_000 &amp;&amp; vco &lt;= 432_000,
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |         the evaluated program panicked at 'VCO must be 192–432 MHz'
+</code></pre>
+<p>The compiler catches the constraint violation in the <em>middle</em> of the derivation chain — not at the end. If you had instead violated the system clock limit (<code>sysclk &gt; 168 MHz</code>), the error message would point to that assertion instead.</p>
+<blockquote>
+<p><strong>Derived-value constraint chains turn a single <code>const fn</code> into a multi-stage proof.</strong> Each intermediate value has its own hardware-mandated range. Changing one parameter (e.g., swapping to a 25 MHz crystal) immediately surfaces any downstream violation.</p>
+</blockquote>
+<p><strong>Derived-value constraint chains</strong> — the VCO frequency depends on <code>input / m × n</code>, and the system clock depends on <code>vco / p</code>. Each intermediate value has its own hardware-mandated range. A single <code>const fn</code> verifies the entire chain, so changing one parameter (e.g., swapping to a 25 MHz crystal) immediately surfaces any downstream violation.</p>
+<h3 id="compile-time-lookup-tables"><a class="header" href="#compile-time-lookup-tables">Compile-Time Lookup Tables</a></h3>
+<p><code>const fn</code> can compute entire lookup tables at compile time, placing them in <code>.rodata</code> with zero startup cost. This is especially valuable for CRC tables, trigonometry, encoding maps, and error-correction codes — anywhere you’d normally use a build script or code generation:</p>
+<pre class="playground"><code class="language-rust">const fn crc32_table() -&gt; [u32; 256] {
+    let mut table = [0u32; 256];
+    let mut i: usize = 0;
+    while i &lt; 256 {
+        let mut crc = i as u32;
+        let mut j = 0;
+        while j &lt; 8 {
+            if crc &amp; 1 != 0 {
+                crc = (crc &gt;&gt; 1) ^ 0xEDB8_8320; // standard CRC-32 polynomial
+            } else {
+                crc &gt;&gt;= 1;
+            }
+            j += 1;
+        }
+        table[i] = crc;
+        i += 1;
+    }
+    table
+}
+
+/// Full CRC-32 table — computed at compile time, placed in .rodata
+const CRC32_TABLE: [u32; 256] = crc32_table();
+
+/// Compute CRC-32 over a byte slice at runtime using the precomputed table.
+fn crc32(data: &amp;[u8]) -&gt; u32 {
+    let mut crc: u32 = !0;
+    for &amp;byte in data {
+        let index = ((crc ^ byte as u32) &amp; 0xFF) as usize;
+        crc = (crc &gt;&gt; 8) ^ CRC32_TABLE[index];
+    }
+    !crc
+}
+
+// Smoke-test: well-known CRC-32 of "123456789"
+const _: () = {
+    // Verify a single table entry at compile time
+    assert!(CRC32_TABLE[0] == 0x0000_0000);
+    assert!(CRC32_TABLE[1] == 0x7707_3096);
+};
+
+fn main() {
+    let check = crc32(b"123456789");
+    // Known CRC-32 of "123456789" is 0xCBF43926
+    assert_eq!(check, 0xCBF4_3926);
+    println!("CRC-32 of '123456789' = {:#010X} ✓", check);
+    println!("Table size: {} entries × 4 bytes = {} bytes in .rodata",
+        CRC32_TABLE.len(), CRC32_TABLE.len() * 4);
+}</code></pre>
+<p>The <code>crc32_table()</code> function runs entirely during compilation. The resulting 1 KB table is baked into the binary’s read-only data section — no allocator, no initialization code, no startup cost. Compare this with a C approach that either uses a code generator or computes the table at startup. The Rust version is provably correct (the <code>const _</code> assertions verify known values) and provably complete (the compiler will reject the program if the function fails to produce a valid table).</p>
+<h2 id="when-to-use-const-fn-proofs"><a class="header" href="#when-to-use-const-fn-proofs">When to Use Const Fn Proofs</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Scenario</th><th style="text-align: center">Recommendation</th></tr>
+</thead>
+<tbody>
+<tr><td>Memory maps, register offsets, partition tables</td><td style="text-align: center">✅ Always</td></tr>
+<tr><td>Protocol frame layouts with fixed fields</td><td style="text-align: center">✅ Always</td></tr>
+<tr><td>Bitfield masks within a register</td><td style="text-align: center">✅ Always</td></tr>
+<tr><td>Clock tree / PLL parameter chains</td><td style="text-align: center">✅ Always</td></tr>
+<tr><td>Lookup tables (CRC, trig, encoding)</td><td style="text-align: center">✅ Always — zero startup cost</td></tr>
+<tr><td>Constants with cross-value invariants (non-overlap, sum ≤ bound)</td><td style="text-align: center">✅ Always</td></tr>
+<tr><td>Configuration values with domain constraints</td><td style="text-align: center">✅ When values are known at compile time</td></tr>
+<tr><td>Values computed from user input or files</td><td style="text-align: center">❌ Use runtime validation</td></tr>
+<tr><td>Highly dynamic structures (trees, graphs)</td><td style="text-align: center">❌ Use property-based testing</td></tr>
+<tr><td>Single-value range checks</td><td style="text-align: center">⚠️  Consider newtype + <code>From</code> instead (<a href="ch07-validated-boundaries-parse-dont-validate.html">ch07</a>)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="cost-summary"><a class="header" href="#cost-summary">Cost Summary</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>What</th><th style="text-align: center">Runtime cost</th></tr>
+</thead>
+<tbody>
+<tr><td><code>const fn</code> assertions (<code>assert!</code>, <code>panic!</code>)</td><td style="text-align: center">Compile time only — 0 instructions</td></tr>
+<tr><td><code>const _: () = { ... }</code> validation blocks</td><td style="text-align: center">Compile time only — not in binary</td></tr>
+<tr><td><code>Region</code>, <code>Register</code>, <code>Field</code> structs</td><td style="text-align: center">Plain data — same layout as raw integers</td></tr>
+<tr><td>Inline <code>const { }</code> generic validation</td><td style="text-align: center">Monomorphised at compile time — 0 cost</td></tr>
+<tr><td>Lookup tables (<code>crc32_table()</code>)</td><td style="text-align: center">Computed at compile time — placed in <code>.rodata</code></td></tr>
+<tr><td>Phantom-typed access markers (<code>TypedRegion&lt;RW&gt;</code>)</td><td style="text-align: center">Zero-sized — optimised away</td></tr>
+</tbody>
+</table>
+</div>
+<p>Every row is <strong>zero runtime cost</strong> — the proofs exist only during compilation. The resulting binary contains only the verified constants and lookup tables, with no assertion-checking code.</p>
+<h2 id="exercise-flash-partition-map"><a class="header" href="#exercise-flash-partition-map">Exercise: Flash Partition Map</a></h2>
+<p>Design a verified flash partition map for a 1 MB NOR flash starting at <code>0x0800_0000</code>. Requirements:</p>
+<ol>
+<li>Four partitions: <strong>bootloader</strong> (64 KB), <strong>application</strong> (640 KB), <strong>config</strong> (64 KB), <strong>OTA staging</strong> (256 KB)</li>
+<li>Every partition must be <strong>4 KB aligned</strong> (flash erase granularity): both base and size must be multiples of 4096</li>
+<li>No partition may overlap another</li>
+<li>All partitions must fit within flash</li>
+<li>Add a <code>const fn total_used()</code> that returns the sum of all partition sizes and assert it equals 1 MB</li>
+</ol>
+<details>
+<summary>Solution</summary>
+<pre class="playground"><code class="language-rust">#[derive(Debug, Clone, Copy)]
+pub struct FlashRegion {
+    pub base: u32,
+    pub size: u32,
+}
+
+impl FlashRegion {
+    pub const fn new(base: u32, size: u32) -&gt; Self {
+        assert!(size &gt; 0, "partition size must be non-zero");
+        assert!(base % 4096 == 0, "partition base must be 4 KB aligned");
+        assert!(size % 4096 == 0, "partition size must be 4 KB aligned");
+        assert!(
+            base as u64 + size as u64 &lt;= u32::MAX as u64,
+            "partition overflows address space"
+        );
+        Self { base, size }
+    }
+
+    pub const fn end(&amp;self) -&gt; u32 { self.base + self.size }
+
+    pub const fn contains(&amp;self, inner: &amp;FlashRegion) -&gt; bool {
+        inner.base &gt;= self.base &amp;&amp; inner.end() &lt;= self.end()
+    }
+
+    pub const fn overlaps(&amp;self, other: &amp;FlashRegion) -&gt; bool {
+        self.base &lt; other.end() &amp;&amp; other.base &lt; self.end()
+    }
+}
+
+pub struct FlashMap {
+    pub total:  FlashRegion,
+    pub boot:   FlashRegion,
+    pub app:    FlashRegion,
+    pub config: FlashRegion,
+    pub ota:    FlashRegion,
+}
+
+impl FlashMap {
+    pub const fn verified(
+        total: FlashRegion,
+        boot: FlashRegion,
+        app: FlashRegion,
+        config: FlashRegion,
+        ota: FlashRegion,
+    ) -&gt; Self {
+        assert!(total.contains(&amp;boot),   "bootloader exceeds flash");
+        assert!(total.contains(&amp;app),    "application exceeds flash");
+        assert!(total.contains(&amp;config), "config exceeds flash");
+        assert!(total.contains(&amp;ota),    "OTA staging exceeds flash");
+
+        assert!(!boot.overlaps(&amp;app),    "boot/app overlap");
+        assert!(!boot.overlaps(&amp;config), "boot/config overlap");
+        assert!(!boot.overlaps(&amp;ota),    "boot/ota overlap");
+        assert!(!app.overlaps(&amp;config),  "app/config overlap");
+        assert!(!app.overlaps(&amp;ota),     "app/ota overlap");
+        assert!(!config.overlaps(&amp;ota),  "config/ota overlap");
+
+        Self { total, boot, app, config, ota }
+    }
+
+    pub const fn total_used(&amp;self) -&gt; u32 {
+        self.boot.size + self.app.size + self.config.size + self.ota.size
+    }
+}
+
+const FLASH: FlashMap = FlashMap::verified(
+    FlashRegion::new(0x0800_0000, 1024 * 1024),  // 1 MB total
+    FlashRegion::new(0x0800_0000,   64 * 1024),   // bootloader: 64 KB
+    FlashRegion::new(0x0801_0000,  640 * 1024),   // application: 640 KB
+    FlashRegion::new(0x080B_0000,   64 * 1024),   // config: 64 KB
+    FlashRegion::new(0x080C_0000,  256 * 1024),   // OTA staging: 256 KB
+);
+
+// Every byte of flash is accounted for
+const _: () = assert!(
+    FLASH.total_used() == 1024 * 1024,
+    "partitions must exactly fill flash"
+);
+
+fn main() {
+    println!("Flash map: {} KB used / {} KB total",
+        FLASH.total_used() / 1024,
+        FLASH.total.size / 1024);
+}</code></pre>
+</details>
+<pre class="mermaid">flowchart LR
+    subgraph compile["Compile Time — zero runtime cost"]
+        direction TB
+        RGN["Region::new()&lt;br/&gt;✅ size &amp;gt; 0&lt;br/&gt;✅ no overflow"]
+        MAP["SramMap::verified()&lt;br/&gt;✅ containment&lt;br/&gt;✅ non-overlap"]
+        ACC["TypedRegion&amp;lt;RW&amp;gt;&lt;br/&gt;✅ access control"]
+        PROV["VerifiedAddr::new()&lt;br/&gt;✅ provenance"]
+    end
+
+    subgraph runtime["Runtime"]
+        HW["Hardware access&lt;br/&gt;No bounds checks&lt;br/&gt;No permission checks"]
+    end
+
+    RGN --&gt; MAP --&gt; ACC --&gt; PROV --&gt; HW
+
+    style RGN fill:#c8e6c9,color:#000
+    style MAP fill:#c8e6c9,color:#000
+    style ACC fill:#e1f5fe,color:#000
+    style PROV fill:#e1f5fe,color:#000
+    style HW fill:#fff3e0,color:#000
+</pre>
+
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li>
+<p><strong><code>const fn</code> + <code>assert!</code> = compile-time proof obligation</strong> — if the assertion fails during const evaluation, the program does not compile. No test needed, no code review catch — the compiler proves it.</p>
+</li>
+<li>
+<p><strong>Memory maps are ideal candidates</strong> — sub-region containment, overlap freedom, total-size bounds, and alignment constraints are all expressible as const fn assertions. The C <code>#define</code> approach offers none of these guarantees.</p>
+</li>
+<li>
+<p><strong>Phantom types layer on top</strong> — combine const fn (value verification) with phantom-typed access markers (permission verification) for defense in depth at zero runtime cost.</p>
+</li>
+<li>
+<p><strong>Provenance can be established at compile time</strong> — <code>VerifiedAddr</code> proves at compile time that an address belongs to a specific region, eliminating runtime bounds checks on every access.</p>
+</li>
+<li>
+<p><strong>The pattern generalizes beyond memory</strong> — register maps, bitfield masks, protocol frames, clock trees, DMA parameters — anywhere you have compile-time-known values with structural invariants.</p>
+</li>
+<li>
+<p><strong>Bitfields and clock trees are ideal candidates</strong> — intra-register bit disjointness and derived-value constraint chains (VCO range, divider limits) are exactly the kind of invariant that <code>const fn</code> proves effortlessly.</p>
+</li>
+<li>
+<p><strong><code>const fn</code> replaces code generators and build scripts for lookup tables</strong> — CRC tables, trigonometry, encoding maps — computed at compile time, placed in <code>.rodata</code>, with zero startup cost and no external tooling.</p>
+</li>
+<li>
+<p><strong>Inline <code>const { }</code> blocks validate generic parameters</strong> — since Rust 1.79, you can enforce constraints on const generics at the call site, catching misuse before any code runs.</p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch09-phantom-types-for-resource-tracking.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch16-send-sync-compile-time-concurrency-proofs.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch09-phantom-types-for-resource-tracking.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch16-send-sync-compile-time-concurrency-proofs.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

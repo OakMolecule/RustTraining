@@ -1,0 +1,915 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>2. Typed Command Interfaces — Request Determines Response - Type-Driven Correctness in Rust</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-df8e101b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-f24cd47a.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Type-Driven Correctness in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="typed-command-interfaces--request-determines-response-"><a class="header" href="#typed-command-interfaces--request-determines-response-">Typed Command Interfaces — Request Determines Response 🟡</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong> How associated types on a command trait create a compile-time binding between request and response, eliminating mismatched parsing, unit confusion, and silent type coercion across IPMI, Redfish, and NVMe protocols.</p>
+<p><strong>Cross-references:</strong> <a href="ch01-the-philosophy-why-types-beat-tests.html">ch01</a> (philosophy), <a href="ch06-dimensional-analysis-making-the-compiler.html">ch06</a> (dimensional types), <a href="ch07-validated-boundaries-parse-dont-validate.html">ch07</a> (validated boundaries), <a href="ch10-putting-it-all-together-a-complete-diagn.html">ch10</a> (integration)</p>
+</blockquote>
+<h2 id="the-untyped-swamp"><a class="header" href="#the-untyped-swamp">The Untyped Swamp</a></h2>
+<p>Most hardware management stacks — IPMI, Redfish, NVMe Admin, PLDM — start life as
+<code>raw bytes in → raw bytes out</code>. This creates a category of bugs that tests can only
+partially find:</p>
+<pre><code class="language-rust ignore">use std::io;
+
+struct BmcRaw { /* ipmitool handle */ }
+
+impl BmcRaw {
+    fn raw_command(&amp;self, net_fn: u8, cmd: u8, data: &amp;[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+        // ... shells out to ipmitool ...
+        Ok(vec![0x00, 0x19, 0x00]) // stub
+    }
+}
+
+fn diagnose_thermal(bmc: &amp;BmcRaw) -&gt; io::Result&lt;()&gt; {
+    let raw = bmc.raw_command(0x04, 0x2D, &amp;[0x20])?;
+    let cpu_temp = raw[0] as f64;        // 🤞 is byte 0 the reading?
+
+    let raw = bmc.raw_command(0x04, 0x2D, &amp;[0x30])?;
+    let fan_rpm = raw[0] as u32;         // 🐛 fan speed is 2 bytes LE
+
+    let raw = bmc.raw_command(0x04, 0x2D, &amp;[0x40])?;
+    let voltage = raw[0] as f64;         // 🐛 need to divide by 1000
+
+    if cpu_temp &gt; fan_rpm as f64 {       // 🐛 comparing °C to RPM
+        println!("uh oh");
+    }
+
+    log_temp(voltage);                   // 🐛 passing Volts as temperature
+    Ok(())
+}
+
+fn log_temp(t: f64) { println!("Temp: {t}°C"); }</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>#</th><th>Bug</th><th>Discovered</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Fan RPM parsed as 1 byte instead of 2</td><td>Production, 3 AM</td></tr>
+<tr><td>2</td><td>Voltage not scaled</td><td>Every PSU flagged as overvoltage</td></tr>
+<tr><td>3</td><td>Comparing °C to RPM</td><td>Maybe never</td></tr>
+<tr><td>4</td><td>Volts passed to temp logger</td><td>6 months later, reading historical data</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Root cause:</strong> Everything is <code>Vec&lt;u8&gt;</code> → <code>f64</code> → pray.</p>
+<h2 id="the-typed-command-pattern"><a class="header" href="#the-typed-command-pattern">The Typed Command Pattern</a></h2>
+<h3 id="step-1--domain-newtypes"><a class="header" href="#step-1--domain-newtypes">Step 1 — Domain newtypes</a></h3>
+<pre><code class="language-rust ignore">#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Celsius(pub f64);
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Rpm(pub u32);  // u32: raw IPMI sensor value (integer RPM)
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Volts(pub f64);
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Watts(pub f64);</code></pre>
+<blockquote>
+<p><strong>Note on <code>Rpm(u32)</code> vs <code>Rpm(f64)</code>:</strong> In this chapter the inner type is <code>u32</code>
+because IPMI sensor readings are integer values. In ch06 (Dimensional Analysis),
+<code>Rpm</code> uses <code>f64</code> to support arithmetic operations (averaging, scaling). Both
+are valid — the newtype prevents cross-unit confusion regardless of inner type.</p>
+</blockquote>
+<h3 id="step-2--the-command-trait-type-indexed-dispatch"><a class="header" href="#step-2--the-command-trait-type-indexed-dispatch">Step 2 — The command trait (type-indexed dispatch)</a></h3>
+<p>The associated type <code>Response</code> is the key — it binds each command struct to its
+return type.  Each implementing struct pins <code>Response</code> to a specific domain type,
+so <code>execute()</code> always returns exactly the right type:</p>
+<pre><code class="language-rust ignore">pub trait IpmiCmd {
+    /// The "type index" — determines what execute() returns.
+    type Response;
+
+    fn net_fn(&amp;self) -&gt; u8;
+    fn cmd_byte(&amp;self) -&gt; u8;
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt;;
+
+    /// Parsing encapsulated here — each command knows its own byte layout.
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Self::Response&gt;;
+}</code></pre>
+<h3 id="step-3--one-struct-per-command"><a class="header" href="#step-3--one-struct-per-command">Step 3 — One struct per command</a></h3>
+<pre><code class="language-rust ignore">pub struct ReadTemp { pub sensor_id: u8 }
+impl IpmiCmd for ReadTemp {
+    type Response = Celsius;
+    fn net_fn(&amp;self) -&gt; u8 { 0x04 }
+    fn cmd_byte(&amp;self) -&gt; u8 { 0x2D }
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt; { vec![self.sensor_id] }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Celsius&gt; {
+        if raw.is_empty() {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "empty response"));
+        }
+        // Note: ch01's untyped example uses `raw[0] as i8 as f64` (signed)
+        // because that function was demonstrating generic parsing without
+        // SDR metadata. Here we use unsigned (`as f64`) because the SDR
+        // linearization formula in IPMI spec §35.5 converts the unsigned
+        // raw reading to a calibrated value. In production, apply the
+        // full SDR formula: result = (M × raw + B) × 10^(R_exp).
+        Ok(Celsius(raw[0] as f64))  // unsigned raw byte, converted per SDR formula
+    }
+}
+
+pub struct ReadFanSpeed { pub fan_id: u8 }
+impl IpmiCmd for ReadFanSpeed {
+    type Response = Rpm;
+    fn net_fn(&amp;self) -&gt; u8 { 0x04 }
+    fn cmd_byte(&amp;self) -&gt; u8 { 0x2D }
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt; { vec![self.fan_id] }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Rpm&gt; {
+        if raw.len() &lt; 2 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData,
+                format!("fan speed needs 2 bytes, got {}", raw.len())));
+        }
+        Ok(Rpm(u16::from_le_bytes([raw[0], raw[1]]) as u32))
+    }
+}
+
+pub struct ReadVoltage { pub rail: u8 }
+impl IpmiCmd for ReadVoltage {
+    type Response = Volts;
+    fn net_fn(&amp;self) -&gt; u8 { 0x04 }
+    fn cmd_byte(&amp;self) -&gt; u8 { 0x2D }
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt; { vec![self.rail] }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Volts&gt; {
+        if raw.len() &lt; 2 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData,
+                format!("voltage needs 2 bytes, got {}", raw.len())));
+        }
+        Ok(Volts(u16::from_le_bytes([raw[0], raw[1]]) as f64 / 1000.0))
+    }
+}</code></pre>
+<h3 id="step-4--the-executor-zero-dyn-monomorphised"><a class="header" href="#step-4--the-executor-zero-dyn-monomorphised">Step 4 — The executor (zero <code>dyn</code>, monomorphised)</a></h3>
+<pre><code class="language-rust ignore">pub struct BmcConnection { pub timeout_secs: u32 }
+
+impl BmcConnection {
+    pub fn execute&lt;C: IpmiCmd&gt;(&amp;self, cmd: &amp;C) -&gt; io::Result&lt;C::Response&gt; {
+        let raw = self.raw_send(cmd.net_fn(), cmd.cmd_byte(), &amp;cmd.payload())?;
+        cmd.parse_response(&amp;raw)
+    }
+
+    fn raw_send(&amp;self, _nf: u8, _cmd: u8, _data: &amp;[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+        Ok(vec![0x19, 0x00]) // stub
+    }
+}</code></pre>
+<h3 id="step-5--all-four-bugs-become-compile-errors"><a class="header" href="#step-5--all-four-bugs-become-compile-errors">Step 5 — All four bugs become compile errors</a></h3>
+<pre><code class="language-rust ignore">fn diagnose_thermal_typed(bmc: &amp;BmcConnection) -&gt; io::Result&lt;()&gt; {
+    let cpu_temp: Celsius = bmc.execute(&amp;ReadTemp { sensor_id: 0x20 })?;
+    let fan_rpm:  Rpm     = bmc.execute(&amp;ReadFanSpeed { fan_id: 0x30 })?;
+    let voltage:  Volts   = bmc.execute(&amp;ReadVoltage { rail: 0x40 })?;
+
+    // Bug #1 — IMPOSSIBLE: parsing lives in ReadFanSpeed::parse_response
+    // Bug #2 — IMPOSSIBLE: unit scaling lives in ReadVoltage::parse_response
+
+    // Bug #3 — COMPILE ERROR:
+    // if cpu_temp &gt; fan_rpm { }
+    //    ^^^^^^^^   ^^^^^^^ Celsius vs Rpm → "mismatched types" ❌
+
+    // Bug #4 — COMPILE ERROR:
+    // log_temperature(voltage);
+    //                 ^^^^^^^ Volts, expected Celsius ❌
+
+    if cpu_temp &gt; Celsius(85.0) { println!("CPU overheating: {:?}", cpu_temp); }
+    if fan_rpm &lt; Rpm(4000)      { println!("Fan too slow: {:?}", fan_rpm); }
+
+    Ok(())
+}
+
+fn log_temperature(t: Celsius) { println!("Temp: {:?}", t); }
+fn log_voltage(v: Volts)       { println!("Voltage: {:?}", v); }</code></pre>
+<h2 id="ipmi-sensor-reads-that-cant-be-confused"><a class="header" href="#ipmi-sensor-reads-that-cant-be-confused">IPMI: Sensor Reads That Can’t Be Confused</a></h2>
+<p>Adding a new sensor is one struct + one impl — no scattered parsing:</p>
+<pre><code class="language-rust ignore">pub struct ReadPowerDraw { pub domain: u8 }
+impl IpmiCmd for ReadPowerDraw {
+    type Response = Watts;
+    fn net_fn(&amp;self) -&gt; u8 { 0x04 }
+    fn cmd_byte(&amp;self) -&gt; u8 { 0x2D }
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt; { vec![self.domain] }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Watts&gt; {
+        if raw.len() &lt; 2 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData,
+                format!("power draw needs 2 bytes, got {}", raw.len())));
+        }
+        Ok(Watts(u16::from_le_bytes([raw[0], raw[1]]) as f64))
+    }
+}
+
+// Every caller that uses bmc.execute(&amp;ReadPowerDraw { domain: 0 })
+// automatically gets Watts back — no parsing code elsewhere</code></pre>
+<h3 id="testing-each-command-in-isolation"><a class="header" href="#testing-each-command-in-isolation">Testing Each Command in Isolation</a></h3>
+<pre><code class="language-rust ignore">#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct StubBmc {
+        responses: std::collections::HashMap&lt;u8, Vec&lt;u8&gt;&gt;,
+    }
+
+    impl StubBmc {
+        fn execute&lt;C: IpmiCmd&gt;(&amp;self, cmd: &amp;C) -&gt; io::Result&lt;C::Response&gt; {
+            let key = cmd.payload()[0];
+            let raw = self.responses.get(&amp;key)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "no stub"))?;
+            cmd.parse_response(raw)
+        }
+    }
+
+    #[test]
+    fn read_temp_parses_raw_byte() {
+        let bmc = StubBmc {
+            responses: [(0x20, vec![0x19])].into(), // 25 decimal = 0x19
+        };
+        let temp = bmc.execute(&amp;ReadTemp { sensor_id: 0x20 }).unwrap();
+        assert_eq!(temp, Celsius(25.0));
+    }
+
+    #[test]
+    fn read_fan_parses_two_byte_le() {
+        let bmc = StubBmc {
+            responses: [(0x30, vec![0x00, 0x19])].into(), // 0x1900 = 6400
+        };
+        let rpm = bmc.execute(&amp;ReadFanSpeed { fan_id: 0x30 }).unwrap();
+        assert_eq!(rpm, Rpm(6400));
+    }
+
+    #[test]
+    fn read_voltage_scales_millivolts() {
+        let bmc = StubBmc {
+            responses: [(0x40, vec![0xE8, 0x2E])].into(), // 0x2EE8 = 12008 mV
+        };
+        let v = bmc.execute(&amp;ReadVoltage { rail: 0x40 }).unwrap();
+        assert!((v.0 - 12.008).abs() &lt; 0.001);
+    }
+}</code></pre>
+<h2 id="redfish-schema-typed-rest-endpoints"><a class="header" href="#redfish-schema-typed-rest-endpoints">Redfish: Schema-Typed REST Endpoints</a></h2>
+<p>Redfish is an even better fit — each endpoint returns a DMTF-defined JSON schema:</p>
+<pre><code class="language-rust ignore">use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
+pub struct ThermalResponse {
+    #[serde(rename = "Temperatures")]
+    pub temperatures: Vec&lt;RedfishTemp&gt;,
+    #[serde(rename = "Fans")]
+    pub fans: Vec&lt;RedfishFan&gt;,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RedfishTemp {
+    #[serde(rename = "Name")]
+    pub name: String,
+    #[serde(rename = "ReadingCelsius")]
+    pub reading: f64,
+    #[serde(rename = "UpperThresholdCritical")]
+    pub critical_hi: Option&lt;f64&gt;,
+    #[serde(rename = "Status")]
+    pub status: RedfishHealth,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RedfishFan {
+    #[serde(rename = "Name")]
+    pub name: String,
+    #[serde(rename = "Reading")]
+    pub rpm: u32,
+    #[serde(rename = "Status")]
+    pub status: RedfishHealth,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct PowerResponse {
+    #[serde(rename = "Voltages")]
+    pub voltages: Vec&lt;RedfishVoltage&gt;,
+    #[serde(rename = "PowerSupplies")]
+    pub psus: Vec&lt;RedfishPsu&gt;,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RedfishVoltage {
+    #[serde(rename = "Name")]
+    pub name: String,
+    #[serde(rename = "ReadingVolts")]
+    pub reading: f64,
+    #[serde(rename = "Status")]
+    pub status: RedfishHealth,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RedfishPsu {
+    #[serde(rename = "Name")]
+    pub name: String,
+    #[serde(rename = "PowerOutputWatts")]
+    pub output_watts: Option&lt;f64&gt;,
+    #[serde(rename = "Status")]
+    pub status: RedfishHealth,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ProcessorResponse {
+    #[serde(rename = "Model")]
+    pub model: String,
+    #[serde(rename = "TotalCores")]
+    pub cores: u32,
+    #[serde(rename = "Status")]
+    pub status: RedfishHealth,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct RedfishHealth {
+    #[serde(rename = "State")]
+    pub state: String,
+    #[serde(rename = "Health")]
+    pub health: Option&lt;String&gt;,
+}
+
+/// Typed Redfish endpoint — each knows its response type.
+pub trait RedfishEndpoint {
+    type Response: serde::de::DeserializeOwned;
+    fn method(&amp;self) -&gt; &amp;'static str;
+    fn path(&amp;self) -&gt; String;
+}
+
+pub struct GetThermal { pub chassis_id: String }
+impl RedfishEndpoint for GetThermal {
+    type Response = ThermalResponse;
+    fn method(&amp;self) -&gt; &amp;'static str { "GET" }
+    fn path(&amp;self) -&gt; String {
+        format!("/redfish/v1/Chassis/{}/Thermal", self.chassis_id)
+    }
+}
+
+pub struct GetPower { pub chassis_id: String }
+impl RedfishEndpoint for GetPower {
+    type Response = PowerResponse;
+    fn method(&amp;self) -&gt; &amp;'static str { "GET" }
+    fn path(&amp;self) -&gt; String {
+        format!("/redfish/v1/Chassis/{}/Power", self.chassis_id)
+    }
+}
+
+pub struct GetProcessor { pub system_id: String, pub proc_id: String }
+impl RedfishEndpoint for GetProcessor {
+    type Response = ProcessorResponse;
+    fn method(&amp;self) -&gt; &amp;'static str { "GET" }
+    fn path(&amp;self) -&gt; String {
+        format!("/redfish/v1/Systems/{}/Processors/{}", self.system_id, self.proc_id)
+    }
+}
+
+pub struct RedfishClient {
+    pub base_url: String,
+    pub auth_token: String,
+}
+
+impl RedfishClient {
+    pub fn execute&lt;E: RedfishEndpoint&gt;(&amp;self, endpoint: &amp;E) -&gt; io::Result&lt;E::Response&gt; {
+        let url = format!("{}{}", self.base_url, endpoint.path());
+        let json_bytes = self.http_request(endpoint.method(), &amp;url)?;
+        serde_json::from_slice(&amp;json_bytes)
+            .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))
+    }
+
+    fn http_request(&amp;self, _method: &amp;str, _url: &amp;str) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+        Ok(vec![]) // stub — real impl uses reqwest/hyper
+    }
+}
+
+// Usage — fully typed, self-documenting
+fn redfish_pre_flight(client: &amp;RedfishClient) -&gt; io::Result&lt;()&gt; {
+    let thermal: ThermalResponse = client.execute(&amp;GetThermal {
+        chassis_id: "1".into(),
+    })?;
+    let power: PowerResponse = client.execute(&amp;GetPower {
+        chassis_id: "1".into(),
+    })?;
+
+    // ❌ Compile error — can't pass PowerResponse to a thermal check:
+    // check_thermals(&amp;power);  → "expected ThermalResponse, found PowerResponse"
+
+    for temp in &amp;thermal.temperatures {
+        if let Some(crit) = temp.critical_hi {
+            if temp.reading &gt; crit {
+                println!("CRITICAL: {} at {}°C (threshold: {}°C)",
+                    temp.name, temp.reading, crit);
+            }
+        }
+    }
+    Ok(())
+}</code></pre>
+<h2 id="nvme-admin-identify-doesnt-return-log-pages"><a class="header" href="#nvme-admin-identify-doesnt-return-log-pages">NVMe Admin: Identify Doesn’t Return Log Pages</a></h2>
+<p>NVMe admin commands follow the same shape. The controller distinguishes command
+opcodes, but in C the caller must know which struct to overlay on the 4 KB
+completion buffer. The typed-command pattern makes this impossible to get wrong:</p>
+<pre><code class="language-rust ignore">use std::io;
+
+/// The NVMe Admin command trait — same shape as IpmiCmd.
+pub trait NvmeAdminCmd {
+    type Response;
+    fn opcode(&amp;self) -&gt; u8;
+    fn parse_completion(&amp;self, data: &amp;[u8]) -&gt; io::Result&lt;Self::Response&gt;;
+}
+
+// ── Identify (opcode 0x06) ──
+
+#[derive(Debug, Clone)]
+pub struct IdentifyResponse {
+    pub model_number: String,   // bytes 24–63
+    pub serial_number: String,  // bytes 4–23
+    pub firmware_rev: String,   // bytes 64–71
+    pub total_capacity_gb: u64,
+}
+
+pub struct Identify {
+    pub nsid: u32, // 0 = controller, &gt;0 = namespace
+}
+
+impl NvmeAdminCmd for Identify {
+    type Response = IdentifyResponse;
+    fn opcode(&amp;self) -&gt; u8 { 0x06 }
+    fn parse_completion(&amp;self, data: &amp;[u8]) -&gt; io::Result&lt;IdentifyResponse&gt; {
+        if data.len() &lt; 4096 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "short identify"));
+        }
+        Ok(IdentifyResponse {
+            serial_number: String::from_utf8_lossy(&amp;data[4..24]).trim().to_string(),
+            model_number: String::from_utf8_lossy(&amp;data[24..64]).trim().to_string(),
+            firmware_rev: String::from_utf8_lossy(&amp;data[64..72]).trim().to_string(),
+            total_capacity_gb: u64::from_le_bytes(
+                data[280..288].try_into().unwrap()
+            ) / (1024 * 1024 * 1024),
+        })
+    }
+}
+
+// ── Get Log Page (opcode 0x02) ──
+
+#[derive(Debug, Clone)]
+pub struct SmartLog {
+    pub critical_warning: u8,
+    pub temperature_kelvin: u16,
+    pub available_spare_pct: u8,
+    pub data_units_read: u128,
+}
+
+pub struct GetLogPage {
+    pub log_id: u8, // 0x02 = SMART/Health
+}
+
+impl NvmeAdminCmd for GetLogPage {
+    type Response = SmartLog;
+    fn opcode(&amp;self) -&gt; u8 { 0x02 }
+    fn parse_completion(&amp;self, data: &amp;[u8]) -&gt; io::Result&lt;SmartLog&gt; {
+        if data.len() &lt; 512 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "short log page"));
+        }
+        Ok(SmartLog {
+            critical_warning: data[0],
+            temperature_kelvin: u16::from_le_bytes([data[1], data[2]]),
+            available_spare_pct: data[3],
+            data_units_read: u128::from_le_bytes(data[32..48].try_into().unwrap()),
+        })
+    }
+}
+
+// ── Executor ──
+
+pub struct NvmeController { /* fd, BAR, etc. */ }
+
+impl NvmeController {
+    pub fn admin_cmd&lt;C: NvmeAdminCmd&gt;(&amp;self, cmd: &amp;C) -&gt; io::Result&lt;C::Response&gt; {
+        let raw = self.submit_and_wait(cmd.opcode())?;
+        cmd.parse_completion(&amp;raw)
+    }
+
+    fn submit_and_wait(&amp;self, _opcode: u8) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+        Ok(vec![0u8; 4096]) // stub — real impl issues doorbell + waits for CQ entry
+    }
+}
+
+// ── Usage ──
+
+fn nvme_health_check(ctrl: &amp;NvmeController) -&gt; io::Result&lt;()&gt; {
+    let id: IdentifyResponse = ctrl.admin_cmd(&amp;Identify { nsid: 0 })?;
+    let smart: SmartLog = ctrl.admin_cmd(&amp;GetLogPage { log_id: 0x02 })?;
+
+    // ❌ Compile error — Identify returns IdentifyResponse, not SmartLog:
+    // let smart: SmartLog = ctrl.admin_cmd(&amp;Identify { nsid: 0 })?;
+
+    println!("{} (FW {}): {}°C, {}% spare",
+        id.model_number, id.firmware_rev,
+        smart.temperature_kelvin.saturating_sub(273),
+        smart.available_spare_pct);
+
+    Ok(())
+}</code></pre>
+<p>The three-protocol progression now follows a <strong>graduated arc</strong> (the same technique
+ch07 uses for validated boundaries):</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th style="text-align: center">Beat</th><th>Protocol</th><th>Complexity</th><th>What it adds</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: center">1</td><td>IPMI</td><td>Simple: sensor ID → reading</td><td>Core pattern: <code>trait + associated type</code></td></tr>
+<tr><td style="text-align: center">2</td><td>Redfish</td><td>REST: endpoint → typed JSON</td><td>Serde integration, schema-typed responses</td></tr>
+<tr><td style="text-align: center">3</td><td>NVMe</td><td>Binary: opcode → 4 KB struct overlay</td><td>Raw buffer parsing, multi-struct completion data</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="extension-macro-dsl-for-command-scripts"><a class="header" href="#extension-macro-dsl-for-command-scripts">Extension: Macro DSL for Command Scripts</a></h2>
+<pre><code class="language-rust ignore">/// Execute a series of typed IPMI commands, returning a tuple of results.
+macro_rules! diag_script {
+    ($bmc:expr; $($cmd:expr),+ $(,)?) =&gt; {{
+        ( $( $bmc.execute(&amp;$cmd)?, )+ )
+    }};
+}
+
+fn full_pre_flight(bmc: &amp;BmcConnection) -&gt; io::Result&lt;()&gt; {
+    let (temp, rpm, volts) = diag_script!(bmc;
+        ReadTemp     { sensor_id: 0x20 },
+        ReadFanSpeed { fan_id:    0x30 },
+        ReadVoltage  { rail:      0x40 },
+    );
+    // Type: (Celsius, Rpm, Volts) — fully inferred, swap = compile error
+    assert!(temp  &lt; Celsius(95.0), "CPU too hot");
+    assert!(rpm   &gt; Rpm(3000),     "Fan too slow");
+    assert!(volts &gt; Volts(11.4),   "12V rail sagging");
+    Ok(())
+}</code></pre>
+<h2 id="extension-enum-dispatch-for-dynamic-scripts"><a class="header" href="#extension-enum-dispatch-for-dynamic-scripts">Extension: Enum Dispatch for Dynamic Scripts</a></h2>
+<p>When commands come from JSON config at runtime:</p>
+<pre><code class="language-rust ignore">pub enum AnyReading {
+    Temp(Celsius),
+    Rpm(Rpm),
+    Volt(Volts),
+    Watt(Watts),
+}
+
+pub enum AnyCmd {
+    Temp(ReadTemp),
+    Fan(ReadFanSpeed),
+    Voltage(ReadVoltage),
+    Power(ReadPowerDraw),
+}
+
+impl AnyCmd {
+    pub fn execute(&amp;self, bmc: &amp;BmcConnection) -&gt; io::Result&lt;AnyReading&gt; {
+        match self {
+            AnyCmd::Temp(c)    =&gt; Ok(AnyReading::Temp(bmc.execute(c)?)),
+            AnyCmd::Fan(c)     =&gt; Ok(AnyReading::Rpm(bmc.execute(c)?)),
+            AnyCmd::Voltage(c) =&gt; Ok(AnyReading::Volt(bmc.execute(c)?)),
+            AnyCmd::Power(c)   =&gt; Ok(AnyReading::Watt(bmc.execute(c)?)),
+        }
+    }
+}
+
+fn run_dynamic_script(bmc: &amp;BmcConnection, script: &amp;[AnyCmd]) -&gt; io::Result&lt;Vec&lt;AnyReading&gt;&gt; {
+    script.iter().map(|cmd| cmd.execute(bmc)).collect()
+}</code></pre>
+<h2 id="the-pattern-family"><a class="header" href="#the-pattern-family">The Pattern Family</a></h2>
+<p>This pattern applies to <strong>every</strong> hardware management protocol:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Protocol</th><th>Request Type</th><th>Response Type</th></tr>
+</thead>
+<tbody>
+<tr><td>IPMI Sensor Reading</td><td><code>ReadTemp</code></td><td><code>Celsius</code></td></tr>
+<tr><td>Redfish REST</td><td><code>GetThermal</code></td><td><code>ThermalResponse</code></td></tr>
+<tr><td>NVMe Admin</td><td><code>Identify</code></td><td><code>IdentifyResponse</code></td></tr>
+<tr><td>PLDM</td><td><code>GetFwParams</code></td><td><code>FwParamsResponse</code></td></tr>
+<tr><td>MCTP</td><td><code>GetEid</code></td><td><code>EidResponse</code></td></tr>
+<tr><td>PCIe Config Space</td><td><code>ReadCapability</code></td><td><code>CapabilityHeader</code></td></tr>
+<tr><td>SMBIOS/DMI</td><td><code>ReadType17</code></td><td><code>MemoryDeviceInfo</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The request type <strong>determines</strong> the response type — the compiler enforces it everywhere.</p>
+<h2 id="typed-command-flow"><a class="header" href="#typed-command-flow">Typed Command Flow</a></h2>
+<pre class="mermaid">flowchart LR
+    subgraph "Compile Time"
+        RT["ReadTemp"] --&gt;|"type Response = Celsius"| C[Celsius]
+        RF["ReadFanSpeed"] --&gt;|"type Response = Rpm"| R[Rpm]
+        RV["ReadVoltage"] --&gt;|"type Response = Volts"| V[Volts]
+    end
+    subgraph "Runtime"
+        E["bmc.execute(&amp;cmd)"] --&gt;|"monomorphised"| P["cmd.parse_response(raw)"]
+    end
+    style RT fill:#e1f5fe,color:#000
+    style RF fill:#e1f5fe,color:#000
+    style RV fill:#e1f5fe,color:#000
+    style C fill:#c8e6c9,color:#000
+    style R fill:#c8e6c9,color:#000
+    style V fill:#c8e6c9,color:#000
+    style E fill:#fff3e0,color:#000
+    style P fill:#fff3e0,color:#000
+</pre>
+
+<h2 id="exercise-pldm-typed-commands"><a class="header" href="#exercise-pldm-typed-commands">Exercise: PLDM Typed Commands</a></h2>
+<p>Design a <code>PldmCmd</code> trait (same shape as <code>IpmiCmd</code>) for two PLDM commands:</p>
+<ul>
+<li><code>GetFwParams</code> → <code>FwParamsResponse { active_version: String, pending_version: Option&lt;String&gt; }</code></li>
+<li><code>QueryDeviceIds</code> → <code>DeviceIdResponse { descriptors: Vec&lt;Descriptor&gt; }</code></li>
+</ul>
+<p>Requirements: static dispatch, <code>parse_response</code> returns <code>io::Result&lt;Self::Response&gt;</code>.</p>
+<details>
+<summary>Solution</summary>
+<pre><code class="language-rust ignore">use std::io;
+
+pub trait PldmCmd {
+    type Response;
+    fn pldm_type(&amp;self) -&gt; u8;
+    fn command_code(&amp;self) -&gt; u8;
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Self::Response&gt;;
+}
+
+#[derive(Debug, Clone)]
+pub struct FwParamsResponse {
+    pub active_version: String,
+    pub pending_version: Option&lt;String&gt;,
+}
+
+pub struct GetFwParams;
+impl PldmCmd for GetFwParams {
+    type Response = FwParamsResponse;
+    fn pldm_type(&amp;self) -&gt; u8 { 0x05 } // Firmware Update
+    fn command_code(&amp;self) -&gt; u8 { 0x02 }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;FwParamsResponse&gt; {
+        // Simplified — real impl decodes PLDM FW Update spec fields
+        if raw.len() &lt; 4 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "too short"));
+        }
+        Ok(FwParamsResponse {
+            active_version: String::from_utf8_lossy(&amp;raw[..4]).to_string(),
+            pending_version: None,
+        })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Descriptor { pub descriptor_type: u16, pub data: Vec&lt;u8&gt; }
+
+#[derive(Debug, Clone)]
+pub struct DeviceIdResponse { pub descriptors: Vec&lt;Descriptor&gt; }
+
+pub struct QueryDeviceIds;
+impl PldmCmd for QueryDeviceIds {
+    type Response = DeviceIdResponse;
+    fn pldm_type(&amp;self) -&gt; u8 { 0x05 }
+    fn command_code(&amp;self) -&gt; u8 { 0x04 }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;DeviceIdResponse&gt; {
+        Ok(DeviceIdResponse { descriptors: vec![] }) // stub
+    }
+}</code></pre>
+</details>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li><strong>Associated type = compile-time contract</strong> — <code>type Response</code> on the command trait locks each request to exactly one response type.</li>
+<li><strong>Parsing is encapsulated</strong> — byte-layout knowledge lives in <code>parse_response</code>, not scattered across callers.</li>
+<li><strong>Zero-cost dispatch</strong> — generic <code>execute&lt;C: IpmiCmd&gt;</code> monomorphises to direct calls with no vtable.</li>
+<li><strong>One pattern, many protocols</strong> — IPMI, Redfish, NVMe, PLDM, MCTP all fit the same <code>trait Cmd { type Response; }</code> shape.</li>
+<li><strong>Enum dispatch bridges static and dynamic</strong> — wrap typed commands in an enum for runtime-driven scripts without losing type safety inside each arm.</li>
+<li><strong>Graduated complexity strengthens intuition</strong> — IPMI (sensor ID → reading), Redfish (endpoint → JSON schema), and NVMe (opcode → 4 KB struct overlay) all use the same trait shape, but each beat adds a layer of parsing complexity.</li>
+</ol>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch01-the-philosophy-why-types-beat-tests.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch03-single-use-types-cryptographic-guarantee.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch01-the-philosophy-why-types-beat-tests.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch03-single-use-types-cryptographic-guarantee.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,1348 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>15. Fourteen Tricks from the Trenches - Type-Driven Correctness in Rust</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-df8e101b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-f24cd47a.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Type-Driven Correctness in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="fourteen-tricks-from-the-trenches-"><a class="header" href="#fourteen-tricks-from-the-trenches-">Fourteen Tricks from the Trenches 🟡</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong> Fourteen smaller correct-by-construction techniques — from sentinel elimination and sealed traits to session types, <code>Pin</code>, RAII, and <code>#[must_use]</code> — each eliminating a specific bug class for near-zero effort.</p>
+<p><strong>Cross-references:</strong> <a href="ch02-typed-command-interfaces-request-determi.html">ch02</a> (sealed traits extend ch02), <a href="ch05-protocol-state-machines-type-state-for-r.html">ch05</a> (typestate builder extends ch05), <a href="ch07-validated-boundaries-parse-dont-validate.html">ch07</a> (FromStr extends ch07)</p>
+</blockquote>
+<h2 id="fourteen-tricks-from-the-trenches"><a class="header" href="#fourteen-tricks-from-the-trenches">Fourteen Tricks from the Trenches</a></h2>
+<p>The eight core patterns (ch02–ch09) cover the major correct-by-construction
+techniques. This chapter collects fourteen <strong>smaller but high-value tricks</strong> that
+show up repeatedly in production Rust code — each one eliminates a specific
+class of bug for zero or near-zero effort.</p>
+<h3 id="trick-1--sentinel--option-at-the-boundary"><a class="header" href="#trick-1--sentinel--option-at-the-boundary">Trick 1 — Sentinel → <code>Option</code> at the Boundary</a></h3>
+<p>Hardware protocols are full of sentinel values: IPMI uses <code>0xFF</code> for
+“sensor not present,” PCI uses <code>0xFFFF</code> for “no device,” and SMBIOS uses
+<code>0x00</code> for “unknown.” If you carry these sentinels through your code as
+plain integers, every consumer must remember to check for the magic value.
+If even one comparison forgets, you get a phantom 255 °C reading or a
+spurious vendor-ID match.</p>
+<p><strong>The rule:</strong> Convert sentinels to <code>Option</code> at the very first parse boundary,
+and convert <em>back</em> to the sentinel only at the serialization boundary.</p>
+<h4 id="the-anti-pattern-from-pcie_treesrclspcirs"><a class="header" href="#the-anti-pattern-from-pcie_treesrclspcirs">The anti-pattern (from <code>pcie_tree/src/lspci.rs</code>)</a></h4>
+<pre><code class="language-rust ignore">// Sentinel carried internally — every comparison must remember
+let mut current_vendor_id: u16 = 0xFFFF;
+let mut current_device_id: u16 = 0xFFFF;
+
+// ... later, parsing fails silently ...
+current_vendor_id = u16::from_str_radix(hex, 16)
+    .unwrap_or(0xFFFF);  // sentinel hides the error</code></pre>
+<p>Every function that receives <code>current_vendor_id</code> must know that <code>0xFFFF</code> is
+special. If someone writes <code>if vendor_id == target_id</code> without checking
+for <code>0xFFFF</code> first, a missing device silently matches when the target also
+happens to be parsed from bad input as <code>0xFFFF</code>.</p>
+<h4 id="the-correct-pattern-from-nic_selsrceventsrs"><a class="header" href="#the-correct-pattern-from-nic_selsrceventsrs">The correct pattern (from <code>nic_sel/src/events.rs</code>)</a></h4>
+<pre><code class="language-rust ignore">pub struct ThermalEvent {
+    pub record_id: u16,
+    pub temperature: Option&lt;u8&gt;,  // None if sensor reports 0xFF
+}
+
+impl ThermalEvent {
+    pub fn from_raw(record_id: u16, raw_temp: u8) -&gt; Self {
+        ThermalEvent {
+            record_id,
+            temperature: if raw_temp != 0xFF {
+                Some(raw_temp)
+            } else {
+                None
+            },
+        }
+    }
+}</code></pre>
+<p>Now every consumer <em>must</em> handle the <code>None</code> case — the compiler forces it:</p>
+<pre><code class="language-rust ignore">// Safe — compiler ensures we handle missing temps
+fn is_overtemp(temp: Option&lt;u8&gt;, threshold: u8) -&gt; bool {
+    temp.map_or(false, |t| t &gt; threshold)
+}
+
+// Forgetting to handle None is a compile error:
+// fn bad_check(temp: Option&lt;u8&gt;, threshold: u8) -&gt; bool {
+//     temp &gt; threshold  // ERROR: can't compare Option&lt;u8&gt; with u8
+// }</code></pre>
+<h4 id="real-world-impact"><a class="header" href="#real-world-impact">Real-world impact</a></h4>
+<p><code>inventory/src/events.rs</code> uses the same pattern for GPU thermal alerts:</p>
+<pre><code class="language-rust ignore">temperature: if data[1] != 0xFF {
+    Some(data[1] as i8)
+} else {
+    None
+},</code></pre>
+<p>The refactoring for <code>pcie_tree/src/lspci.rs</code> is straightforward: change
+<code>current_vendor_id: u16</code> to <code>current_vendor_id: Option&lt;u16&gt;</code>, replace
+<code>0xFFFF</code> with <code>None</code>, and let the compiler find every site that needs
+updating.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Before</th><th>After</th></tr>
+</thead>
+<tbody>
+<tr><td><code>let mut vendor_id: u16 = 0xFFFF</code></td><td><code>let mut vendor_id: Option&lt;u16&gt; = None</code></td></tr>
+<tr><td><code>.unwrap_or(0xFFFF)</code></td><td><code>.ok()</code> (already returns <code>Option</code>)</td></tr>
+<tr><td><code>if vendor_id != 0xFFFF { ... }</code></td><td><code>if let Some(vid) = vendor_id { ... }</code></td></tr>
+<tr><td>Serialization: <code>vendor_id</code></td><td><code>vendor_id.unwrap_or(0xFFFF)</code></td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h3 id="trick-2--sealed-traits"><a class="header" href="#trick-2--sealed-traits">Trick 2 — Sealed Traits</a></h3>
+<p>Chapter 2 introduced <code>IpmiCmd</code> with an associated type that binds each command
+to its response. But there’s a loophole: if <em>any</em> code can implement <code>IpmiCmd</code>,
+someone could write a <code>MaliciousCmd</code> whose <code>parse_response</code> returns the wrong
+type or panics. The type safety of the entire system rests on every
+implementation being correct.</p>
+<p>A <strong>sealed trait</strong> closes this loophole. The idea is simple: make the trait
+require a <em>private</em> supertrait that only your crate can implement.</p>
+<pre><code class="language-rust ignore">// — Private module: not exported from the crate —
+mod private {
+    pub trait Sealed {}
+}
+
+// — Public trait: requires Sealed, which outsiders can't implement —
+pub trait IpmiCmd: private::Sealed {
+    type Response;
+    fn net_fn(&amp;self) -&gt; u8;
+    fn cmd_byte(&amp;self) -&gt; u8;
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt;;
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Self::Response&gt;;
+}</code></pre>
+<p>Inside your crate, you implement <code>Sealed</code> for each approved command type:</p>
+<pre><code class="language-rust ignore">pub struct ReadTemp { pub sensor_id: u8 }
+impl private::Sealed for ReadTemp {}
+
+impl IpmiCmd for ReadTemp {
+    type Response = Celsius;
+    fn net_fn(&amp;self) -&gt; u8 { 0x04 }
+    fn cmd_byte(&amp;self) -&gt; u8 { 0x2D }
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt; { vec![self.sensor_id] }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Celsius&gt; {
+        if raw.is_empty() { return Err(io::Error::new(io::ErrorKind::InvalidData, "empty")); }
+        Ok(Celsius(raw[0] as f64))
+    }
+}</code></pre>
+<p>External code sees <code>IpmiCmd</code> and can call <code>execute()</code>, but cannot implement it:</p>
+<pre><code class="language-rust ignore">// In another crate:
+struct EvilCmd;
+// impl private::Sealed for EvilCmd {}  // ERROR: module `private` is private
+// impl IpmiCmd for EvilCmd { ... }     // ERROR: `Sealed` is not satisfied</code></pre>
+<h4 id="when-to-seal"><a class="header" href="#when-to-seal">When to seal</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Seal when…</th><th>Don’t seal when…</th></tr>
+</thead>
+<tbody>
+<tr><td>Safety depends on correct implementation (IpmiCmd, DiagModule)</td><td>Users should extend the system (custom report formatters)</td></tr>
+<tr><td>Associated types must satisfy invariants</td><td>The trait is a simple capability marker (HasIpmi)</td></tr>
+<tr><td>You own the canonical set of implementations</td><td>Third-party plugins are a design goal</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="real-world-candidates"><a class="header" href="#real-world-candidates">Real-world candidates</a></h4>
+<ul>
+<li><code>IpmiCmd</code> — incorrect parse could corrupt typed responses</li>
+<li><code>DiagModule</code> — framework assumes <code>run()</code> returns valid DER records</li>
+<li><code>SelEventFilter</code> — broken filter could swallow critical SEL events</li>
+</ul>
+<hr>
+<h3 id="trick-3--non_exhaustive-for-evolving-enums"><a class="header" href="#trick-3--non_exhaustive-for-evolving-enums">Trick 3 — <code>#[non_exhaustive]</code> for Evolving Enums</a></h3>
+<p><code>SkuVariant</code> in <code>inventory/src/types.rs</code> today has five variants:</p>
+<pre><code class="language-rust ignore">pub enum SkuVariant {
+    S1001, S2001, S2002, S2003, S3001,
+}</code></pre>
+<p>When the next generation ships and you add <code>S4001</code>, any external code that
+matches on <code>SkuVariant</code> and doesn’t have a wildcard arm will <strong>silently fail
+to compile</strong> — which is the whole point. But what about internal code? Without
+<code>#[non_exhaustive]</code>, your <code>match</code> in the <em>same crate</em> compiles without a
+wildcard, and adding the new variant breaks your own build.</p>
+<p>Marking the enum <code>#[non_exhaustive]</code> forces <strong>external crates</strong> that match on
+it to include a wildcard arm. Within the defining crate, <code>#[non_exhaustive]</code>
+has no effect — you can still write exhaustive matches.</p>
+<p><strong>Why this is useful:</strong> When you publish <code>SkuVariant</code> from a library crate
+(or a shared sub-crate in a workspace), downstream code is forced to handle
+unknown future variants. When you add <code>S4001</code> next generation, downstream
+code already compiles — they have a wildcard arm.</p>
+<pre><code class="language-rust ignore">// In gpu_sel crate (the defining crate):
+#[non_exhaustive]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum SkuVariant {
+    S1001,
+    S2001,
+    S2002,
+    S2003,
+    S3001,
+    // When the next SKU ships, add it here.
+    // External consumers already have a wildcard — zero breakage for them.
+}
+
+// Within gpu_sel itself — exhaustive match is allowed (no wildcard needed):
+fn diag_path_internal(sku: SkuVariant) -&gt; &amp;'static str {
+    match sku {
+        SkuVariant::S1001 =&gt; "legacy_gen1",
+        SkuVariant::S2001 =&gt; "gen2_accel_diag",
+        SkuVariant::S2002 =&gt; "gen2_alt_diag",
+        SkuVariant::S2003 =&gt; "gen2_alt_hf_diag",
+        SkuVariant::S3001 =&gt; "gen3_accel_diag",
+        // No wildcard needed inside the defining crate.
+        // Adding S4001 here will cause a compile error at this match,
+        // which is exactly what you want — it forces you to update it.
+    }
+}</code></pre>
+<pre><code class="language-rust ignore">// In the binary crate (a downstream crate that depends on inventory):
+fn diag_path_external(sku: inventory::SkuVariant) -&gt; &amp;'static str {
+    match sku {
+        inventory::SkuVariant::S1001 =&gt; "legacy_gen1",
+        inventory::SkuVariant::S2001 =&gt; "gen2_accel_diag",
+        inventory::SkuVariant::S2002 =&gt; "gen2_alt_diag",
+        inventory::SkuVariant::S2003 =&gt; "gen2_alt_hf_diag",
+        inventory::SkuVariant::S3001 =&gt; "gen3_accel_diag",
+        _ =&gt; "generic_diag",  // REQUIRED by #[non_exhaustive] for external crates
+    }
+}</code></pre>
+<blockquote>
+<p><strong>Workspace tip:</strong> If all your code is in a single crate, <code>#[non_exhaustive]</code>
+won’t help — it only affects cross-crate boundaries. For the project’s
+large workspace, place evolving enums in a shared crate (<code>core_lib</code> or
+<code>inventory</code>) so the attribute protects consumers in other workspace crates.</p>
+</blockquote>
+<h4 id="candidates"><a class="header" href="#candidates">Candidates</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Enum</th><th>Module</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr><td><code>SkuVariant</code></td><td><code>inventory</code>, <code>net_inventory</code></td><td>New SKUs every generation</td></tr>
+<tr><td><code>SensorType</code></td><td><code>protocol_lib</code></td><td>IPMI spec reserves 0xC0–0xFF for OEM</td></tr>
+<tr><td><code>CompletionCode</code></td><td><code>protocol_lib</code></td><td>Custom BMC vendors add codes</td></tr>
+<tr><td><code>Component</code></td><td><code>event_handler</code></td><td>New hardware categories (NewSoC was recently added)</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h3 id="trick-4--typestate-builder"><a class="header" href="#trick-4--typestate-builder">Trick 4 — Typestate Builder</a></h3>
+<p>Chapter 5 showed type-state for <em>protocols</em> (session lifecycles, link training).
+The same idea applies to <em>builders</em> — structs whose <code>build()</code> / <code>finish()</code>
+can only be called when all required fields have been set.</p>
+<h4 id="the-problem-with-fluent-builders"><a class="header" href="#the-problem-with-fluent-builders">The problem with fluent builders</a></h4>
+<p><code>DerBuilder</code> in <code>diag_framework/src/der.rs</code> today looks like this (simplified):</p>
+<pre><code class="language-rust ignore">// Current fluent builder — finish() always available
+pub struct DerBuilder {
+    der: Der,
+}
+
+impl DerBuilder {
+    pub fn new(marker: &amp;str, fault_code: u32) -&gt; Self { ... }
+    pub fn mnemonic(mut self, m: &amp;str) -&gt; Self { ... }
+    pub fn fault_class(mut self, fc: &amp;str) -&gt; Self { ... }
+    pub fn finish(self) -&gt; Der { self.der }  // ← always callable!
+}</code></pre>
+<p>This compiles without error, but produces an incomplete DER record:</p>
+<pre><code class="language-rust ignore">let bad = DerBuilder::new("CSI_ERR", 62691)
+    .finish();  // oops — no mnemonic, no fault_class</code></pre>
+<h4 id="typestate-builder-finish-requires-both-fields"><a class="header" href="#typestate-builder-finish-requires-both-fields">Typestate builder: <code>finish()</code> requires both fields</a></h4>
+<pre><code class="language-rust ignore">pub struct Missing;
+pub struct Set&lt;T&gt;(T);
+
+pub struct DerBuilder&lt;Mnemonic, FaultClass&gt; {
+    marker: String,
+    fault_code: u32,
+    mnemonic: Mnemonic,
+    fault_class: FaultClass,
+    description: Option&lt;String&gt;,
+}
+
+// Constructor: starts with both required fields Missing
+impl DerBuilder&lt;Missing, Missing&gt; {
+    pub fn new(marker: &amp;str, fault_code: u32) -&gt; Self {
+        DerBuilder {
+            marker: marker.to_string(),
+            fault_code,
+            mnemonic: Missing,
+            fault_class: Missing,
+            description: None,
+        }
+    }
+}
+
+// Set mnemonic (works regardless of fault_class's state)
+impl&lt;FC&gt; DerBuilder&lt;Missing, FC&gt; {
+    pub fn mnemonic(self, m: &amp;str) -&gt; DerBuilder&lt;Set&lt;String&gt;, FC&gt; {
+        DerBuilder {
+            marker: self.marker, fault_code: self.fault_code,
+            mnemonic: Set(m.to_string()),
+            fault_class: self.fault_class,
+            description: self.description,
+        }
+    }
+}
+
+// Set fault_class (works regardless of mnemonic's state)
+impl&lt;MN&gt; DerBuilder&lt;MN, Missing&gt; {
+    pub fn fault_class(self, fc: &amp;str) -&gt; DerBuilder&lt;MN, Set&lt;String&gt;&gt; {
+        DerBuilder {
+            marker: self.marker, fault_code: self.fault_code,
+            mnemonic: self.mnemonic,
+            fault_class: Set(fc.to_string()),
+            description: self.description,
+        }
+    }
+}
+
+// Optional fields — available in ANY state
+impl&lt;MN, FC&gt; DerBuilder&lt;MN, FC&gt; {
+    pub fn description(mut self, desc: &amp;str) -&gt; Self {
+        self.description = Some(desc.to_string());
+        self
+    }
+}
+
+/// The fully-built DER record.
+pub struct Der {
+    pub marker: String,
+    pub fault_code: u32,
+    pub mnemonic: String,
+    pub fault_class: String,
+    pub description: Option&lt;String&gt;,
+}
+
+// finish() ONLY available when both required fields are Set
+impl DerBuilder&lt;Set&lt;String&gt;, Set&lt;String&gt;&gt; {
+    pub fn finish(self) -&gt; Der {
+        Der {
+            marker: self.marker,
+            fault_code: self.fault_code,
+            mnemonic: self.mnemonic.0,
+            fault_class: self.fault_class.0,
+            description: self.description,
+        }
+    }
+}</code></pre>
+<p>Now the buggy call is a compile error:</p>
+<pre><code class="language-rust ignore">// ✅ Compiles — both required fields set (in any order)
+let der = DerBuilder::new("CSI_ERR", 62691)
+    .fault_class("GPU Module")   // order doesn't matter
+    .mnemonic("ACCEL_CARD_ER691")
+    .description("Thermal throttle")
+    .finish();
+
+// ❌ Compile error — finish() doesn't exist on DerBuilder&lt;Set&lt;String&gt;, Missing&gt;
+let bad = DerBuilder::new("CSI_ERR", 62691)
+    .mnemonic("ACCEL_CARD_ER691")
+    .finish();  // ERROR: method `finish` not found</code></pre>
+<h4 id="when-to-use-typestate-builders"><a class="header" href="#when-to-use-typestate-builders">When to use typestate builders</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Use when…</th><th>Don’t bother when…</th></tr>
+</thead>
+<tbody>
+<tr><td>Omitting a field causes silent bugs (DER missing mnemonic)</td><td>All fields have sensible defaults</td></tr>
+<tr><td>The builder is part of a public API</td><td>The builder is test-only scaffolding</td></tr>
+<tr><td>More than 2–3 required fields</td><td>Single required field (just take it in <code>new()</code>)</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h3 id="trick-5--fromstr-as-a-validation-boundary"><a class="header" href="#trick-5--fromstr-as-a-validation-boundary">Trick 5 — <code>FromStr</code> as a Validation Boundary</a></h3>
+<p>Chapter 7 showed <code>TryFrom&lt;&amp;[u8]&gt;</code> for binary data (FRU records, SEL entries).
+For <strong>string</strong> inputs — config files, CLI arguments, JSON fields — the
+analogous boundary is <code>FromStr</code>.</p>
+<h4 id="the-problem"><a class="header" href="#the-problem">The problem</a></h4>
+<pre><code class="language-rust ignore">// C++ / unvalidated Rust: silently falls through to a default
+fn route_diag(level: &amp;str) -&gt; DiagMode {
+    if level == "quick" { ... }
+    else if level == "standard" { ... }
+    else { QuickMode }  // typo in config?  ¯\_(ツ)_/¯
+}</code></pre>
+<p>A config file with <code>"diag_level": "extendedd"</code> (typo) silently gets <code>QuickMode</code>.</p>
+<h4 id="the-pattern-from-config_loadersrcdiagrs"><a class="header" href="#the-pattern-from-config_loadersrcdiagrs">The pattern (from <code>config_loader/src/diag.rs</code>)</a></h4>
+<pre><code class="language-rust ignore">use std::str::FromStr;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DiagLevel {
+    Quick,
+    Standard,
+    Extended,
+    Stress,
+}
+
+impl FromStr for DiagLevel {
+    type Err = String;
+    fn from_str(s: &amp;str) -&gt; Result&lt;Self, Self::Err&gt; {
+        match s.to_lowercase().as_str() {
+            "quick"    | "1" =&gt; Ok(DiagLevel::Quick),
+            "standard" | "2" =&gt; Ok(DiagLevel::Standard),
+            "extended" | "3" =&gt; Ok(DiagLevel::Extended),
+            "stress"   | "4" =&gt; Ok(DiagLevel::Stress),
+            other =&gt; Err(format!("unknown diag level: '{other}'")),
+        }
+    }
+}</code></pre>
+<p>Now a typo is caught immediately:</p>
+<pre><code class="language-rust ignore">let level: DiagLevel = "extendedd".parse()?;
+// Err("unknown diag level: 'extendedd'")</code></pre>
+<h4 id="the-three-benefits"><a class="header" href="#the-three-benefits">The three benefits</a></h4>
+<ol>
+<li><strong>Fail-fast:</strong> Bad input is caught at the parsing boundary, not three
+layers deep in diagnostic logic.</li>
+<li><strong>Aliases are explicit:</strong> <code>"MEM"</code>, <code>"DIMM"</code>, and <code>"MEMORY"</code> all map to
+<code>Component::Memory</code> — the match arms document the mapping.</li>
+<li><strong><code>.parse()</code> is ergonomic:</strong> Because <code>FromStr</code> integrates with <code>str::parse()</code>,
+you get clean one-liners: <code>let level: DiagLevel = config["level"].parse()?;</code></li>
+</ol>
+<h4 id="real-codebase-usage"><a class="header" href="#real-codebase-usage">Real codebase usage</a></h4>
+<p>The project already has 8 <code>FromStr</code> implementations:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th>Module</th><th>Notable aliases</th></tr>
+</thead>
+<tbody>
+<tr><td><code>DiagLevel</code></td><td><code>config_loader</code></td><td><code>"1"</code> = Quick, <code>"4"</code> = Stress</td></tr>
+<tr><td><code>Component</code></td><td><code>event_handler</code></td><td><code>"MEM"</code> / <code>"DIMM"</code> = Memory, <code>"SSD"</code> / <code>"NVME"</code> = Disk</td></tr>
+<tr><td><code>SkuVariant</code></td><td><code>net_inventory</code></td><td><code>"Accel-X1"</code> = S2001, <code>"Accel-M1"</code> = S2002, <code>"Accel-Z1"</code> = S3001</td></tr>
+<tr><td><code>SkuVariant</code></td><td><code>inventory</code></td><td>Same aliases (separate module, same pattern)</td></tr>
+<tr><td><code>FaultStatus</code></td><td><code>config_loader</code></td><td>Fault lifecycle states</td></tr>
+<tr><td><code>DiagAction</code></td><td><code>config_loader</code></td><td>Remediation action types</td></tr>
+<tr><td><code>ActionType</code></td><td><code>config_loader</code></td><td>Action categories</td></tr>
+<tr><td><code>DiagMode</code></td><td><code>cluster_diag</code></td><td>Multi-node test modes</td></tr>
+</tbody>
+</table>
+</div>
+<p>The contrast with <code>TryFrom</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th><code>TryFrom&lt;&amp;[u8]&gt;</code></th><th><code>FromStr</code></th></tr>
+</thead>
+<tbody>
+<tr><td>Input</td><td>Raw bytes (binary protocols)</td><td>Strings (configs, CLI, JSON)</td></tr>
+<tr><td>Typical source</td><td>IPMI, PCIe config space, FRU</td><td>JSON fields, env vars, user input</td></tr>
+<tr><td>Chapter</td><td>ch07</td><td>ch11</td></tr>
+<tr><td>Both use</td><td><code>Result</code> — forcing the caller to handle invalid input</td><td></td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h3 id="trick-6--const-generics-for-compile-time-size-validation"><a class="header" href="#trick-6--const-generics-for-compile-time-size-validation">Trick 6 — Const Generics for Compile-Time Size Validation</a></h3>
+<p>When hardware buffers, register banks, or protocol frames have fixed sizes,
+const generics let the compiler enforce them:</p>
+<pre><code class="language-rust ignore">/// A fixed-size register bank. The size is part of the type.
+/// `RegisterBank&lt;256&gt;` and `RegisterBank&lt;4096&gt;` are different types.
+pub struct RegisterBank&lt;const N: usize&gt; {
+    data: [u8; N],
+}
+
+impl&lt;const N: usize&gt; RegisterBank&lt;N&gt; {
+    /// Read a register at the given offset.
+    /// Compile-time: N is known, so the array size is fixed.
+    /// Runtime: only the offset is checked.
+    pub fn read(&amp;self, offset: usize) -&gt; Option&lt;u8&gt; {
+        self.data.get(offset).copied()
+    }
+}
+
+// PCIe conventional config space: 256 bytes
+type PciConfigSpace = RegisterBank&lt;256&gt;;
+
+// PCIe extended config space: 4096 bytes
+type PcieExtConfigSpace = RegisterBank&lt;4096&gt;;
+
+// These are different types — can't accidentally pass one for the other:
+fn read_extended_cap(config: &amp;PcieExtConfigSpace, offset: usize) -&gt; Option&lt;u8&gt; {
+    config.read(offset)
+}
+// read_extended_cap(&amp;pci_config, 0x100);
+//                   ^^^^^^^^^^^ expected RegisterBank&lt;4096&gt;, found RegisterBank&lt;256&gt; ❌</code></pre>
+<p><strong>Compile-time assertions with const generics:</strong></p>
+<pre><code class="language-rust ignore">/// NVMe admin commands use 4096-byte buffers. Enforce at compile time.
+pub struct NvmeBuffer&lt;const N: usize&gt; {
+    data: Box&lt;[u8; N]&gt;,
+}
+
+impl&lt;const N: usize&gt; NvmeBuffer&lt;N&gt; {
+    pub fn new() -&gt; Self {
+        // Runtime assertion: only 512 or 4096 allowed
+        assert!(N == 4096 || N == 512, "NVMe buffers must be 512 or 4096 bytes");
+        NvmeBuffer { data: Box::new([0u8; N]) }
+    }
+}
+// NvmeBuffer::&lt;1024&gt;::new();  // panics at runtime with this form
+// For true compile-time enforcement, see Trick 9 (const assertions).</code></pre>
+<blockquote>
+<p><strong>When to use:</strong> Fixed-size protocol buffers (NVMe, PCIe config space),
+DMA descriptors, hardware FIFO depths. Anywhere the size is a hardware
+constant that should never vary at runtime.</p>
+</blockquote>
+<hr>
+<h3 id="trick-7--safe-wrappers-around-unsafe"><a class="header" href="#trick-7--safe-wrappers-around-unsafe">Trick 7 — Safe Wrappers Around <code>unsafe</code></a></h3>
+<p>The project currently has zero <code>unsafe</code> blocks. But when you
+add MMIO register access, DMA, or FFI to accel-mgmt/accel-query, you’ll need
+<code>unsafe</code>. The correct-by-construction approach: <strong>wrap every <code>unsafe</code> block
+in a safe abstraction</strong> so the unsafety is contained and auditable.</p>
+<pre><code class="language-rust ignore">/// MMIO-mapped register. The pointer is valid for the lifetime of the mapping.
+/// All unsafe is contained in this module — callers use safe methods.
+pub struct MmioRegion {
+    base: *mut u8,
+    len: usize,
+}
+
+impl MmioRegion {
+    /// # Safety
+    /// - `base` must be a valid pointer to an MMIO-mapped region
+    /// - The region must remain mapped for the lifetime of this struct
+    /// - No other code may alias this region
+    pub unsafe fn new(base: *mut u8, len: usize) -&gt; Self {
+        MmioRegion { base, len }
+    }
+
+    /// Safe read — bounds checking prevents out-of-bounds MMIO access.
+    pub fn read_u32(&amp;self, offset: usize) -&gt; Option&lt;u32&gt; {
+        if offset + 4 &gt; self.len { return None; }
+        // SAFETY: offset is bounds-checked above, base is valid per new() contract
+        Some(unsafe {
+            core::ptr::read_volatile(self.base.add(offset) as *const u32)
+        })
+    }
+
+    /// Safe write — bounds checking prevents out-of-bounds MMIO access.
+    pub fn write_u32(&amp;self, offset: usize, value: u32) -&gt; bool {
+        if offset + 4 &gt; self.len { return false; }
+        // SAFETY: offset is bounds-checked above, base is valid per new() contract
+        unsafe {
+            core::ptr::write_volatile(self.base.add(offset) as *mut u32, value);
+        }
+        true
+    }
+}</code></pre>
+<p><strong>Combine with phantom types (ch09) for typed MMIO:</strong></p>
+<pre><code class="language-rust ignore">use std::marker::PhantomData;
+
+pub struct ReadOnly;
+pub struct ReadWrite;
+
+pub struct TypedMmio&lt;Perm&gt; {
+    region: MmioRegion,
+    _perm: PhantomData&lt;Perm&gt;,
+}
+
+impl TypedMmio&lt;ReadOnly&gt; {
+    pub fn read_u32(&amp;self, offset: usize) -&gt; Option&lt;u32&gt; {
+        self.region.read_u32(offset)
+    }
+    // No write method — compile error if you try to write to a ReadOnly region
+}
+
+impl TypedMmio&lt;ReadWrite&gt; {
+    pub fn read_u32(&amp;self, offset: usize) -&gt; Option&lt;u32&gt; {
+        self.region.read_u32(offset)
+    }
+    pub fn write_u32(&amp;self, offset: usize, value: u32) -&gt; bool {
+        self.region.write_u32(offset, value)
+    }
+}</code></pre>
+<blockquote>
+<p><strong>Guidelines for <code>unsafe</code> wrappers:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Rule</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr><td>One <code>unsafe fn new()</code> with documented <code># Safety</code> invariants</td><td>Caller takes responsibility once</td></tr>
+<tr><td>All other methods are safe</td><td>Callers can’t trigger UB</td></tr>
+<tr><td><code># SAFETY:</code> comment on every <code>unsafe</code> block</td><td>Auditors can verify locally</td></tr>
+<tr><td>Wrap in a module with <code>#[deny(unsafe_op_in_unsafe_fn)]</code></td><td>Even inside <code>unsafe fn</code>, individual ops need <code>unsafe</code></td></tr>
+<tr><td>Run <code>cargo +nightly miri test</code> on the wrapper</td><td>Verify memory model compliance</td></tr>
+</tbody>
+</table>
+</div>
+</blockquote>
+<hr>
+<h3 id="-checkpoint-tricks-17"><a class="header" href="#-checkpoint-tricks-17">✅ Checkpoint: Tricks 1–7</a></h3>
+<p>You now have seven everyday tricks. Here’s a quick scorecard:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th style="text-align: center">Trick</th><th>Bug class eliminated</th><th style="text-align: center">Effort to adopt</th></tr>
+</thead>
+<tbody>
+<tr><td style="text-align: center">1</td><td>Sentinel confusion (0xFF)</td><td style="text-align: center">Low — one <code>match</code> at the boundary</td></tr>
+<tr><td style="text-align: center">2</td><td>Unauthorized trait impls</td><td style="text-align: center">Low — add <code>Sealed</code> supertrait</td></tr>
+<tr><td style="text-align: center">3</td><td>Broken consumers after enum growth</td><td style="text-align: center">Low — one-line attribute</td></tr>
+<tr><td style="text-align: center">4</td><td>Missing builder fields</td><td style="text-align: center">Medium — extra type parameters</td></tr>
+<tr><td style="text-align: center">5</td><td>Typos in string-typed config</td><td style="text-align: center">Low — <code>impl FromStr</code></td></tr>
+<tr><td style="text-align: center">6</td><td>Wrong buffer sizes</td><td style="text-align: center">Low — const generic parameter</td></tr>
+<tr><td style="text-align: center">7</td><td>Unsafe scattered across codebase</td><td style="text-align: center">Medium — wrapper module</td></tr>
+</tbody>
+</table>
+</div>
+<p>Tricks 8–14 are <strong>more advanced</strong> — they touch async, const evaluation, session
+types, <code>Pin</code>, and <code>Drop</code>. Take a break here if you need one; the techniques
+above are already high-value, low-effort wins you can adopt tomorrow.</p>
+<hr>
+<h3 id="trick-8--async-type-state-machines"><a class="header" href="#trick-8--async-type-state-machines">Trick 8 — Async Type-State Machines</a></h3>
+<p>When hardware drivers use <code>async</code> (e.g., async BMC communication, async NVMe
+I/O), type-state still works — but ownership across <code>.await</code> points needs care:</p>
+<pre><code class="language-rust ignore">use std::marker::PhantomData;
+
+pub struct Idle;
+pub struct Authenticating;
+pub struct Active;
+
+pub struct AsyncSession&lt;S&gt; {
+    host: String,
+    _state: PhantomData&lt;S&gt;,
+}
+
+impl AsyncSession&lt;Idle&gt; {
+    pub fn new(host: &amp;str) -&gt; Self {
+        AsyncSession { host: host.to_string(), _state: PhantomData }
+    }
+
+    /// Transition Idle → Authenticating → Active.
+    /// The Session is consumed (moved into the future) across the .await.
+    pub async fn authenticate(self, user: &amp;str, pass: &amp;str)
+        -&gt; Result&lt;AsyncSession&lt;Active&gt;, String&gt;
+    {
+        // Phase 1: send credentials (consumes Idle session)
+        let pending: AsyncSession&lt;Authenticating&gt; = AsyncSession {
+            host: self.host,
+            _state: PhantomData,
+        };
+
+        // Simulate async BMC authentication
+        // tokio::time::sleep(Duration::from_secs(1)).await;
+
+        // Phase 2: return Active session
+        Ok(AsyncSession {
+            host: pending.host,
+            _state: PhantomData,
+        })
+    }
+}
+
+impl AsyncSession&lt;Active&gt; {
+    pub async fn send_command(&amp;mut self, cmd: &amp;[u8]) -&gt; Vec&lt;u8&gt; {
+        // async I/O here...
+        vec![0x00]
+    }
+}
+
+// Usage:
+// let session = AsyncSession::new("192.168.1.100");
+// let mut session = session.authenticate("admin", "pass").await?;
+// let resp = session.send_command(&amp;[0x04, 0x2D]).await;</code></pre>
+<p><strong>Key rules for async type-state:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Rule</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr><td>Transition methods take <code>self</code> (by value), not <code>&amp;mut self</code></td><td>Ownership transfer works across <code>.await</code></td></tr>
+<tr><td>Return <code>Result&lt;NextState, (Error, PrevState)&gt;</code> for recoverable errors</td><td>Caller can retry from the previous state</td></tr>
+<tr><td>Don’t split state across multiple futures</td><td>One future owns one session</td></tr>
+<tr><td>Use <code>Send + 'static</code> bounds if using tokio::spawn</td><td>The session must be movable across threads</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>Caveat:</strong> If you need the <em>previous</em> state back on error (to retry),
+return <code>Result&lt;AsyncSession&lt;Active&gt;, (Error, AsyncSession&lt;Idle&gt;)&gt;</code> so
+the caller gets ownership back. Without this, a failed <code>.await</code> drops the
+session permanently.</p>
+</blockquote>
+<hr>
+<h3 id="trick-9--refinement-types-via-const-assertions"><a class="header" href="#trick-9--refinement-types-via-const-assertions">Trick 9 — Refinement Types via Const Assertions</a></h3>
+<p>When a numeric constraint is a compile-time invariant (not runtime data),
+use <code>const</code> evaluation to enforce it. This differs from Trick 6 (which
+provides type-level size distinctions) — here we <em>reject invalid values</em>
+at compile time:</p>
+<pre><code class="language-rust ignore">/// A sensor ID that must be in the IPMI SDR range (0x01..=0xFE).
+/// The constraint is checked at compile time when `N` is const.
+pub struct SdrSensorId&lt;const N: u8&gt;;
+
+impl&lt;const N: u8&gt; SdrSensorId&lt;N&gt; {
+    /// Compile-time validation: panics during compilation if N is out of range.
+    pub const fn validate() {
+        assert!(N &gt;= 0x01, "Sensor ID must be &gt;= 0x01");
+        assert!(N &lt;= 0xFE, "Sensor ID must be &lt;= 0xFE (0xFF is reserved)");
+    }
+
+    pub const VALIDATED: () = Self::validate();
+
+    pub const fn value() -&gt; u8 { N }
+}
+
+// Usage:
+fn read_sensor_const&lt;const N: u8&gt;() -&gt; f64 {
+    let _ = SdrSensorId::&lt;N&gt;::VALIDATED;  // compile-time check
+    // read sensor N...
+    42.0
+}
+
+// read_sensor_const::&lt;0x20&gt;();   // ✅ compiles — 0x20 is valid
+// read_sensor_const::&lt;0x00&gt;();   // ❌ compile error — "Sensor ID must be &gt;= 0x01"
+// read_sensor_const::&lt;0xFF&gt;();   // ❌ compile error — 0xFF is reserved</code></pre>
+<p><strong>Simpler form — bounded fan IDs:</strong></p>
+<pre><code class="language-rust ignore">pub struct BoundedFanId&lt;const N: u8&gt;;
+
+impl&lt;const N: u8&gt; BoundedFanId&lt;N&gt; {
+    pub const VALIDATED: () = assert!(N &lt; 8, "Server has at most 8 fans (0..7)");
+
+    pub const fn id() -&gt; u8 {
+        let _ = Self::VALIDATED;
+        N
+    }
+}
+
+// BoundedFanId::&lt;3&gt;::id();   // ✅
+// BoundedFanId::&lt;10&gt;::id();  // ❌ compile error</code></pre>
+<blockquote>
+<p><strong>When to use:</strong> Hardware-defined fixed IDs (sensor IDs, fan slots, PCIe
+slot numbers) known at compile time. When the value comes from runtime data
+(config file, user input), use <code>TryFrom</code> / <code>FromStr</code> (ch07, Trick 5) instead.</p>
+</blockquote>
+<hr>
+<h3 id="trick-10--session-types-for-channel-communication"><a class="header" href="#trick-10--session-types-for-channel-communication">Trick 10 — Session Types for Channel Communication</a></h3>
+<p>When two components communicate over a channel (e.g., diagnostic orchestrator ↔
+worker thread), <strong>session types</strong> encode the protocol in the type system:</p>
+<pre><code class="language-rust ignore">use std::marker::PhantomData;
+
+// Protocol: Client sends Request, Server sends Response, then done.
+pub struct SendRequest;
+pub struct RecvResponse;
+pub struct Done;
+
+/// A typed channel endpoint. `S` is the current protocol state.
+pub struct Chan&lt;S&gt; {
+    // In real code: wraps a mpsc::Sender/Receiver pair
+    _state: PhantomData&lt;S&gt;,
+}
+
+impl Chan&lt;SendRequest&gt; {
+    /// Send a request — transitions to RecvResponse state.
+    pub fn send(self, request: DiagRequest) -&gt; Chan&lt;RecvResponse&gt; {
+        // ... send on channel ...
+        Chan { _state: PhantomData }
+    }
+}
+
+impl Chan&lt;RecvResponse&gt; {
+    /// Receive a response — transitions to Done state.
+    pub fn recv(self) -&gt; (DiagResponse, Chan&lt;Done&gt;) {
+        // ... recv from channel ...
+        (DiagResponse { passed: true }, Chan { _state: PhantomData })
+    }
+}
+
+impl Chan&lt;Done&gt; {
+    /// Closing the channel — only possible when the protocol is complete.
+    pub fn close(self) { /* drop */ }
+}
+
+pub struct DiagRequest { pub test_name: String }
+pub struct DiagResponse { pub passed: bool }
+
+// The protocol MUST be followed in order:
+fn orchestrator(chan: Chan&lt;SendRequest&gt;) {
+    let chan = chan.send(DiagRequest { test_name: "gpu_stress".into() });
+    let (response, chan) = chan.recv();
+    chan.close();
+    println!("Result: {}", if response.passed { "PASS" } else { "FAIL" });
+}
+
+// Can't recv before send:
+// fn wrong_order(chan: Chan&lt;SendRequest&gt;) {
+//     chan.recv();  // ❌ no method `recv` on Chan&lt;SendRequest&gt;
+// }</code></pre>
+<blockquote>
+<p><strong>When to use:</strong> Inter-thread diagnostic protocols, BMC command sequences,
+any request-response pattern where order matters. For complex multi-message
+protocols, consider the <a href="https://crates.io/crates/session-types"><code>session-types</code></a>
+or <a href="https://crates.io/crates/rumpsteak"><code>rumpsteak</code></a> crates.</p>
+</blockquote>
+<hr>
+<h3 id="trick-11--pin-for-self-referential-state-machines"><a class="header" href="#trick-11--pin-for-self-referential-state-machines">Trick 11 — <code>Pin</code> for Self-Referential State Machines</a></h3>
+<p>Some type-state machines need to hold references into their own data (e.g., a
+parser that tracks a position within its owned buffer). Rust normally forbids
+this because moving the struct would invalidate the internal pointer. <code>Pin&lt;T&gt;</code>
+solves this by guaranteeing the value <strong>will not be moved</strong>:</p>
+<pre><code class="language-rust ignore">use std::pin::Pin;
+use std::marker::PhantomPinned;
+
+/// A streaming parser that holds a reference into its own buffer.
+/// Once pinned, it cannot be moved — the internal reference stays valid.
+pub struct StreamParser {
+    buffer: Vec&lt;u8&gt;,
+    /// Points into `buffer`. Only valid while pinned.
+    cursor: *const u8,
+    _pin: PhantomPinned,  // opts out of Unpin — prevents accidental unpinning
+}
+
+impl StreamParser {
+    pub fn new(data: Vec&lt;u8&gt;) -&gt; Pin&lt;Box&lt;Self&gt;&gt; {
+        let parser = StreamParser {
+            buffer: data,
+            cursor: std::ptr::null(),
+            _pin: PhantomPinned,
+        };
+        let mut boxed = Box::pin(parser);
+
+        // Set cursor to point into the pinned buffer
+        let cursor = boxed.buffer.as_ptr();
+        // SAFETY: we have exclusive access and the parser is pinned
+        unsafe {
+            let mut_ref = Pin::as_mut(&amp;mut boxed);
+            Pin::get_unchecked_mut(mut_ref).cursor = cursor;
+        }
+
+        boxed
+    }
+
+    /// Read the next byte — only callable through Pin&lt;&amp;mut Self&gt;.
+    pub fn next_byte(self: Pin&lt;&amp;mut Self&gt;) -&gt; Option&lt;u8&gt; {
+        // The parser can't be moved, so cursor remains valid
+        if self.cursor.is_null() { return None; }
+        // ... advance cursor through buffer ...
+        Some(42) // stub
+    }
+}
+
+// Usage:
+// let mut parser = StreamParser::new(vec![0x01, 0x02, 0x03]);
+// let byte = parser.as_mut().next_byte();</code></pre>
+<p><strong>Key insight:</strong> <code>Pin</code> is the correct-by-construction solution to the
+self-referential struct problem. Without it, you’d need <code>unsafe</code> and manual
+lifetime tracking. With it, the compiler prevents moves and the internal
+pointer invariant is maintained.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Use <code>Pin</code> when…</th><th>Don’t use <code>Pin</code> when…</th></tr>
+</thead>
+<tbody>
+<tr><td>State machine holds intra-struct references</td><td>All fields are independently owned</td></tr>
+<tr><td>Async futures that borrow across <code>.await</code></td><td>No self-referencing needed</td></tr>
+<tr><td>DMA descriptors that must not relocate in memory</td><td>Data can be freely moved</td></tr>
+<tr><td>Hardware ring buffers with internal cursor</td><td>Simple index-based iteration works</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h3 id="trick-12--raii--drop-as-a-correctness-guarantee"><a class="header" href="#trick-12--raii--drop-as-a-correctness-guarantee">Trick 12 — RAII / <code>Drop</code> as a Correctness Guarantee</a></h3>
+<p>Rust’s <code>Drop</code> trait is a correct-by-construction mechanism: cleanup code <strong>cannot
+be forgotten</strong> because the compiler inserts it automatically. This is especially
+valuable for hardware resources that must be released exactly once.</p>
+<pre><code class="language-rust ignore">use std::io;
+
+/// An IPMI session that MUST be closed when done.
+/// The `Drop` impl guarantees cleanup even on panic or early `?` return.
+pub struct IpmiSession {
+    handle: u32,
+}
+
+impl IpmiSession {
+    pub fn open(host: &amp;str) -&gt; io::Result&lt;Self&gt; {
+        // ... negotiate IPMI session ...
+        Ok(IpmiSession { handle: 42 })
+    }
+
+    pub fn send_raw(&amp;self, _data: &amp;[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+        Ok(vec![0x00])
+    }
+}
+
+impl Drop for IpmiSession {
+    fn drop(&amp;mut self) {
+        // Close Session command: always runs, even on panic/early-return.
+        // In C, forgetting CloseSession() leaks a BMC session slot.
+        let _ = self.send_raw(&amp;[0x06, 0x3C]);
+        eprintln!("[RAII] session {} closed", self.handle);
+    }
+}
+// Usage:
+fn diagnose(host: &amp;str) -&gt; io::Result&lt;()&gt; {
+    let session = IpmiSession::open(host)?;
+    session.send_raw(&amp;[0x04, 0x2D, 0x20])?;
+    // No explicit close needed — Drop runs here automatically
+    Ok(())
+    // Even if send_raw returns Err(...), the session is still closed.
+}</code></pre>
+<p><strong>The C/C++ failure mode that RAII eliminates:</strong></p>
+<pre><code class="language-text">C:     session = ipmi_open(host);
+       ipmi_send(session, data);
+       if (error) return -1;        // 🐛 leaked session — forgot close()
+       ipmi_close(session);
+
+Rust:  let session = IpmiSession::open(host)?;
+       session.send_raw(data)?;     // ✅ Drop runs on ? return
+       // Drop always runs — leak is impossible
+</code></pre>
+<p><strong>Combine RAII with type-state (ch05) for ordered cleanup:</strong></p>
+<p>You cannot specialize <code>Drop</code> on a generic parameter (Rust error E0366).
+Instead, use <strong>separate wrapper types</strong> per state:</p>
+<pre><code class="language-rust ignore">use std::marker::PhantomData;
+
+pub struct Open;
+pub struct Locked;
+
+pub struct GpuContext&lt;S&gt; {
+    device_id: u32,
+    _state: PhantomData&lt;S&gt;,
+}
+
+impl GpuContext&lt;Open&gt; {
+    pub fn lock_clocks(self) -&gt; LockedGpu {
+        // ... lock GPU clocks for stable benchmarking ...
+        LockedGpu { device_id: self.device_id }
+    }
+}
+
+/// Separate type for the locked state — has its own Drop.
+/// We can't do `impl Drop for GpuContext&lt;Locked&gt;` (E0366),
+/// so we use a distinct wrapper that owns the locked resource.
+pub struct LockedGpu {
+    device_id: u32,
+}
+
+impl LockedGpu {
+    pub fn run_benchmark(&amp;self) -&gt; f64 {
+        // ... benchmark with locked clocks ...
+        42.0
+    }
+}
+
+impl Drop for LockedGpu {
+    fn drop(&amp;mut self) {
+        // Unlock clocks on drop — only fires for the locked wrapper.
+        eprintln!("[RAII] GPU {} clocks unlocked", self.device_id);
+    }
+}
+
+// GpuContext&lt;Open&gt; has no special Drop — no clocks to unlock.
+// LockedGpu always unlocks on drop, even on panic or early return.</code></pre>
+<blockquote>
+<p><strong>Why not <code>impl Drop for GpuContext&lt;Locked&gt;</code>?</strong> Rust requires <code>Drop</code> impls
+to apply to <em>all</em> instantiations of a generic type. To get state-specific
+cleanup, use one of:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Approach</th><th>Pros</th><th>Cons</th></tr>
+</thead>
+<tbody>
+<tr><td>Separate wrapper type (above)</td><td>Clean, zero-cost</td><td>Extra type name</td></tr>
+<tr><td>Generic <code>Drop</code> + runtime <code>TypeId</code> check</td><td>Single type</td><td>Requires <code>'static</code>, runtime cost</td></tr>
+<tr><td><code>enum</code> state with exhaustive match in <code>Drop</code></td><td>Single generic type</td><td>Runtime dispatch, less type safety</td></tr>
+</tbody>
+</table>
+</div>
+</blockquote>
+<blockquote>
+<p><strong>When to use:</strong> BMC sessions, GPU clock locks, DMA buffer mappings, file
+handles, mutex guards, any resource with a mandatory release step. If you
+find yourself writing <code>fn close(&amp;mut self)</code> or <code>fn cleanup()</code>, it should
+almost certainly be <code>Drop</code> instead.</p>
+</blockquote>
+<hr>
+<h3 id="trick-13--error-type-hierarchies-as-correctness"><a class="header" href="#trick-13--error-type-hierarchies-as-correctness">Trick 13 — Error Type Hierarchies as Correctness</a></h3>
+<p>Well-designed error types prevent silent error swallowing and ensure callers
+handle each failure mode appropriately. Using <code>thiserror</code> for structured errors
+is a correct-by-construction pattern: the compiler forces exhaustive matching.</p>
+<pre><code class="language-toml"># Cargo.toml
+[dependencies]
+thiserror = "1"
+# For application-level error handling (optional):
+# anyhow = "1"
+</code></pre>
+<pre><code class="language-rust ignore">use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum DiagError {
+    #[error("IPMI communication failed: {0}")]
+    Ipmi(#[from] IpmiError),
+
+    #[error("sensor {sensor_id:#04x} reading out of range: {value}")]
+    SensorRange { sensor_id: u8, value: f64 },
+
+    #[error("GPU {gpu_id} not responding")]
+    GpuTimeout { gpu_id: u32 },
+
+    #[error("configuration invalid: {0}")]
+    Config(String),
+}
+
+#[derive(Debug, Error)]
+pub enum IpmiError {
+    #[error("session authentication failed")]
+    AuthFailed,
+
+    #[error("command {net_fn:#04x}/{cmd:#04x} timed out")]
+    Timeout { net_fn: u8, cmd: u8 },
+
+    #[error("completion code {0:#04x}")]
+    CompletionCode(u8),
+}
+
+// Callers MUST handle each variant — no silent swallowing:
+fn run_thermal_check() -&gt; Result&lt;(), DiagError&gt; {
+    // If this returns IpmiError, it's automatically converted to DiagError::Ipmi
+    // via the #[from] attribute.
+    let temp = read_cpu_temp()?;
+    if temp &gt; 105.0 {
+        return Err(DiagError::SensorRange {
+            sensor_id: 0x20,
+            value: temp,
+        });
+    }
+    Ok(())
+}
+
+<span class="boring">fn read_cpu_temp() -&gt; Result&lt;f64, DiagError&gt; { Ok(42.0) }</span></code></pre>
+<p><strong>Why this is correct-by-construction:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Without structured errors</th><th>With <code>thiserror</code> enums</th></tr>
+</thead>
+<tbody>
+<tr><td><code>fn op() -&gt; Result&lt;T, String&gt;</code></td><td><code>fn op() -&gt; Result&lt;T, DiagError&gt;</code></td></tr>
+<tr><td>Caller gets opaque string</td><td>Caller matches on specific variants</td></tr>
+<tr><td>Can’t distinguish auth failure from timeout</td><td><code>DiagError::Ipmi(IpmiError::AuthFailed)</code> vs <code>Timeout</code></td></tr>
+<tr><td>Logging swallows the error</td><td><code>match</code> forces handling each case</td></tr>
+<tr><td>New error variant → nobody notices</td><td>New variant → compiler warns unmatched arms</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>The <code>anyhow</code> vs <code>thiserror</code> decision:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Use <code>thiserror</code> when…</th><th>Use <code>anyhow</code> when…</th></tr>
+</thead>
+<tbody>
+<tr><td>Writing a library/crate</td><td>Writing a binary/CLI</td></tr>
+<tr><td>Callers need to match on error variants</td><td>Callers just log and exit</td></tr>
+<tr><td>Error types are part of the public API</td><td>Internal error plumbing</td></tr>
+<tr><td><code>protocol_lib</code>, <code>accel_diag</code>, <code>thermal_diag</code></td><td><code>diag_tool</code> main binary</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>When to use:</strong> Every crate in the workspace should define its own error
+enum with <code>thiserror</code>. The top-level binary crate can use <code>anyhow</code> to
+aggregate them. This gives library callers compile-time error handling
+guarantees while keeping the binary ergonomic.</p>
+</blockquote>
+<hr>
+<h3 id="trick-14--must_use-for-enforcing-consumption"><a class="header" href="#trick-14--must_use-for-enforcing-consumption">Trick 14 — <code>#[must_use]</code> for Enforcing Consumption</a></h3>
+<p>The <code>#[must_use]</code> attribute turns ignored return values into compiler warnings.
+This is a lightweight correct-by-construction tool that pairs with every pattern
+in this guide:</p>
+<pre><code class="language-rust ignore">/// A calibration token that MUST be used — dropping it silently is a bug.
+#[must_use = "calibration token must be passed to calibrate(), not dropped"]
+pub struct CalibrationToken {
+    _private: (),
+}
+
+/// A diagnostic result that MUST be checked — ignoring failures is a bug.
+#[must_use = "diagnostic result must be inspected for failures"]
+pub struct DiagResult {
+    pub passed: bool,
+    pub details: String,
+}
+
+/// Functions that return important values should be marked too:
+#[must_use = "the authenticated session must be used or explicitly closed"]
+pub fn authenticate(user: &amp;str, pass: &amp;str) -&gt; Result&lt;Session, AuthError&gt; {
+    // ...
+<span class="boring">  unimplemented!()
+</span>}
+<span class="boring">
+</span><span class="boring">pub struct Session;
+</span><span class="boring">pub struct AuthError;</span></code></pre>
+<p><strong>What the compiler tells you:</strong></p>
+<pre><code class="language-text">warning: unused `CalibrationToken` that must be used
+  --&gt; src/main.rs:5:5
+   |
+5  |     CalibrationToken { _private: () };
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: calibration token must be passed to calibrate(), not dropped
+</code></pre>
+<p><strong>Apply <code>#[must_use]</code> to these patterns:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Pattern</th><th>What to annotate</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr><td>Single-Use Tokens (ch03)</td><td><code>CalibrationToken</code>, <code>FusePayload</code></td><td>Dropping without use = logic bug</td></tr>
+<tr><td>Capability Tokens (ch04)</td><td><code>AdminToken</code></td><td>Authenticating but ignoring the token</td></tr>
+<tr><td>Type-State transitions</td><td>Return type of <code>authenticate()</code>, <code>activate()</code></td><td>Session created but never used</td></tr>
+<tr><td>Results</td><td><code>DiagResult</code>, <code>SensorReading</code></td><td>Silent failure swallowing</td></tr>
+<tr><td>RAII handles (Trick 12)</td><td><code>IpmiSession</code>, <code>LockedGpu</code></td><td>Opening but not using a resource</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>Rule of thumb:</strong> If dropping a value without using it is always a bug,
+add <code>#[must_use]</code>. If it’s sometimes intentional (e.g., a <code>Vec</code>), don’t.
+The <code>_</code> prefix (<code>let _ = foo()</code>) explicitly acknowledges and silences the
+warning — this is fine when the drop is intentional.</p>
+</blockquote>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li><strong>Sentinel → Option at the boundary</strong> — convert magic values to <code>Option</code> on parse; the compiler forces callers to handle <code>None</code>.</li>
+<li><strong>Sealed traits close the implementation loophole</strong> — private supertrait means only your crate can implement the trait.</li>
+<li><strong><code>#[non_exhaustive]</code> + <code>#[must_use]</code> are one-line, high-value annotations</strong> — add them to evolving enums and consumed tokens.</li>
+<li><strong>Typestate builders enforce required fields</strong> — <code>finish()</code> only exists when all required type parameters are <code>Set</code>.</li>
+<li><strong>Each trick targets a specific bug class</strong> — adopt them incrementally; no trick requires rewriting your architecture.</li>
+</ol>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch18-redfish-server-walkthrough.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch12-exercises.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch18-redfish-server-walkthrough.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch12-exercises.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

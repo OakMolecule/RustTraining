@@ -1,0 +1,665 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>11. Send &amp; Sync — Compile-Time Concurrency Proofs - Type-Driven Correctness in Rust</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-df8e101b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-f24cd47a.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Type-Driven Correctness in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="send--sync--compile-time-concurrency-proofs-"><a class="header" href="#send--sync--compile-time-concurrency-proofs-">Send &amp; Sync — Compile-Time Concurrency Proofs 🟠</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong> How Rust’s <code>Send</code> and <code>Sync</code> auto-traits turn the compiler into a concurrency auditor — proving at compile time which types can cross thread boundaries and which can be shared, with zero runtime cost.</p>
+<p><strong>Cross-references:</strong> <a href="ch04-capability-tokens-zero-cost-proof-of-aut.html">ch04</a> (capability tokens), <a href="ch09-phantom-types-for-resource-tracking.html">ch09</a> (phantom types), <a href="ch15-const-fn-compile-time-correctness-proofs.html">ch15</a> (const fn proofs)</p>
+</blockquote>
+<h2 id="the-problem-concurrent-access-without-a-safety-net"><a class="header" href="#the-problem-concurrent-access-without-a-safety-net">The Problem: Concurrent Access Without a Safety Net</a></h2>
+<p>In systems programming, peripherals, shared buffers, and global state are accessed from multiple contexts — main loops, interrupt handlers, DMA callbacks, and worker threads. In C, the compiler offers no enforcement whatsoever:</p>
+<pre><code class="language-c">/* Shared sensor buffer — accessed from main loop and ISR */
+volatile uint32_t sensor_buf[64];
+volatile uint32_t buf_index = 0;
+
+void SENSOR_IRQHandler(void) {
+    sensor_buf[buf_index++] = read_sensor();  /* Race: buf_index read + write */
+}
+
+void process_sensors(void) {
+    for (uint32_t i = 0; i &lt; buf_index; i++) {  /* buf_index changes mid-loop */
+        process(sensor_buf[i]);                   /* Data overwritten mid-read */
+    }
+    buf_index = 0;                                /* ISR fires between these lines */
+}
+</code></pre>
+<p>The <code>volatile</code> keyword prevents the compiler from optimizing away the reads, but it does <strong>nothing</strong> about data races. Two contexts can read and write <code>buf_index</code> simultaneously, producing torn values, lost updates, or buffer overruns. The same problem appears with <code>pthread_mutex_t</code> — the compiler will happily let you forget to lock:</p>
+<pre><code class="language-c">pthread_mutex_t lock;
+int shared_counter;
+
+void increment(void) {
+    shared_counter++;  /* Oops — forgot pthread_mutex_lock(&amp;lock) */
+}
+</code></pre>
+<p><strong>Every concurrent bug is discovered at runtime</strong> — typically under load, in production, and intermittently.</p>
+<h2 id="what-send-and-sync-prove"><a class="header" href="#what-send-and-sync-prove">What Send and Sync Prove</a></h2>
+<p>Rust defines two marker traits that the compiler derives automatically:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Trait</th><th>Proof</th><th>Informal meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>Send</code></td><td>A value of type <code>T</code> can be safely <strong>moved</strong> to another thread</td><td>“This can cross a thread boundary”</td></tr>
+<tr><td><code>Sync</code></td><td>A <strong>shared reference</strong> <code>&amp;T</code> can be safely used by multiple threads</td><td>“This can be read from multiple threads”</td></tr>
+</tbody>
+</table>
+</div>
+<p>These are <strong>auto-traits</strong> — the compiler derives them by inspecting every field. A struct is <code>Send</code> if all its fields are <code>Send</code>. A struct is <code>Sync</code> if all its fields are <code>Sync</code>. If any field opts out, the entire struct opts out. No annotation needed, no runtime overhead — the proof is structural.</p>
+<pre class="mermaid">flowchart TD
+    STRUCT["Your struct"]
+    INSPECT["Compiler inspects&lt;br/&gt;every field"]
+    ALL_SEND{"All fields&lt;br/&gt;Send?"}
+    ALL_SYNC{"All fields&lt;br/&gt;Sync?"}
+    SEND_YES["Send ✅&lt;br/&gt;&lt;i&gt;can cross thread boundaries&lt;/i&gt;"]
+    SEND_NO["!Send ❌&lt;br/&gt;&lt;i&gt;confined to one thread&lt;/i&gt;"]
+    SYNC_YES["Sync ✅&lt;br/&gt;&lt;i&gt;shareable across threads&lt;/i&gt;"]
+    SYNC_NO["!Sync ❌&lt;br/&gt;&lt;i&gt;no concurrent references&lt;/i&gt;"]
+
+    STRUCT --&gt; INSPECT
+    INSPECT --&gt; ALL_SEND
+    INSPECT --&gt; ALL_SYNC
+    ALL_SEND --&gt;|Yes| SEND_YES
+    ALL_SEND --&gt;|"Any field !Send&lt;br/&gt;(e.g., Rc, *const T)"| SEND_NO
+    ALL_SYNC --&gt;|Yes| SYNC_YES
+    ALL_SYNC --&gt;|"Any field !Sync&lt;br/&gt;(e.g., Cell, RefCell)"| SYNC_NO
+
+    style SEND_YES fill:#c8e6c9,color:#000
+    style SYNC_YES fill:#c8e6c9,color:#000
+    style SEND_NO fill:#ffcdd2,color:#000
+    style SYNC_NO fill:#ffcdd2,color:#000
+</pre>
+
+<blockquote>
+<p><strong>The compiler is the auditor.</strong> In C, thread-safety annotations live in comments and header documentation — advisory, never enforced. In Rust, <code>Send</code> and <code>Sync</code> are derived from the structure of the type itself. Adding a single <code>Cell&lt;f32&gt;</code> field automatically makes the containing struct <code>!Sync</code>. No programmer action required, no way to forget.</p>
+</blockquote>
+<p>The two traits are linked by a key identity:</p>
+<blockquote>
+<p><strong><code>T</code> is <code>Sync</code> if and only if <code>&amp;T</code> is <code>Send</code>.</strong></p>
+</blockquote>
+<p>This makes intuitive sense: if a shared reference can be safely sent to another thread, then the underlying type is safe for concurrent reads.</p>
+<h3 id="types-that-opt-out"><a class="header" href="#types-that-opt-out">Types That Opt Out</a></h3>
+<p>Certain types are deliberately <code>!Send</code> or <code>!Sync</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Type</th><th style="text-align: center">Send</th><th style="text-align: center">Sync</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr><td><code>u32</code>, <code>String</code>, <code>Vec&lt;T&gt;</code></td><td style="text-align: center">✅</td><td style="text-align: center">✅</td><td>No interior mutability, no raw pointers</td></tr>
+<tr><td><code>Cell&lt;T&gt;</code>, <code>RefCell&lt;T&gt;</code></td><td style="text-align: center">✅</td><td style="text-align: center">❌</td><td>Interior mutability without synchronization</td></tr>
+<tr><td><code>Rc&lt;T&gt;</code></td><td style="text-align: center">❌</td><td style="text-align: center">❌</td><td>Reference count is not atomic</td></tr>
+<tr><td><code>*const T</code>, <code>*mut T</code></td><td style="text-align: center">❌</td><td style="text-align: center">❌</td><td>Raw pointers have no safety guarantees</td></tr>
+<tr><td><code>Arc&lt;T&gt;</code> (where <code>T: Send + Sync</code>)</td><td style="text-align: center">✅</td><td style="text-align: center">✅</td><td>Atomic reference count</td></tr>
+<tr><td><code>Mutex&lt;T&gt;</code> (where <code>T: Send</code>)</td><td style="text-align: center">✅</td><td style="text-align: center">✅</td><td>Lock serializes all access</td></tr>
+</tbody>
+</table>
+</div>
+<p>Every ❌ in this table is a <strong>compile-time invariant</strong>. You cannot accidentally send an <code>Rc</code> to another thread — the compiler rejects it.</p>
+<h2 id="send-peripheral-handles"><a class="header" href="#send-peripheral-handles">!Send Peripheral Handles</a></h2>
+<p>In embedded systems, a peripheral register block lives at a fixed memory address and should only be accessed from a single execution context. Raw pointers are inherently <code>!Send</code> and <code>!Sync</code>, so wrapping one automatically opts the containing type out of both traits:</p>
+<pre class="playground"><code class="language-rust">/// A handle to a memory-mapped UART peripheral.
+/// The raw pointer makes this automatically !Send and !Sync.
+pub struct Uart {
+    regs: *const u32,
+}
+
+impl Uart {
+    pub fn new(base: usize) -&gt; Self {
+        Self { regs: base as *const u32 }
+    }
+
+    pub fn write_byte(&amp;self, byte: u8) {
+        // In real firmware: unsafe { write_volatile(self.regs.add(DATA_OFFSET), byte as u32) }
+        println!("UART TX: {:#04X}", byte);
+    }
+}
+
+fn main() {
+    let uart = Uart::new(0x4000_1000);
+    uart.write_byte(b'A');  // ✅ Use on the creating thread
+
+    // ❌ Would not compile: Uart is !Send
+    // std::thread::spawn(move || {
+    //     uart.write_byte(b'B');
+    // });
+}</code></pre>
+<p>The commented-out <code>thread::spawn</code> would produce:</p>
+<pre><code class="language-text">error[E0277]: `*const u32` cannot be sent between threads safely
+   |
+   |     std::thread::spawn(move || {
+   |     ^^^^^^^^^^^^^^^^^^ within `Uart`, the trait `Send` is not
+   |                        implemented for `*const u32`
+</code></pre>
+<p><strong>No raw pointer? Use <code>PhantomData</code>.</strong> Sometimes a type has no raw pointer but should still be confined to one thread — for example, a file descriptor index or a handle obtained from a C library:</p>
+<pre class="playground"><code class="language-rust">use std::marker::PhantomData;
+
+/// An opaque handle from a C library. PhantomData&lt;*const ()&gt; makes it
+/// !Send + !Sync even though the inner fd is just a plain integer.
+pub struct LibHandle {
+    fd: i32,
+    _not_send: PhantomData&lt;*const ()&gt;,
+}
+
+impl LibHandle {
+    pub fn open(path: &amp;str) -&gt; Self {
+        let _ = path;
+        Self { fd: 42, _not_send: PhantomData }
+    }
+
+    pub fn fd(&amp;self) -&gt; i32 { self.fd }
+}
+
+fn main() {
+    let handle = LibHandle::open("/dev/sensor0");
+    println!("fd = {}", handle.fd());
+
+    // ❌ Would not compile: LibHandle is !Send
+    // std::thread::spawn(move || { let _ = handle.fd(); });
+}</code></pre>
+<p>This is the compile-time equivalent of C’s “please read the documentation that says this handle isn’t thread-safe.” In Rust, the compiler enforces it.</p>
+<h2 id="mutex-transforms-sync-into-sync"><a class="header" href="#mutex-transforms-sync-into-sync">Mutex Transforms !Sync into Sync</a></h2>
+<p><code>Cell&lt;T&gt;</code> and <code>RefCell&lt;T&gt;</code> provide interior mutability without any synchronization — so they’re <code>!Sync</code>. But sometimes you genuinely need to share mutable state across threads. <code>Mutex&lt;T&gt;</code> adds the missing synchronization, and the compiler recognizes this:</p>
+<blockquote>
+<p><strong>If <code>T: Send</code>, then <code>Mutex&lt;T&gt;: Send + Sync</code>.</strong></p>
+</blockquote>
+<p>The lock serializes all access, so the <code>!Sync</code> inner type becomes safe to share. The compiler proves this structurally — no runtime check for “did the programmer remember to lock”:</p>
+<pre class="playground"><code class="language-rust">use std::sync::{Arc, Mutex};
+use std::cell::Cell;
+
+/// A sensor cache using Cell for interior mutability.
+/// Cell&lt;u32&gt; is !Sync — can't be shared across threads directly.
+struct SensorCache {
+    last_reading: Cell&lt;u32&gt;,
+    reading_count: Cell&lt;u32&gt;,
+}
+
+fn main() {
+    // Mutex makes SensorCache safe to share — compiler proves it
+    let cache = Arc::new(Mutex::new(SensorCache {
+        last_reading: Cell::new(0),
+        reading_count: Cell::new(0),
+    }));
+
+    let handles: Vec&lt;_&gt; = (0..4).map(|i| {
+        let c = Arc::clone(&amp;cache);
+        std::thread::spawn(move || {
+            let guard = c.lock().unwrap();  // Must lock before access
+            guard.last_reading.set(i * 10);
+            guard.reading_count.set(guard.reading_count.get() + 1);
+        })
+    }).collect();
+
+    for h in handles { h.join().unwrap(); }
+
+    let guard = cache.lock().unwrap();
+    println!("Last reading: {}", guard.last_reading.get());
+    println!("Total reads:  {}", guard.reading_count.get());
+}</code></pre>
+<p>Compare to the C version: <code>pthread_mutex_lock</code> is a runtime call that the programmer can forget. Here, the type system makes it impossible to access <code>SensorCache</code> without going through the <code>Mutex</code>. The proof is structural — the only runtime cost is the lock itself.</p>
+<blockquote>
+<p><strong><code>Mutex</code> doesn’t just synchronize — it proves synchronization.</strong> <code>Mutex::lock()</code> returns a <code>MutexGuard</code> that <code>Deref</code>s to <code>&amp;T</code>. There is no way to obtain a reference to the inner data without going through the lock. The API makes “forgot to lock” structurally unrepresentable.</p>
+</blockquote>
+<h2 id="function-bounds-as-theorems"><a class="header" href="#function-bounds-as-theorems">Function Bounds as Theorems</a></h2>
+<p><code>std::thread::spawn</code> has this signature:</p>
+<pre><code class="language-rust ignore">pub fn spawn&lt;F, T&gt;(f: F) -&gt; JoinHandle&lt;T&gt;
+where
+    F: FnOnce() -&gt; T + Send + 'static,
+    T: Send + 'static,</code></pre>
+<p>The <code>Send + 'static</code> bound isn’t just an implementation detail — it’s a <strong>theorem</strong>:</p>
+<blockquote>
+<p>“Any closure and return value passed to <code>spawn</code> is proven at compile time to be safe to run on another thread, with no dangling references.”</p>
+</blockquote>
+<p>You can apply the same pattern to your own APIs:</p>
+<pre class="playground"><code class="language-rust">use std::sync::mpsc;
+
+/// Run a task on a background thread and return its result.
+/// The bounds prove: the closure and its result are thread-safe.
+fn run_on_background&lt;F, T&gt;(task: F) -&gt; T
+where
+    F: FnOnce() -&gt; T + Send + 'static,
+    T: Send + 'static,
+{
+    let (tx, rx) = mpsc::channel();
+    std::thread::spawn(move || {
+        let _ = tx.send(task());
+    });
+    rx.recv().expect("background task panicked")
+}
+
+fn main() {
+    // ✅ u32 is Send, closure captures nothing non-Send
+    let result = run_on_background(|| 6 * 7);
+    println!("Result: {result}");
+
+    // ✅ String is Send
+    let greeting = run_on_background(|| String::from("hello from background"));
+    println!("{greeting}");
+
+    // ❌ Would not compile: Rc is !Send
+    // use std::rc::Rc;
+    // let data = Rc::new(42);
+    // run_on_background(move || *data);
+}</code></pre>
+<p>Uncommenting the <code>Rc</code> example produces a precise diagnostic:</p>
+<pre><code class="language-text">error[E0277]: `Rc&lt;i32&gt;` cannot be sent between threads safely
+   --&gt; src/main.rs
+    |
+    |     run_on_background(move || *data);
+    |     ^^^^^^^^^^^^^^^^^^ `Rc&lt;i32&gt;` cannot be sent between threads safely
+    |
+note: required by a bound in `run_on_background`
+    |
+    |     F: FnOnce() -&gt; T + Send + 'static,
+    |                        ^^^^ required by this bound
+</code></pre>
+<p>The compiler traces the violation back to the exact bound — and tells the programmer <em>why</em>. Compare to C’s <code>pthread_create</code>:</p>
+<pre><code class="language-c">int pthread_create(pthread_t *thread, const pthread_attr_t *attr,
+                   void *(*start_routine)(void *), void *arg);
+</code></pre>
+<p>The <code>void *arg</code> accepts anything — thread-safe or not. The C compiler can’t distinguish a non-atomic refcount from a plain integer. Rust’s trait bounds make the distinction at the type level.</p>
+<h2 id="when-to-use-sendsync-proofs"><a class="header" href="#when-to-use-sendsync-proofs">When to Use Send/Sync Proofs</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Scenario</th><th>Approach</th></tr>
+</thead>
+<tbody>
+<tr><td>Peripheral handle wrapping a raw pointer</td><td>Automatic <code>!Send + !Sync</code> — nothing to do</td></tr>
+<tr><td>Handle from C library (integer fd/handle)</td><td>Add <code>PhantomData&lt;*const ()&gt;</code> for <code>!Send + !Sync</code></td></tr>
+<tr><td>Shared config behind a lock</td><td><code>Arc&lt;Mutex&lt;T&gt;&gt;</code> — compiler proves access is safe</td></tr>
+<tr><td>Cross-thread message passing</td><td><code>mpsc::channel</code> — <code>Send</code> bound enforced automatically</td></tr>
+<tr><td>Task spawner or thread pool API</td><td>Require <code>F: Send + 'static</code> in signature</td></tr>
+<tr><td>Single-threaded resource (e.g., GPU context)</td><td><code>PhantomData&lt;*const ()&gt;</code> to prevent sharing</td></tr>
+<tr><td>Type should be <code>Send</code> but contains a raw pointer</td><td><code>unsafe impl Send</code> with documented safety justification</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="cost-summary"><a class="header" href="#cost-summary">Cost Summary</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>What</th><th style="text-align: center">Runtime cost</th></tr>
+</thead>
+<tbody>
+<tr><td><code>Send</code> / <code>Sync</code> auto-derivation</td><td style="text-align: center">Compile time only — 0 bytes</td></tr>
+<tr><td><code>PhantomData&lt;*const ()&gt;</code> field</td><td style="text-align: center">Zero-sized — optimised away</td></tr>
+<tr><td><code>!Send</code> / <code>!Sync</code> enforcement</td><td style="text-align: center">Compile time only — no runtime check</td></tr>
+<tr><td><code>F: Send + 'static</code> function bounds</td><td style="text-align: center">Monomorphised — static dispatch, no boxing</td></tr>
+<tr><td><code>Mutex&lt;T&gt;</code> lock</td><td style="text-align: center">Runtime lock (unavoidable for shared mutation)</td></tr>
+<tr><td><code>Arc&lt;T&gt;</code> reference counting</td><td style="text-align: center">Atomic increment/decrement (unavoidable for shared ownership)</td></tr>
+</tbody>
+</table>
+</div>
+<p>The first four rows are <strong>zero-cost</strong> — they exist only in the type system and vanish after compilation. <code>Mutex</code> and <code>Arc</code> carry unavoidable runtime costs, but those costs are the <em>minimum</em> any correct concurrent program must pay — Rust just makes sure you pay them.</p>
+<h2 id="exercise-dma-transfer-guard"><a class="header" href="#exercise-dma-transfer-guard">Exercise: DMA Transfer Guard</a></h2>
+<p>Design a <code>DmaTransfer&lt;T&gt;</code> that holds a buffer while a DMA transfer is in flight. Requirements:</p>
+<ol>
+<li><code>DmaTransfer</code> must be <code>!Send</code> — the DMA controller uses physical addresses tied to this core’s memory bus</li>
+<li><code>DmaTransfer</code> must be <code>!Sync</code> — concurrent reads while DMA is writing would see torn data</li>
+<li>Provide a <code>wait()</code> method that <strong>consumes</strong> the guard and returns the buffer — ownership proves the transfer is complete</li>
+<li>The buffer type <code>T</code> must implement a <code>DmaSafe</code> marker trait</li>
+</ol>
+<details>
+<summary>Solution</summary>
+<pre class="playground"><code class="language-rust">use std::marker::PhantomData;
+
+/// Marker trait for types that can be used as DMA buffers.
+/// In real firmware: type must be repr(C) with no padding.
+trait DmaSafe {}
+
+impl DmaSafe for [u8; 64] {}
+impl DmaSafe for [u8; 256] {}
+
+/// A guard representing an in-flight DMA transfer.
+/// !Send + !Sync: can't be sent to another thread or shared.
+pub struct DmaTransfer&lt;T: DmaSafe&gt; {
+    buffer: T,
+    channel: u8,
+    _no_send_sync: PhantomData&lt;*const ()&gt;,
+}
+
+impl&lt;T: DmaSafe&gt; DmaTransfer&lt;T&gt; {
+    /// Start a DMA transfer. The buffer is consumed — no one else can touch it.
+    pub fn start(buffer: T, channel: u8) -&gt; Self {
+        // In real firmware: configure DMA channel, set source/dest, start transfer
+        println!("DMA channel {} started", channel);
+        Self {
+            buffer,
+            channel,
+            _no_send_sync: PhantomData,
+        }
+    }
+
+    /// Wait for the transfer to complete and return the buffer.
+    /// Consumes self — the guard no longer exists after this.
+    pub fn wait(self) -&gt; T {
+        // In real firmware: poll DMA status register until complete
+        println!("DMA channel {} complete", self.channel);
+        self.buffer
+    }
+}
+
+fn main() {
+    let buf = [0u8; 64];
+
+    // Start transfer — buf is moved into the guard
+    let transfer = DmaTransfer::start(buf, 2);
+
+    // ❌ buf is no longer accessible — ownership prevents use-during-DMA
+    // println!("{:?}", buf);
+
+    // ❌ Would not compile: DmaTransfer is !Send
+    // std::thread::spawn(move || { transfer.wait(); });
+
+    // ✅ Wait on the original thread, get the buffer back
+    let buf = transfer.wait();
+    println!("Buffer recovered: {} bytes", buf.len());
+}</code></pre>
+</details>
+<pre class="mermaid">flowchart TB
+    subgraph compiler["Compile Time — Auto-Derived Proofs"]
+        direction TB
+        SEND["Send&lt;br/&gt;✅ safe to move across threads"]
+        SYNC["Sync&lt;br/&gt;✅ safe to share references"]
+        NOTSEND["!Send&lt;br/&gt;❌ confined to one thread"]
+        NOTSYNC["!Sync&lt;br/&gt;❌ no concurrent sharing"]
+    end
+
+    subgraph types["Type Taxonomy"]
+        direction TB
+        PLAIN["Primitives, String, Vec&lt;br/&gt;Send + Sync"]
+        CELL["Cell, RefCell&lt;br/&gt;Send + !Sync"]
+        RC["Rc, raw pointers&lt;br/&gt;!Send + !Sync"]
+        MUTEX["Mutex&amp;lt;T&amp;gt;&lt;br/&gt;restores Sync"]
+        ARC["Arc&amp;lt;T&amp;gt;&lt;br/&gt;shared ownership + Send"]
+    end
+
+    subgraph runtime["Runtime"]
+        SAFE["Thread-safe access&lt;br/&gt;No data races&lt;br/&gt;No forgotten locks"]
+    end
+
+    SEND --&gt; PLAIN
+    NOTSYNC --&gt; CELL
+    NOTSEND --&gt; RC
+    CELL --&gt; MUTEX --&gt; SAFE
+    RC --&gt; ARC --&gt; SAFE
+    PLAIN --&gt; SAFE
+
+    style SEND fill:#c8e6c9,color:#000
+    style SYNC fill:#c8e6c9,color:#000
+    style NOTSEND fill:#ffcdd2,color:#000
+    style NOTSYNC fill:#ffcdd2,color:#000
+    style PLAIN fill:#c8e6c9,color:#000
+    style CELL fill:#fff3e0,color:#000
+    style RC fill:#ffcdd2,color:#000
+    style MUTEX fill:#e1f5fe,color:#000
+    style ARC fill:#e1f5fe,color:#000
+    style SAFE fill:#c8e6c9,color:#000
+</pre>
+
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li>
+<p><strong><code>Send</code> and <code>Sync</code> are compile-time proofs about concurrency safety</strong> — the compiler derives them structurally by inspecting every field. No annotation, no runtime cost, no opt-in needed.</p>
+</li>
+<li>
+<p><strong>Raw pointers automatically opt out</strong> — any type containing <code>*const T</code> or <code>*mut T</code> becomes <code>!Send + !Sync</code>. This makes peripheral handles naturally thread-confined.</p>
+</li>
+<li>
+<p><strong><code>PhantomData&lt;*const ()&gt;</code> is the explicit opt-out</strong> — when a type has no raw pointer but should still be thread-confined (C library handles, GPU contexts), a phantom field does the job.</p>
+</li>
+<li>
+<p><strong><code>Mutex&lt;T&gt;</code> restores <code>Sync</code> with proof</strong> — the compiler structurally proves that all access goes through the lock. Unlike C’s <code>pthread_mutex_t</code>, you cannot forget to lock.</p>
+</li>
+<li>
+<p><strong>Function bounds are theorems</strong> — <code>F: Send + 'static</code> in a spawner’s signature is a compile-time proof obligation: every call site must prove its closure is thread-safe. Compare to C’s <code>void *arg</code> which accepts anything.</p>
+</li>
+<li>
+<p><strong>The pattern complements all other correctness techniques</strong> — typestate proves protocol sequencing, phantom types prove permissions, <code>const fn</code> proves value invariants, and <code>Send</code>/<code>Sync</code> prove concurrency safety. Together they cover the full correctness surface.</p>
+</li>
+</ol>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch15-const-fn-compile-time-correctness-proofs.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch10-putting-it-all-together-a-complete-diagn.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch15-const-fn-compile-time-correctness-proofs.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch10-putting-it-all-together-a-complete-diagn.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

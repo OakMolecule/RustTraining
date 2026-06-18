@@ -1,0 +1,1451 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>14. Applied Walkthrough — Type-Safe Redfish Server - Type-Driven Correctness in Rust</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-df8e101b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-f24cd47a.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Type-Driven Correctness in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="applied-walkthrough--type-safe-redfish-server-"><a class="header" href="#applied-walkthrough--type-safe-redfish-server-">Applied Walkthrough — Type-Safe Redfish Server 🟡</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong> How to compose response builder type-state, source-availability tokens, dimensional serialization, health rollup, schema versioning, and typed action dispatch into a Redfish server that <strong>cannot produce a schema-non-compliant response</strong> — the mirror of the client walkthrough in <a href="ch17-redfish-applied-walkthrough.html">ch17</a>.</p>
+<p><strong>Cross-references:</strong> <a href="ch02-typed-command-interfaces-request-determi.html">ch02</a> (typed commands — inverted for action dispatch), <a href="ch04-capability-tokens-zero-cost-proof-of-aut.html">ch04</a> (capability tokens — source availability), <a href="ch06-dimensional-analysis-making-the-compiler.html">ch06</a> (dimensional types — serialization side), <a href="ch07-validated-boundaries-parse-dont-validate.html">ch07</a> (validated boundaries — inverted: “construct, don’t serialize”), <a href="ch09-phantom-types-for-resource-tracking.html">ch09</a> (phantom types — schema versioning), <a href="ch11-fourteen-tricks-from-the-trenches.html">ch11</a> (trick 3 — <code>#[non_exhaustive]</code>, trick 4 — builder type-state), <a href="ch17-redfish-applied-walkthrough.html">ch17</a> (client counterpart)</p>
+</blockquote>
+<h2 id="the-mirror-problem"><a class="header" href="#the-mirror-problem">The Mirror Problem</a></h2>
+<p>Chapter 17 asks: <em>“How do I consume Redfish correctly?”</em> This chapter asks the
+mirror question: <em>“How do I produce Redfish correctly?”</em></p>
+<p>On the client side, the danger is <strong>trusting</strong> bad data. On the server side, the
+danger is <strong>emitting</strong> bad data — and every client in the fleet trusts what you
+send.</p>
+<p>A single <code>GET /redfish/v1/Systems/1</code> response must fuse data from many sources:</p>
+<pre class="mermaid">flowchart LR
+    subgraph Sources
+        SMBIOS["SMBIOS&lt;br/&gt;Type 1, Type 17"]
+        SDR["IPMI Sensors&lt;br/&gt;(SDR + readings)"]
+        SEL["IPMI SEL&lt;br/&gt;(critical events)"]
+        PCIe["PCIe Config&lt;br/&gt;Space"]
+        FW["Firmware&lt;br/&gt;Version Table"]
+        PWR["Power State&lt;br/&gt;Register"]
+    end
+
+    subgraph Server["Redfish Server"]
+        Handler["GET handler"]
+        Builder["ComputerSystem&lt;br/&gt;Builder"]
+    end
+
+    SMBIOS --&gt;|"Name, UUID, Serial"| Handler
+    SDR --&gt;|"Temperatures, Fans"| Handler
+    SEL --&gt;|"Health escalation"| Handler
+    PCIe --&gt;|"Device links"| Handler
+    FW --&gt;|"BIOS version"| Handler
+    PWR --&gt;|"PowerState"| Handler
+    Handler --&gt; Builder
+    Builder --&gt;|".build()"| JSON["Schema-compliant&lt;br/&gt;JSON response"]
+
+    style JSON fill:#c8e6c9,color:#000
+    style Builder fill:#e1f5fe,color:#000
+</pre>
+
+<p>In C, this is a 500-line handler that calls into six subsystems, manually builds
+a JSON tree with <code>json_object_set()</code>, and hopes every required field was populated.
+Forget one? The response violates the Redfish schema. Get the unit wrong? Every
+client sees corrupted telemetry.</p>
+<pre><code class="language-c">// C — the assembly problem
+json_t *get_computer_system(const char *id) {
+    json_t *obj = json_object();
+    json_object_set_new(obj, "@odata.type",
+        json_string("#ComputerSystem.v1_13_0.ComputerSystem"));
+
+    // 🐛 Forgot to set "Name" — schema requires it
+    // 🐛 Forgot to set "UUID" — schema requires it
+
+    smbios_type1_t *t1 = smbios_get_type1();
+    if (t1) {
+        json_object_set_new(obj, "Manufacturer",
+            json_string(t1-&gt;manufacturer));
+    }
+
+    json_object_set_new(obj, "PowerState",
+        json_string(get_power_state()));  // at least this one is always available
+
+    // 🐛 Reading is in raw ADC counts, not Celsius — no type to catch it
+    double cpu_temp = read_sensor(SENSOR_CPU_TEMP);
+    // This number ends up in a Thermal response somewhere else...
+    // but nothing ties it to "Celsius" at the type level
+
+    // 🐛 Health is manually computed — forgot to include PSU status
+    json_object_set_new(obj, "Status",
+        build_status("Enabled", "OK")); // should be "Critical" — PSU is failing
+
+    return obj; // missing 2 required fields, wrong health, raw units
+}
+</code></pre>
+<p>Four bugs in one handler. On the client side, each bug affects <strong>one</strong> client.
+On the server side, each bug affects <strong>every</strong> client that queries this BMC.</p>
+<hr>
+<h2 id="section-1--response-builder-type-state-construct-dont-serialize-ch07-inverted"><a class="header" href="#section-1--response-builder-type-state-construct-dont-serialize-ch07-inverted">Section 1 — Response Builder Type-State: “Construct, Don’t Serialize” (ch07 Inverted)</a></h2>
+<p>Chapter 7 teaches “parse, don’t validate” — validate inbound data once, carry the
+proof in a type. The server-side mirror is <strong>“construct, don’t serialize”</strong> — build
+the outbound response through a builder that gates <code>.build()</code> on all required fields
+being present.</p>
+<pre><code class="language-rust ignore">use std::marker::PhantomData;
+
+// ──── Type-level field tracking ────
+
+pub struct HasField;
+pub struct MissingField;
+
+// ──── Response Builder ────
+
+/// Builder for a ComputerSystem Redfish resource.
+/// Type parameters track which REQUIRED fields have been supplied.
+/// Optional fields don't need type-level tracking.
+pub struct ComputerSystemBuilder&lt;Name, Uuid, PowerState, Status&gt; {
+    // Required fields — tracked at the type level
+    name: Option&lt;String&gt;,
+    uuid: Option&lt;String&gt;,
+    power_state: Option&lt;PowerStateValue&gt;,
+    status: Option&lt;ResourceStatus&gt;,
+    // Optional fields — not tracked (always settable)
+    manufacturer: Option&lt;String&gt;,
+    model: Option&lt;String&gt;,
+    serial_number: Option&lt;String&gt;,
+    bios_version: Option&lt;String&gt;,
+    processor_summary: Option&lt;ProcessorSummary&gt;,
+    memory_summary: Option&lt;MemorySummary&gt;,
+    _markers: PhantomData&lt;(Name, Uuid, PowerState, Status)&gt;,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub enum PowerStateValue { On, Off, PoweringOn, PoweringOff }
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ResourceStatus {
+    #[serde(rename = "State")]
+    pub state: StatusState,
+    #[serde(rename = "Health")]
+    pub health: HealthValue,
+    #[serde(rename = "HealthRollup", skip_serializing_if = "Option::is_none")]
+    pub health_rollup: Option&lt;HealthValue&gt;,
+}
+
+#[derive(Debug, Clone, Copy, serde::Serialize)]
+pub enum StatusState { Enabled, Disabled, Absent, StandbyOffline, Starting }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, serde::Serialize)]
+pub enum HealthValue { OK, Warning, Critical }
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct ProcessorSummary {
+    #[serde(rename = "Count")]
+    pub count: u32,
+    #[serde(rename = "Status")]
+    pub status: ResourceStatus,
+}
+
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct MemorySummary {
+    #[serde(rename = "TotalSystemMemoryGiB")]
+    pub total_gib: f64,
+    #[serde(rename = "Status")]
+    pub status: ResourceStatus,
+}
+
+// ──── Constructor: all fields start MissingField ────
+
+impl ComputerSystemBuilder&lt;MissingField, MissingField, MissingField, MissingField&gt; {
+    pub fn new() -&gt; Self {
+        ComputerSystemBuilder {
+            name: None, uuid: None, power_state: None, status: None,
+            manufacturer: None, model: None, serial_number: None,
+            bios_version: None, processor_summary: None, memory_summary: None,
+            _markers: PhantomData,
+        }
+    }
+}
+
+// ──── Required field setters — each transitions one type parameter ────
+
+impl&lt;U, P, S&gt; ComputerSystemBuilder&lt;MissingField, U, P, S&gt; {
+    pub fn name(self, name: String) -&gt; ComputerSystemBuilder&lt;HasField, U, P, S&gt; {
+        ComputerSystemBuilder {
+            name: Some(name), uuid: self.uuid,
+            power_state: self.power_state, status: self.status,
+            manufacturer: self.manufacturer, model: self.model,
+            serial_number: self.serial_number, bios_version: self.bios_version,
+            processor_summary: self.processor_summary,
+            memory_summary: self.memory_summary, _markers: PhantomData,
+        }
+    }
+}
+
+impl&lt;N, P, S&gt; ComputerSystemBuilder&lt;N, MissingField, P, S&gt; {
+    pub fn uuid(self, uuid: String) -&gt; ComputerSystemBuilder&lt;N, HasField, P, S&gt; {
+        ComputerSystemBuilder {
+            name: self.name, uuid: Some(uuid),
+            power_state: self.power_state, status: self.status,
+            manufacturer: self.manufacturer, model: self.model,
+            serial_number: self.serial_number, bios_version: self.bios_version,
+            processor_summary: self.processor_summary,
+            memory_summary: self.memory_summary, _markers: PhantomData,
+        }
+    }
+}
+
+impl&lt;N, U, S&gt; ComputerSystemBuilder&lt;N, U, MissingField, S&gt; {
+    pub fn power_state(self, ps: PowerStateValue)
+        -&gt; ComputerSystemBuilder&lt;N, U, HasField, S&gt;
+    {
+        ComputerSystemBuilder {
+            name: self.name, uuid: self.uuid,
+            power_state: Some(ps), status: self.status,
+            manufacturer: self.manufacturer, model: self.model,
+            serial_number: self.serial_number, bios_version: self.bios_version,
+            processor_summary: self.processor_summary,
+            memory_summary: self.memory_summary, _markers: PhantomData,
+        }
+    }
+}
+
+impl&lt;N, U, P&gt; ComputerSystemBuilder&lt;N, U, P, MissingField&gt; {
+    pub fn status(self, status: ResourceStatus)
+        -&gt; ComputerSystemBuilder&lt;N, U, P, HasField&gt;
+    {
+        ComputerSystemBuilder {
+            name: self.name, uuid: self.uuid,
+            power_state: self.power_state, status: Some(status),
+            manufacturer: self.manufacturer, model: self.model,
+            serial_number: self.serial_number, bios_version: self.bios_version,
+            processor_summary: self.processor_summary,
+            memory_summary: self.memory_summary, _markers: PhantomData,
+        }
+    }
+}
+
+// ──── Optional field setters — available in any state ────
+
+impl&lt;N, U, P, S&gt; ComputerSystemBuilder&lt;N, U, P, S&gt; {
+    pub fn manufacturer(mut self, m: String) -&gt; Self {
+        self.manufacturer = Some(m); self
+    }
+    pub fn model(mut self, m: String) -&gt; Self {
+        self.model = Some(m); self
+    }
+    pub fn serial_number(mut self, s: String) -&gt; Self {
+        self.serial_number = Some(s); self
+    }
+    pub fn bios_version(mut self, v: String) -&gt; Self {
+        self.bios_version = Some(v); self
+    }
+    pub fn processor_summary(mut self, ps: ProcessorSummary) -&gt; Self {
+        self.processor_summary = Some(ps); self
+    }
+    pub fn memory_summary(mut self, ms: MemorySummary) -&gt; Self {
+        self.memory_summary = Some(ms); self
+    }
+}
+
+// ──── .build() ONLY exists when all required fields are HasField ────
+
+impl ComputerSystemBuilder&lt;HasField, HasField, HasField, HasField&gt; {
+    pub fn build(self, id: &amp;str) -&gt; serde_json::Value {
+        let mut obj = serde_json::json!({
+            "@odata.id": format!("/redfish/v1/Systems/{id}"),
+            "@odata.type": "#ComputerSystem.v1_13_0.ComputerSystem",
+            "Id": id,
+            // Type-state guarantees these are Some — .unwrap() is safe here.
+            // In production, prefer .expect("guaranteed by type state").
+            "Name": self.name.unwrap(),
+            "UUID": self.uuid.unwrap(),
+            "PowerState": self.power_state.unwrap(),
+            "Status": self.status.unwrap(),
+        });
+
+        // Optional fields — included only if present
+        if let Some(m) = self.manufacturer {
+            obj["Manufacturer"] = serde_json::json!(m);
+        }
+        if let Some(m) = self.model {
+            obj["Model"] = serde_json::json!(m);
+        }
+        if let Some(s) = self.serial_number {
+            obj["SerialNumber"] = serde_json::json!(s);
+        }
+        if let Some(v) = self.bios_version {
+            obj["BiosVersion"] = serde_json::json!(v);
+        }
+        // NOTE: .unwrap() on to_value() is used for brevity.
+        // Production code should propagate serialization errors with `?`.
+        if let Some(ps) = self.processor_summary {
+            obj["ProcessorSummary"] = serde_json::to_value(ps).unwrap();
+        }
+        if let Some(ms) = self.memory_summary {
+            obj["MemorySummary"] = serde_json::to_value(ms).unwrap();
+        }
+
+        obj
+    }
+}
+
+//
+// ── The Compiler Enforces Completeness ──
+//
+// ✅ All required fields set — .build() is available:
+// ComputerSystemBuilder::new()
+//     .name("PowerEdge R750".into())
+//     .uuid("4c4c4544-...".into())
+//     .power_state(PowerStateValue::On)
+//     .status(ResourceStatus { ... })
+//     .manufacturer("Dell".into())        // optional — fine to include
+//     .build("1")
+//
+// ❌ Missing "Name" — compile error:
+// ComputerSystemBuilder::new()
+//     .uuid("4c4c4544-...".into())
+//     .power_state(PowerStateValue::On)
+//     .status(ResourceStatus { ... })
+//     .build("1")
+//   ERROR: method `build` not found for
+//   `ComputerSystemBuilder&lt;MissingField, HasField, HasField, HasField&gt;`</code></pre>
+<p><strong>Bug class eliminated:</strong> schema-non-compliant responses. The handler physically
+cannot serialize a <code>ComputerSystem</code> without supplying every required field. The
+compiler error message even tells you <em>which</em> field is missing — it’s right there
+in the type parameter: <code>MissingField</code> in the <code>Name</code> position.</p>
+<hr>
+<h2 id="section-2--source-availability-tokens-capability-tokens-ch04--new-twist"><a class="header" href="#section-2--source-availability-tokens-capability-tokens-ch04--new-twist">Section 2 — Source-Availability Tokens (Capability Tokens, ch04 — New Twist)</a></h2>
+<p>In ch04 and ch17, capability tokens prove <strong>authorization</strong> — “the caller is
+allowed to do this.” On the server side, the same pattern proves <strong>availability</strong> —
+“this data source was successfully initialized.”</p>
+<p>Each subsystem the BMC queries can fail independently. SMBIOS tables might be
+corrupt. The sensor subsystem might still be initializing. PCIe bus scan might
+have timed out. Encode each as a proof token:</p>
+<pre><code class="language-rust ignore">/// Proof that SMBIOS tables were successfully parsed.
+/// Only produced by the SMBIOS init function.
+pub struct SmbiosReady {
+    _private: (),
+}
+
+/// Proof that IPMI sensor subsystem is responsive.
+pub struct SensorsReady {
+    _private: (),
+}
+
+/// Proof that PCIe bus scan completed.
+pub struct PcieReady {
+    _private: (),
+}
+
+/// Proof that the SEL was successfully read.
+pub struct SelReady {
+    _private: (),
+}
+
+// ──── Data source initialization ────
+
+pub struct SmbiosTables {
+    pub product_name: String,
+    pub manufacturer: String,
+    pub serial_number: String,
+    pub uuid: String,
+}
+
+pub struct SensorCache {
+    pub cpu_temp: Celsius,
+    pub inlet_temp: Celsius,
+    pub fan_readings: Vec&lt;(String, Rpm)&gt;,
+    pub psu_power: Vec&lt;(String, Watts)&gt;,
+}
+
+/// Rich SEL summary — per-subsystem health derived from typed events.
+/// Built by the consumer pipeline in ch07's SEL section.
+/// Replaces the lossy `has_critical_events: bool` with typed granularity.
+pub struct TypedSelSummary {
+    pub total_entries: u32,
+    pub processor_health: HealthValue,
+    pub memory_health: HealthValue,
+    pub power_health: HealthValue,
+    pub thermal_health: HealthValue,
+    pub fan_health: HealthValue,
+    pub storage_health: HealthValue,
+    pub security_health: HealthValue,
+}
+
+pub fn init_smbios() -&gt; Option&lt;(SmbiosReady, SmbiosTables)&gt; {
+    // Read SMBIOS entry point, parse tables...
+    // Returns None if tables are absent or corrupt
+    Some((
+        SmbiosReady { _private: () },
+        SmbiosTables {
+            product_name: "PowerEdge R750".into(),
+            manufacturer: "Dell Inc.".into(),
+            serial_number: "SVC1234567".into(),
+            uuid: "4c4c4544-004d-5610-804c-b2c04f435031".into(),
+        },
+    ))
+}
+
+pub fn init_sensors() -&gt; Option&lt;(SensorsReady, SensorCache)&gt; {
+    // Initialize SDR repository, read all sensors...
+    // Returns None if IPMI subsystem is not responsive
+    Some((
+        SensorsReady { _private: () },
+        SensorCache {
+            cpu_temp: Celsius(68.0),
+            inlet_temp: Celsius(24.0),
+            fan_readings: vec![
+                ("Fan1".into(), Rpm(8400)),
+                ("Fan2".into(), Rpm(8200)),
+            ],
+            psu_power: vec![
+                ("PSU1".into(), Watts(285.0)),
+                ("PSU2".into(), Watts(290.0)),
+            ],
+        },
+    ))
+}
+
+pub fn init_sel() -&gt; Option&lt;(SelReady, TypedSelSummary)&gt; {
+    // In production: read SEL entries, parse via ch07's TryFrom,
+    // classify via classify_event_health(), aggregate via summarize_sel().
+    Some((
+        SelReady { _private: () },
+        TypedSelSummary {
+            total_entries: 42,
+            processor_health: HealthValue::OK,
+            memory_health: HealthValue::OK,
+            power_health: HealthValue::OK,
+            thermal_health: HealthValue::OK,
+            fan_health: HealthValue::OK,
+            storage_health: HealthValue::OK,
+            security_health: HealthValue::OK,
+        },
+    ))
+}</code></pre>
+<p>Now, functions that populate builder fields from a data source <strong>require the
+corresponding proof token</strong>:</p>
+<pre><code class="language-rust ignore">/// Populate SMBIOS-sourced fields. Requires proof SMBIOS is available.
+fn populate_from_smbios&lt;P, S&gt;(
+    builder: ComputerSystemBuilder&lt;MissingField, MissingField, P, S&gt;,
+    _proof: &amp;SmbiosReady,
+    tables: &amp;SmbiosTables,
+) -&gt; ComputerSystemBuilder&lt;HasField, HasField, P, S&gt; {
+    builder
+        .name(tables.product_name.clone())
+        .uuid(tables.uuid.clone())
+        .manufacturer(tables.manufacturer.clone())
+        .serial_number(tables.serial_number.clone())
+}
+
+/// Fallback when SMBIOS is unavailable — supplies required fields
+/// with safe defaults.
+fn populate_smbios_fallback&lt;P, S&gt;(
+    builder: ComputerSystemBuilder&lt;MissingField, MissingField, P, S&gt;,
+) -&gt; ComputerSystemBuilder&lt;HasField, HasField, P, S&gt; {
+    builder
+        .name("Unknown System".into())
+        .uuid("00000000-0000-0000-0000-000000000000".into())
+}</code></pre>
+<p>The handler chooses the path based on which tokens are available:</p>
+<pre><code class="language-rust ignore">fn build_computer_system(
+    smbios: &amp;Option&lt;(SmbiosReady, SmbiosTables)&gt;,
+    power_state: PowerStateValue,
+    health: ResourceStatus,
+) -&gt; serde_json::Value {
+    let builder = ComputerSystemBuilder::new()
+        .power_state(power_state)
+        .status(health);
+
+    let builder = match smbios {
+        Some((proof, tables)) =&gt; populate_from_smbios(builder, proof, tables),
+        None =&gt; populate_smbios_fallback(builder),
+    };
+
+    // Both paths produce HasField for Name and UUID.
+    // .build() is available either way.
+    builder.build("1")
+}</code></pre>
+<p><strong>Bug class eliminated:</strong> calling into a subsystem that failed initialization.
+If SMBIOS didn’t parse, you don’t have a <code>SmbiosReady</code> token — the compiler forces
+you through the fallback path. No runtime <code>if (smbios != NULL)</code> to forget.</p>
+<h3 id="combining-source-tokens-with-capability-mixins-ch08"><a class="header" href="#combining-source-tokens-with-capability-mixins-ch08">Combining Source Tokens with Capability Mixins (ch08)</a></h3>
+<p>With multiple Redfish resource types to serve (ComputerSystem, Chassis, Manager,
+Thermal, Power), source-population logic repeats across handlers. The <strong>mixin</strong>
+pattern from ch08 eliminates this duplication. Declare what sources a handler has,
+and blanket impls provide the population methods automatically:</p>
+<pre><code class="language-rust ignore">/// ── Ingredient Traits (ch08) for data sources ──
+
+pub trait HasSmbios {
+    fn smbios(&amp;self) -&gt; &amp;(SmbiosReady, SmbiosTables);
+}
+
+pub trait HasSensors {
+    fn sensors(&amp;self) -&gt; &amp;(SensorsReady, SensorCache);
+}
+
+pub trait HasSel {
+    fn sel(&amp;self) -&gt; &amp;(SelReady, TypedSelSummary);
+}
+
+/// ── Mixin: any handler with SMBIOS + Sensors gets identity population ──
+
+pub trait IdentityMixin: HasSmbios {
+    fn populate_identity&lt;P, S&gt;(
+        &amp;self,
+        builder: ComputerSystemBuilder&lt;MissingField, MissingField, P, S&gt;,
+    ) -&gt; ComputerSystemBuilder&lt;HasField, HasField, P, S&gt; {
+        let (_, tables) = self.smbios();
+        builder
+            .name(tables.product_name.clone())
+            .uuid(tables.uuid.clone())
+            .manufacturer(tables.manufacturer.clone())
+            .serial_number(tables.serial_number.clone())
+    }
+}
+
+/// Auto-implement for any type that has SMBIOS capability.
+impl&lt;T: HasSmbios&gt; IdentityMixin for T {}
+
+/// ── Mixin: any handler with Sensors + SEL gets health rollup ──
+
+pub trait HealthMixin: HasSensors + HasSel {
+    fn compute_health(&amp;self) -&gt; ResourceStatus {
+        let (_, cache) = self.sensors();
+        let (_, sel_summary) = self.sel();
+        compute_system_health(
+            Some(&amp;(SensorsReady { _private: () }, cache.clone())).as_ref(),
+            Some(&amp;(SelReady { _private: () }, sel_summary.clone())).as_ref(),
+        )
+    }
+}
+
+impl&lt;T: HasSensors + HasSel&gt; HealthMixin for T {}
+
+/// ── Concrete handler owns available sources ──
+
+struct FullPlatformHandler {
+    smbios: (SmbiosReady, SmbiosTables),
+    sensors: (SensorsReady, SensorCache),
+    sel: (SelReady, TypedSelSummary),
+}
+
+impl HasSmbios  for FullPlatformHandler {
+    fn smbios(&amp;self) -&gt; &amp;(SmbiosReady, SmbiosTables) { &amp;self.smbios }
+}
+impl HasSensors for FullPlatformHandler {
+    fn sensors(&amp;self) -&gt; &amp;(SensorsReady, SensorCache) { &amp;self.sensors }
+}
+impl HasSel     for FullPlatformHandler {
+    fn sel(&amp;self) -&gt; &amp;(SelReady, TypedSelSummary) { &amp;self.sel }
+}
+
+// FullPlatformHandler automatically gets:
+//   IdentityMixin::populate_identity()   (via HasSmbios)
+//   HealthMixin::compute_health()        (via HasSensors + HasSel)
+//
+// A SensorsOnlyHandler that impls HasSensors but NOT HasSel
+// would get IdentityMixin (if it has SMBIOS) but NOT HealthMixin.
+// Calling .compute_health() on it → compile error.</code></pre>
+<p>This directly mirrors ch08’s <code>BaseBoardController</code> pattern: ingredient traits
+declare what you have, mixin traits provide behavior via blanket impls, and
+the compiler gates each mixin on its prerequisites. Adding a new data
+source (e.g., <code>HasNvme</code>) plus a mixin (e.g., <code>StorageMixin: HasNvme + HasSel</code>)
+gives health rollup for storage to every handler that has both — automatically.</p>
+<hr>
+<h2 id="section-3--dimensional-types-at-the-serialization-boundary-ch06"><a class="header" href="#section-3--dimensional-types-at-the-serialization-boundary-ch06">Section 3 — Dimensional Types at the Serialization Boundary (ch06)</a></h2>
+<p>On the client side (ch17 §4), dimensional types prevent <strong>reading</strong> °C as RPM.
+On the server side, they prevent <strong>writing</strong> RPM into a Celsius JSON field. This
+is arguably more dangerous — a wrong value on the server propagates to every client.</p>
+<pre><code class="language-rust ignore">use serde::Serialize;
+
+// ──── Dimensional types from ch06, with Serialize ────
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize)]
+pub struct Celsius(pub f64);
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize)]
+pub struct Rpm(pub u32);
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd, Serialize)]
+pub struct Watts(pub f64);
+
+// ──── Redfish Thermal response members ────
+// Field types enforce which unit belongs in which JSON property.
+
+#[derive(Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct TemperatureMember {
+    pub member_id: String,
+    pub name: String,
+    pub reading_celsius: Celsius,           // ← must be Celsius
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub upper_threshold_critical: Option&lt;Celsius&gt;,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub upper_threshold_fatal: Option&lt;Celsius&gt;,
+    pub status: ResourceStatus,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct FanMember {
+    pub member_id: String,
+    pub name: String,
+    pub reading: Rpm,                       // ← must be Rpm
+    pub reading_units: &amp;'static str,        // always "RPM"
+    pub status: ResourceStatus,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct PowerControlMember {
+    pub member_id: String,
+    pub name: String,
+    pub power_consumed_watts: Watts,        // ← must be Watts
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub power_capacity_watts: Option&lt;Watts&gt;,
+    pub status: ResourceStatus,
+}
+
+// ──── Building a Thermal response from sensor cache ────
+
+fn build_thermal_response(
+    _proof: &amp;SensorsReady,
+    cache: &amp;SensorCache,
+) -&gt; serde_json::Value {
+    let temps = vec![
+        TemperatureMember {
+            member_id: "0".into(),
+            name: "CPU Temp".into(),
+            reading_celsius: cache.cpu_temp,     // Celsius → Celsius ✅
+            upper_threshold_critical: Some(Celsius(95.0)),
+            upper_threshold_fatal: Some(Celsius(105.0)),
+            status: ResourceStatus {
+                state: StatusState::Enabled,
+                health: if cache.cpu_temp &lt; Celsius(95.0) {
+                    HealthValue::OK
+                } else {
+                    HealthValue::Critical
+                },
+                health_rollup: None,
+            },
+        },
+        TemperatureMember {
+            member_id: "1".into(),
+            name: "Inlet Temp".into(),
+            reading_celsius: cache.inlet_temp,   // Celsius → Celsius ✅
+            upper_threshold_critical: Some(Celsius(42.0)),
+            upper_threshold_fatal: None,
+            status: ResourceStatus {
+                state: StatusState::Enabled,
+                health: HealthValue::OK,
+                health_rollup: None,
+            },
+        },
+
+        // ❌ Compile error — can't put Rpm in a Celsius field:
+        // TemperatureMember {
+        //     reading_celsius: cache.fan_readings[0].1,  // Rpm ≠ Celsius
+        //     ...
+        // }
+    ];
+
+    let fans: Vec&lt;FanMember&gt; = cache.fan_readings.iter().enumerate().map(|(i, (name, rpm))| {
+        FanMember {
+            member_id: i.to_string(),
+            name: name.clone(),
+            reading: *rpm,                       // Rpm → Rpm ✅
+            reading_units: "RPM",
+            status: ResourceStatus {
+                state: StatusState::Enabled,
+                health: if *rpm &gt; Rpm(1000) { HealthValue::OK } else { HealthValue::Critical },
+                health_rollup: None,
+            },
+        }
+    }).collect();
+
+    serde_json::json!({
+        "@odata.type": "#Thermal.v1_7_0.Thermal",
+        "Temperatures": temps,
+        "Fans": fans,
+    })
+}</code></pre>
+<p><strong>Bug class eliminated:</strong> unit confusion at serialization. The Redfish schema says
+<code>ReadingCelsius</code> is in °C. The Rust type system says <code>reading_celsius</code> must be
+<code>Celsius</code>. If a developer accidentally passes <code>Rpm(8400)</code> or <code>Watts(285.0)</code>, the
+compiler catches it before the value ever reaches JSON.</p>
+<hr>
+<h2 id="section-4--health-rollup-as-a-typed-fold"><a class="header" href="#section-4--health-rollup-as-a-typed-fold">Section 4 — Health Rollup as a Typed Fold</a></h2>
+<p>Redfish <code>Status.Health</code> is a <em>rollup</em> — the worst health of all sub-components.
+In C, this is typically a series of <code>if</code> checks that inevitably misses a source.
+With typed enums and <code>Ord</code>, the rollup is a one-line fold — and the compiler
+ensures every source contributes:</p>
+<pre><code class="language-rust ignore">/// Roll up health from multiple sources.
+/// Ord on HealthValue: OK &lt; Warning &lt; Critical.
+/// Returns the worst (max) value.
+fn rollup(sources: &amp;[HealthValue]) -&gt; HealthValue {
+    sources.iter().copied().max().unwrap_or(HealthValue::OK)
+}
+
+/// Compute system-level health from all sub-components.
+/// Takes explicit references to every source — the caller must provide ALL of them.
+fn compute_system_health(
+    sensors: Option&lt;&amp;(SensorsReady, SensorCache)&gt;,
+    sel: Option&lt;&amp;(SelReady, TypedSelSummary)&gt;,
+) -&gt; ResourceStatus {
+    let mut inputs = Vec::new();
+
+    // ── Live sensor readings ──
+    if let Some((_proof, cache)) = sensors {
+        // Temperature health (dimensional: Celsius comparison)
+        if cache.cpu_temp &gt; Celsius(95.0) {
+            inputs.push(HealthValue::Critical);
+        } else if cache.cpu_temp &gt; Celsius(85.0) {
+            inputs.push(HealthValue::Warning);
+        } else {
+            inputs.push(HealthValue::OK);
+        }
+
+        // Fan health (dimensional: Rpm comparison)
+        for (_name, rpm) in &amp;cache.fan_readings {
+            if *rpm &lt; Rpm(500) {
+                inputs.push(HealthValue::Critical);
+            } else if *rpm &lt; Rpm(1000) {
+                inputs.push(HealthValue::Warning);
+            } else {
+                inputs.push(HealthValue::OK);
+            }
+        }
+
+        // PSU health (dimensional: Watts comparison)
+        for (_name, watts) in &amp;cache.psu_power {
+            if *watts &gt; Watts(800.0) {
+                inputs.push(HealthValue::Critical);
+            } else {
+                inputs.push(HealthValue::OK);
+            }
+        }
+    }
+
+    // ── SEL per-subsystem health (from ch07's TypedSelSummary) ──
+    // Each subsystem's health was derived by exhaustive matching over
+    // every sensor type and event variant. No information was lost.
+    if let Some((_proof, sel_summary)) = sel {
+        inputs.push(sel_summary.processor_health);
+        inputs.push(sel_summary.memory_health);
+        inputs.push(sel_summary.power_health);
+        inputs.push(sel_summary.thermal_health);
+        inputs.push(sel_summary.fan_health);
+        inputs.push(sel_summary.storage_health);
+        inputs.push(sel_summary.security_health);
+    }
+
+    let health = rollup(&amp;inputs);
+
+    ResourceStatus {
+        state: StatusState::Enabled,
+        health,
+        health_rollup: Some(health),
+    }
+}</code></pre>
+<p><strong>Bug class eliminated:</strong> incomplete health rollup. In C, forgetting to include PSU
+status in the health calculation is a silent bug — the system reports “OK” while a
+PSU is failing. Here, <code>compute_system_health</code> takes explicit references to every
+data source. The SEL contribution is no longer a lossy <code>bool</code> — it’s seven
+per-subsystem <code>HealthValue</code> fields derived by exhaustive matching in ch07’s consumer
+pipeline. Adding a new SEL sensor type forces the classifier to handle it; adding a
+new subsystem field forces the rollup to include it.</p>
+<hr>
+<h2 id="section-5--schema-versioning-with-phantom-types-ch09"><a class="header" href="#section-5--schema-versioning-with-phantom-types-ch09">Section 5 — Schema Versioning with Phantom Types (ch09)</a></h2>
+<p>If the BMC advertises <code>ComputerSystem.v1_13_0</code>, the response <strong>must</strong> include
+properties introduced in that schema version (<code>LastResetTime</code>, <code>BootProgress</code>).
+Advertising v1.13 without those fields is a Redfish Interop Validator failure.
+Phantom version markers make this a compile-time contract:</p>
+<pre><code class="language-rust ignore">use std::marker::PhantomData;
+
+// ──── Schema Version Markers ────
+
+pub struct V1_5;
+pub struct V1_13;
+
+// ──── Version-Aware Response ────
+
+pub struct ComputerSystemResponse&lt;V&gt; {
+    pub base: ComputerSystemBase,
+    _version: PhantomData&lt;V&gt;,
+}
+
+pub struct ComputerSystemBase {
+    pub id: String,
+    pub name: String,
+    pub uuid: String,
+    pub power_state: PowerStateValue,
+    pub status: ResourceStatus,
+    pub manufacturer: Option&lt;String&gt;,
+    pub serial_number: Option&lt;String&gt;,
+    pub bios_version: Option&lt;String&gt;,
+}
+
+// Methods available on ALL versions:
+impl&lt;V&gt; ComputerSystemResponse&lt;V&gt; {
+    pub fn base_json(&amp;self) -&gt; serde_json::Value {
+        serde_json::json!({
+            "Id": self.base.id,
+            "Name": self.base.name,
+            "UUID": self.base.uuid,
+            "PowerState": self.base.power_state,
+            "Status": self.base.status,
+        })
+    }
+}
+
+// ──── v1.13-specific fields ────
+
+/// Date and time of the last system reset.
+pub struct LastResetTime(pub String);
+
+/// Boot progress information.
+pub struct BootProgress {
+    pub last_state: String,
+    pub last_state_time: String,
+}
+
+impl ComputerSystemResponse&lt;V1_13&gt; {
+    /// LastResetTime — REQUIRED in v1.13+.
+    /// This method only exists on V1_13. If the BMC advertises v1.13
+    /// and the handler doesn't call this, the field is missing.
+    pub fn last_reset_time(&amp;self) -&gt; LastResetTime {
+        // Read from RTC or boot timestamp register
+        LastResetTime("2026-03-16T08:30:00Z".to_string())
+    }
+
+    /// BootProgress — REQUIRED in v1.13+.
+    pub fn boot_progress(&amp;self) -&gt; BootProgress {
+        BootProgress {
+            last_state: "OSRunning".to_string(),
+            last_state_time: "2026-03-16T08:32:00Z".to_string(),
+        }
+    }
+
+    /// Build the full v1.13 JSON response, including version-specific fields.
+    pub fn to_json(&amp;self) -&gt; serde_json::Value {
+        let mut obj = self.base_json();
+        obj["@odata.type"] =
+            serde_json::json!("#ComputerSystem.v1_13_0.ComputerSystem");
+
+        let reset_time = self.last_reset_time();
+        obj["LastResetTime"] = serde_json::json!(reset_time.0);
+
+        let boot = self.boot_progress();
+        obj["BootProgress"] = serde_json::json!({
+            "LastState": boot.last_state,
+            "LastStateTime": boot.last_state_time,
+        });
+
+        obj
+    }
+}
+
+impl ComputerSystemResponse&lt;V1_5&gt; {
+    /// v1.5 JSON — no LastResetTime, no BootProgress.
+    pub fn to_json(&amp;self) -&gt; serde_json::Value {
+        let mut obj = self.base_json();
+        obj["@odata.type"] =
+            serde_json::json!("#ComputerSystem.v1_5_0.ComputerSystem");
+        obj
+    }
+
+    // last_reset_time() doesn't exist here.
+    // Calling it → compile error:
+    //   let resp: ComputerSystemResponse&lt;V1_5&gt; = ...;
+    //   resp.last_reset_time();
+    //   ❌ ERROR: method `last_reset_time` not found for
+    //            `ComputerSystemResponse&lt;V1_5&gt;`
+}</code></pre>
+<p><strong>Bug class eliminated:</strong> schema version mismatch. If the BMC is configured to
+advertise v1.13, use <code>ComputerSystemResponse&lt;V1_13&gt;</code> and the compiler ensures
+every v1.13-required field is produced. Downgrade to v1.5? Change the type
+parameter — the v1.13 methods vanish, and no dead fields leak into the response.</p>
+<hr>
+<h2 id="section-6--typed-action-dispatch-ch02-inverted"><a class="header" href="#section-6--typed-action-dispatch-ch02-inverted">Section 6 — Typed Action Dispatch (ch02 Inverted)</a></h2>
+<p>In ch02, the typed command pattern binds <code>Request → Response</code> on the <strong>client</strong>
+side. On the <strong>server</strong> side, the same pattern validates incoming action payloads
+and dispatches them type-safely — the inverse direction.</p>
+<pre><code class="language-rust ignore">use serde::Deserialize;
+
+// ──── Action Trait (mirror of ch02's IpmiCmd trait) ────
+
+/// A Redfish action: the framework deserializes Params from the POST body,
+/// then calls execute(). If the JSON doesn't match Params, deserialization
+/// fails — execute() is never called with bad input.
+pub trait RedfishAction {
+    /// The expected JSON body structure.
+    type Params: serde::de::DeserializeOwned;
+    /// The result of executing the action.
+    type Result: serde::Serialize;
+
+    fn execute(&amp;self, params: Self::Params) -&gt; Result&lt;Self::Result, RedfishError&gt;;
+}
+
+#[derive(Debug)]
+pub enum RedfishError {
+    InvalidPayload(String),
+    ActionFailed(String),
+}
+
+// ──── ComputerSystem.Reset ────
+
+pub struct ComputerSystemReset;
+
+#[derive(Debug, Deserialize)]
+pub enum ResetType {
+    On,
+    ForceOff,
+    GracefulShutdown,
+    GracefulRestart,
+    ForceRestart,
+    ForceOn,
+    PushPowerButton,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct ResetParams {
+    pub reset_type: ResetType,
+}
+
+impl RedfishAction for ComputerSystemReset {
+    type Params = ResetParams;
+    type Result = ();
+
+    fn execute(&amp;self, params: ResetParams) -&gt; Result&lt;(), RedfishError&gt; {
+        match params.reset_type {
+            ResetType::GracefulShutdown =&gt; {
+                // Send ACPI shutdown to host
+                println!("Initiating ACPI shutdown");
+                Ok(())
+            }
+            ResetType::ForceOff =&gt; {
+                // Assert power-off to host
+                println!("Forcing power off");
+                Ok(())
+            }
+            ResetType::On | ResetType::ForceOn =&gt; {
+                println!("Powering on");
+                Ok(())
+            }
+            ResetType::GracefulRestart =&gt; {
+                println!("ACPI restart");
+                Ok(())
+            }
+            ResetType::ForceRestart =&gt; {
+                println!("Forced restart");
+                Ok(())
+            }
+            ResetType::PushPowerButton =&gt; {
+                println!("Simulating power button press");
+                Ok(())
+            }
+            // Exhaustive — compiler catches missing variants
+        }
+    }
+}
+
+// ──── Manager.ResetToDefaults ────
+
+pub struct ManagerResetToDefaults;
+
+#[derive(Debug, Deserialize)]
+pub enum ResetToDefaultsType {
+    ResetAll,
+    PreserveNetworkAndUsers,
+    PreserveNetwork,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "PascalCase")]
+pub struct ResetToDefaultsParams {
+    pub reset_to_defaults_type: ResetToDefaultsType,
+}
+
+impl RedfishAction for ManagerResetToDefaults {
+    type Params = ResetToDefaultsParams;
+    type Result = ();
+
+    fn execute(&amp;self, params: ResetToDefaultsParams) -&gt; Result&lt;(), RedfishError&gt; {
+        match params.reset_to_defaults_type {
+            ResetToDefaultsType::ResetAll =&gt; {
+                println!("Full factory reset");
+                Ok(())
+            }
+            ResetToDefaultsType::PreserveNetworkAndUsers =&gt; {
+                println!("Reset preserving network + users");
+                Ok(())
+            }
+            ResetToDefaultsType::PreserveNetwork =&gt; {
+                println!("Reset preserving network config");
+                Ok(())
+            }
+        }
+    }
+}
+
+// ──── Generic Action Dispatcher ────
+
+fn dispatch_action&lt;A: RedfishAction&gt;(
+    action: &amp;A,
+    raw_body: &amp;str,
+) -&gt; Result&lt;A::Result, RedfishError&gt; {
+    // Deserialization validates the payload structure.
+    // If the JSON doesn't match A::Params, this fails
+    // and execute() is never called.
+    let params: A::Params = serde_json::from_str(raw_body)
+        .map_err(|e| RedfishError::InvalidPayload(e.to_string()))?;
+
+    action.execute(params)
+}
+
+// ── Usage ──
+
+fn handle_reset_action(body: &amp;str) -&gt; Result&lt;(), RedfishError&gt; {
+    // Type-safe: ResetParams is validated by serde before execute()
+    dispatch_action(&amp;ComputerSystemReset, body)?;
+    Ok(())
+
+    // Invalid JSON: {"ResetType": "Explode"}
+    // → serde error: "unknown variant `Explode`"
+    // → execute() never called
+
+    // Missing field: {}
+    // → serde error: "missing field `ResetType`"
+    // → execute() never called
+}</code></pre>
+<p><strong>Bug classes eliminated:</strong></p>
+<ul>
+<li><strong>Invalid action payload:</strong> serde rejects unknown enum variants and missing fields
+before <code>execute()</code> is called. No manual <code>if (body["ResetType"] == ...)</code> chains.</li>
+<li><strong>Missing variant handling:</strong> <code>match params.reset_type</code> is exhaustive — adding a
+new <code>ResetType</code> variant forces every action handler to be updated.</li>
+<li><strong>Type confusion:</strong> <code>ComputerSystemReset</code> expects <code>ResetParams</code>;
+<code>ManagerResetToDefaults</code> expects <code>ResetToDefaultsParams</code>. The trait system prevents
+passing one action’s params to another action’s handler.</li>
+</ul>
+<hr>
+<h2 id="section-7--putting-it-all-together-the-get-handler"><a class="header" href="#section-7--putting-it-all-together-the-get-handler">Section 7 — Putting It All Together: The GET Handler</a></h2>
+<p>Here’s the complete handler that composes all six sections into a single
+schema-compliant response:</p>
+<pre><code class="language-rust ignore">/// Complete GET /redfish/v1/Systems/1 handler.
+///
+/// Every required field is enforced by the builder type-state.
+/// Every data source is gated by availability tokens.
+/// Every unit is locked to its dimensional type.
+/// Every health input feeds the typed rollup.
+fn handle_get_computer_system(
+    smbios: &amp;Option&lt;(SmbiosReady, SmbiosTables)&gt;,
+    sensors: &amp;Option&lt;(SensorsReady, SensorCache)&gt;,
+    sel: &amp;Option&lt;(SelReady, TypedSelSummary)&gt;,
+    power_state: PowerStateValue,
+    bios_version: Option&lt;String&gt;,
+) -&gt; serde_json::Value {
+    // ── 1. Health rollup (Section 4) ──
+    // Folds health from sensors + SEL into a single typed status
+    let health = compute_system_health(
+        sensors.as_ref(),
+        sel.as_ref(),
+    );
+
+    // ── 2. Builder type-state (Section 1) ──
+    let builder = ComputerSystemBuilder::new()
+        .power_state(power_state)
+        .status(health);
+
+    // ── 3. Source-availability tokens (Section 2) ──
+    let builder = match smbios {
+        Some((proof, tables)) =&gt; {
+            // SMBIOS available — populate from hardware
+            populate_from_smbios(builder, proof, tables)
+        }
+        None =&gt; {
+            // SMBIOS unavailable — safe defaults
+            populate_smbios_fallback(builder)
+        }
+    };
+
+    // ── 4. Optional enrichment from sensors (Section 3) ──
+    let builder = if let Some((_proof, cache)) = sensors {
+        builder
+            .processor_summary(ProcessorSummary {
+                count: 2,
+                status: ResourceStatus {
+                    state: StatusState::Enabled,
+                    health: if cache.cpu_temp &lt; Celsius(95.0) {
+                        HealthValue::OK
+                    } else {
+                        HealthValue::Critical
+                    },
+                    health_rollup: None,
+                },
+            })
+    } else {
+        builder
+    };
+
+    let builder = match bios_version {
+        Some(v) =&gt; builder.bios_version(v),
+        None =&gt; builder,
+    };
+
+    // ── 5. Build (Section 1) ──
+    // .build() is available because both paths (SMBIOS present / absent)
+    // produce HasField for Name and UUID. The compiler verified this.
+    builder.build("1")
+}
+
+// ──── Server Startup ────
+
+fn main() {
+    // Initialize all data sources — each returns an availability token
+    let smbios = init_smbios();
+    let sensors = init_sensors();
+    let sel = init_sel();
+
+    // Simulate handler call
+    let response = handle_get_computer_system(
+        &amp;smbios,
+        &amp;sensors,
+        &amp;sel,
+        PowerStateValue::On,
+        Some("2.10.1".into()),
+    );
+
+    // NOTE: .unwrap() is used for brevity — handle errors in production.
+    println!("{}", serde_json::to_string_pretty(&amp;response).unwrap());
+}</code></pre>
+<p><strong>Expected output:</strong></p>
+<pre><code class="language-json">{
+  "@odata.id": "/redfish/v1/Systems/1",
+  "@odata.type": "#ComputerSystem.v1_13_0.ComputerSystem",
+  "Id": "1",
+  "Name": "PowerEdge R750",
+  "UUID": "4c4c4544-004d-5610-804c-b2c04f435031",
+  "PowerState": "On",
+  "Status": {
+    "State": "Enabled",
+    "Health": "OK",
+    "HealthRollup": "OK"
+  },
+  "Manufacturer": "Dell Inc.",
+  "SerialNumber": "SVC1234567",
+  "BiosVersion": "2.10.1",
+  "ProcessorSummary": {
+    "Count": 2,
+    "Status": {
+      "State": "Enabled",
+      "Health": "OK"
+    }
+  }
+}
+</code></pre>
+<h3 id="what-the-compiler-proves-server-side"><a class="header" href="#what-the-compiler-proves-server-side">What the Compiler Proves (Server Side)</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>#</th><th>Bug class</th><th>How it’s prevented</th><th>Pattern (Section)</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Missing required field in response</td><td><code>.build()</code> requires all type-state markers to be <code>HasField</code></td><td>Builder type-state (§1)</td></tr>
+<tr><td>2</td><td>Calling into failed subsystem</td><td>Source-availability tokens gate data access</td><td>Capability tokens (§2)</td></tr>
+<tr><td>3</td><td>No fallback for unavailable source</td><td>Both <code>match</code> arms (present/absent) must produce <code>HasField</code></td><td>Type-state + exhaustive match (§2)</td></tr>
+<tr><td>4</td><td>Wrong unit in JSON field</td><td><code>reading_celsius: Celsius</code> ≠ <code>Rpm</code> ≠ <code>Watts</code></td><td>Dimensional types (§3)</td></tr>
+<tr><td>5</td><td>Incomplete health rollup</td><td><code>compute_system_health</code> takes explicit source refs; SEL provides per-subsystem <code>HealthValue</code> via ch07’s <code>TypedSelSummary</code></td><td>Typed function signature + exhaustive matching (§4)</td></tr>
+<tr><td>6</td><td>Schema version mismatch</td><td><code>ComputerSystemResponse&lt;V1_13&gt;</code> has <code>last_reset_time()</code>; <code>V1_5</code> doesn’t</td><td>Phantom types (§5)</td></tr>
+<tr><td>7</td><td>Invalid action payload accepted</td><td>serde rejects unknown/missing fields before <code>execute()</code></td><td>Typed action dispatch (§6)</td></tr>
+<tr><td>8</td><td>Missing action variant handling</td><td><code>match params.reset_type</code> is exhaustive</td><td>Enum exhaustiveness (§6)</td></tr>
+<tr><td>9</td><td>Wrong action params to wrong handler</td><td><code>RedfishAction::Params</code> is an associated type</td><td>Typed commands inverted (§6)</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Total runtime overhead: zero.</strong> The builder markers, availability tokens, phantom
+version types, and dimensional newtypes all compile away. The JSON produced is
+identical to the hand-rolled C version — minus nine classes of bugs.</p>
+<hr>
+<h2 id="the-mirror-client-vs-server-pattern-map"><a class="header" href="#the-mirror-client-vs-server-pattern-map">The Mirror: Client vs. Server Pattern Map</a></h2>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Concern</th><th>Client (ch17)</th><th>Server (this chapter)</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Boundary direction</strong></td><td>Inbound: JSON → typed values</td><td>Outbound: typed values → JSON</td></tr>
+<tr><td><strong>Core principle</strong></td><td>“Parse, don’t validate”</td><td>“Construct, don’t serialize”</td></tr>
+<tr><td><strong>Field completeness</strong></td><td><code>TryFrom</code> validates required fields are present</td><td>Builder type-state gates <code>.build()</code> on required fields</td></tr>
+<tr><td><strong>Unit safety</strong></td><td><code>Celsius</code> ≠ <code>Rpm</code> when reading</td><td><code>Celsius</code> ≠ <code>Rpm</code> when writing</td></tr>
+<tr><td><strong>Privilege / availability</strong></td><td>Capability tokens gate requests</td><td>Availability tokens gate data source access</td></tr>
+<tr><td><strong>Data sources</strong></td><td>Single source (BMC)</td><td>Multiple sources (SMBIOS, sensors, SEL, PCIe, …)</td></tr>
+<tr><td><strong>Schema version</strong></td><td>Phantom types prevent accessing unsupported fields</td><td>Phantom types enforce providing version-required fields</td></tr>
+<tr><td><strong>Actions</strong></td><td>Client sends typed action POST</td><td>Server validates + dispatches via <code>RedfishAction</code> trait</td></tr>
+<tr><td><strong>Health</strong></td><td>Read and trust <code>Status.Health</code></td><td>Compute <code>Status.Health</code> via typed rollup</td></tr>
+<tr><td><strong>Failure propagation</strong></td><td>One bad parse → one client error</td><td>One bad serialization → every client sees wrong data</td></tr>
+</tbody>
+</table>
+</div>
+<p>The two chapters form a complete story. Ch17: <em>“Every response I consume is
+type-checked.”</em> This chapter: <em>“Every response I produce is type-checked.”</em> The
+same patterns flow in both directions — the type system doesn’t know or care
+which end of the wire you’re on.</p>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li><strong>“Construct, don’t serialize”</strong> is the server-side mirror of “parse, don’t
+validate” — use builder type-state so <code>.build()</code> only exists when all required
+fields are present.</li>
+<li><strong>Source-availability tokens prove initialization</strong> — the same capability token
+pattern from ch04, repurposed to prove a data source is ready.</li>
+<li><strong>Dimensional types protect producers and consumers</strong> — putting <code>Rpm</code> in a
+<code>ReadingCelsius</code> field is a compile error, not a customer-reported bug.</li>
+<li><strong>Health rollup is a typed fold</strong> — <code>Ord</code> on <code>HealthValue</code> plus explicit source
+references mean the compiler catches “forgot to include PSU status.”</li>
+<li><strong>Schema versioning at the type level</strong> — phantom type parameters make
+version-specific fields appear and disappear at compile time.</li>
+<li><strong>Action dispatch inverts ch02</strong> — <code>serde</code> deserializes the payload into a
+typed <code>Params</code> struct, and exhaustive matching on enum variants means adding a
+new <code>ResetType</code> forces every handler to be updated.</li>
+<li><strong>Server-side bugs propagate to every client</strong> — that’s why compile-time
+correctness on the producer side is even more critical than on the consumer side.</li>
+</ol>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch17-redfish-applied-walkthrough.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch11-fourteen-tricks-from-the-trenches.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch17-redfish-applied-walkthrough.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch11-fourteen-tricks-from-the-trenches.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

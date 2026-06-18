@@ -1,0 +1,553 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>8. Tokio Deep Dive - Async Rust: From Futures to Production</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-fddf10a8.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="8-tokio-deep-dive-"><a class="header" href="#8-tokio-deep-dive-">8. Tokio Deep Dive 🟡</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong></p>
+<ul>
+<li>Runtime flavors: multi-thread vs current-thread and when to use each</li>
+<li><code>tokio::spawn</code>, the <code>'static</code> requirement, and <code>JoinHandle</code></li>
+<li>Task cancellation semantics (cancel-on-drop)</li>
+<li>Sync primitives: Mutex, RwLock, Semaphore, and all four channel types</li>
+</ul>
+</blockquote>
+<h2 id="runtime-flavors-multi-thread-vs-current-thread"><a class="header" href="#runtime-flavors-multi-thread-vs-current-thread">Runtime Flavors: Multi-Thread vs Current-Thread</a></h2>
+<p>Tokio offers two runtime configurations:</p>
+<pre class="playground"><code class="language-rust">// Multi-threaded (default with #[tokio::main])
+// Uses a work-stealing thread pool — tasks can move between threads
+#[tokio::main]
+async fn main() {
+    // N worker threads (default = number of CPU cores)
+    // Tasks are Send + 'static
+}
+
+// Current-thread — everything runs on one thread
+#[tokio::main(flavor = "current_thread")]
+async fn main() {
+    // Single-threaded — tasks don't need to be Send
+    // Lighter weight, good for simple tools or WASM
+}
+
+// Manual runtime construction:
+let rt = tokio::runtime::Builder::new_multi_thread()
+    .worker_threads(4)
+    .enable_all()
+    .build()
+    .unwrap();
+
+rt.block_on(async {
+    println!("Running on custom runtime");
+});</code></pre>
+<pre class="mermaid">graph TB
+    subgraph "Multi-Thread (default)"
+        MT_Q1["Thread 1&lt;br/&gt;Task A, Task D"]
+        MT_Q2["Thread 2&lt;br/&gt;Task B"]
+        MT_Q3["Thread 3&lt;br/&gt;Task C, Task E"]
+        STEAL["Work Stealing:&lt;br/&gt;idle threads steal from busy ones"]
+        MT_Q1 &lt;--&gt; STEAL
+        MT_Q2 &lt;--&gt; STEAL
+        MT_Q3 &lt;--&gt; STEAL
+    end
+
+    subgraph "Current-Thread"
+        ST_Q["Single Thread&lt;br/&gt;Task A → Task B → Task C → Task D"]
+    end
+
+    style MT_Q1 fill:#c8e6c9,color:#000
+    style MT_Q2 fill:#c8e6c9,color:#000
+    style MT_Q3 fill:#c8e6c9,color:#000
+    style ST_Q fill:#bbdefb,color:#000
+</pre>
+
+<h3 id="tokiospawn-and-the-static-requirement"><a class="header" href="#tokiospawn-and-the-static-requirement">tokio::spawn and the ’static Requirement</a></h3>
+<p><code>tokio::spawn</code> puts a future onto the runtime’s task queue. Because it might run on <em>any</em> worker thread at <em>any</em> time, the future must be <code>Send + 'static</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use tokio::task;
+
+async fn example() {
+    let data = String::from("hello");
+
+    // ✅ Works: move ownership into the task
+    let handle = task::spawn(async move {
+        println!("{data}");
+        data.len()
+    });
+
+    let len = handle.await.unwrap();
+    println!("Length: {len}");
+}
+
+async fn problem() {
+    let data = String::from("hello");
+
+    // ❌ FAILS: data is borrowed, not 'static
+    // task::spawn(async {
+    //     println!("{data}"); // borrows `data` — not 'static
+    // });
+
+    // ❌ FAILS: Rc is not Send
+    // let rc = std::rc::Rc::new(42);
+    // task::spawn(async move {
+    //     println!("{rc}"); // Rc is !Send — can't cross thread boundary
+    // });
+}
+<span class="boring">}</span></code></pre>
+<p><strong>Why <code>'static</code>?</strong> The spawned task runs independently — it might outlive the scope that created it. The compiler can’t prove the references will remain valid, so it requires owned data.</p>
+<p><strong>Why <code>Send</code>?</strong> The task might be resumed on a different thread than where it was suspended. All data held across <code>.await</code> points must be safe to send between threads.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Common pattern: clone shared data into the task
+let shared = Arc::new(config);
+
+for i in 0..10 {
+    let shared = Arc::clone(&amp;shared); // Clone the Arc, not the data
+    tokio::spawn(async move {
+        process_item(i, &amp;shared).await;
+    });
+}
+<span class="boring">}</span></code></pre>
+<h3 id="joinhandle-and-task-cancellation"><a class="header" href="#joinhandle-and-task-cancellation">JoinHandle and Task Cancellation</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use tokio::task::JoinHandle;
+use tokio::time::{sleep, Duration};
+
+async fn cancellation_example() {
+    let handle: JoinHandle&lt;String&gt; = tokio::spawn(async {
+        sleep(Duration::from_secs(10)).await;
+        "completed".to_string()
+    });
+
+    // Cancel the task by dropping the handle? NO — task keeps running!
+    // drop(handle); // Task continues in the background
+
+    // To actually cancel, call abort():
+    handle.abort();
+
+    // Awaiting an aborted task returns JoinError
+    match handle.await {
+        Ok(val) =&gt; println!("Got: {val}"),
+        Err(e) if e.is_cancelled() =&gt; println!("Task was cancelled"),
+        Err(e) =&gt; println!("Task panicked: {e}"),
+    }
+}
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>Important</strong>: Dropping a <code>JoinHandle</code> does NOT cancel the task in tokio.
+The task becomes <em>detached</em> and keeps running. You must explicitly call
+<code>.abort()</code> to cancel it. This is different from dropping a <code>Future</code> directly,
+which does cancel/drop the underlying computation.</p>
+</blockquote>
+<h3 id="tokio-sync-primitives"><a class="header" href="#tokio-sync-primitives">Tokio Sync Primitives</a></h3>
+<p>Tokio provides async-aware synchronization primitives. The key principle: <strong>don’t use <code>std::sync::Mutex</code> across <code>.await</code> points</strong>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use tokio::sync::{Mutex, RwLock, Semaphore, mpsc, oneshot, broadcast, watch};
+
+// --- Mutex ---
+// Async mutex: the lock() method is async and won't block the thread
+let data = Arc::new(Mutex::new(vec![1, 2, 3]));
+{
+    let mut guard = data.lock().await; // Non-blocking lock
+    guard.push(4);
+} // Guard dropped here — lock released
+
+// --- Channels ---
+// mpsc: Multiple producer, single consumer
+let (tx, mut rx) = mpsc::channel::&lt;String&gt;(100); // Bounded buffer
+
+tokio::spawn(async move {
+    tx.send("hello".into()).await.unwrap();
+});
+
+let msg = rx.recv().await.unwrap();
+
+// oneshot: Single value, single consumer
+let (tx, rx) = oneshot::channel::&lt;i32&gt;();
+tx.send(42).unwrap(); // No await needed — either sends or fails
+let val = rx.await.unwrap();
+
+// broadcast: Multiple producers, multiple consumers (all get every message)
+let (tx, _) = broadcast::channel::&lt;String&gt;(100);
+let mut rx1 = tx.subscribe();
+let mut rx2 = tx.subscribe();
+
+// watch: Single value, multiple consumers (only latest value)
+let (tx, rx) = watch::channel(0u64);
+tx.send(42).unwrap();
+println!("Latest: {}", *rx.borrow());
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>Note:</strong> <code>.unwrap()</code> is used for brevity throughout these channel examples.
+In production, handle send/receive errors gracefully — a failed <code>.send()</code> means
+the receiver was dropped, and a failed <code>.recv()</code> means the channel is closed.</p>
+</blockquote>
+<pre class="mermaid">graph LR
+    subgraph "Channel Types"
+        direction TB
+        MPSC["mpsc&lt;br/&gt;N→1&lt;br/&gt;Buffered queue"]
+        ONESHOT["oneshot&lt;br/&gt;1→1&lt;br/&gt;Single value"]
+        BROADCAST["broadcast&lt;br/&gt;N→N&lt;br/&gt;All receivers get all"]
+        WATCH["watch&lt;br/&gt;1→N&lt;br/&gt;Latest value only"]
+    end
+
+    P1["Producer 1"] --&gt; MPSC
+    P2["Producer 2"] --&gt; MPSC
+    MPSC --&gt; C1["Consumer"]
+
+    P3["Producer"] --&gt; ONESHOT
+    ONESHOT --&gt; C2["Consumer"]
+
+    P4["Producer"] --&gt; BROADCAST
+    BROADCAST --&gt; C3["Consumer 1"]
+    BROADCAST --&gt; C4["Consumer 2"]
+
+    P5["Producer"] --&gt; WATCH
+    WATCH --&gt; C5["Consumer 1"]
+    WATCH --&gt; C6["Consumer 2"]
+</pre>
+
+<h2 id="case-study-choosing-the-right-channel-for-a-notification-service"><a class="header" href="#case-study-choosing-the-right-channel-for-a-notification-service">Case Study: Choosing the Right Channel for a Notification Service</a></h2>
+<p>You’re building a notification service where:</p>
+<ul>
+<li>Multiple API handlers produce events</li>
+<li>A single background task batches and sends them</li>
+<li>A config watcher updates rate limits at runtime</li>
+<li>A shutdown signal must reach all components</li>
+</ul>
+<p><strong>Which channels for each?</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Requirement</th><th>Channel</th><th>Why</th></tr>
+</thead>
+<tbody>
+<tr><td>API handlers → Batcher</td><td><code>mpsc</code> (bounded)</td><td>N producers, 1 consumer. Bounded for backpressure — if the batcher falls behind, API handlers slow down instead of OOM</td></tr>
+<tr><td>Config watcher → Rate limiter</td><td><code>watch</code></td><td>Only the latest config matters. Multiple readers (each worker) see the current value</td></tr>
+<tr><td>Shutdown signal → All components</td><td><code>broadcast</code></td><td>Every component must receive the shutdown notification independently</td></tr>
+<tr><td>Single health-check response</td><td><code>oneshot</code></td><td>Request/response pattern — one value, then done</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="mermaid">graph LR
+    subgraph "Notification Service"
+        direction TB
+        API1["API Handler 1"] --&gt;|mpsc| BATCH["Batcher"]
+        API2["API Handler 2"] --&gt;|mpsc| BATCH
+        CONFIG["Config Watcher"] --&gt;|watch| RATE["Rate Limiter"]
+        CTRL["Ctrl+C"] --&gt;|broadcast| API1
+        CTRL --&gt;|broadcast| BATCH
+        CTRL --&gt;|broadcast| RATE
+    end
+
+    style API1 fill:#d4efdf,stroke:#27ae60,color:#000
+    style API2 fill:#d4efdf,stroke:#27ae60,color:#000
+    style BATCH fill:#e8f4f8,stroke:#2980b9,color:#000
+    style CONFIG fill:#fef9e7,stroke:#f39c12,color:#000
+    style RATE fill:#fef9e7,stroke:#f39c12,color:#000
+    style CTRL fill:#fadbd8,stroke:#e74c3c,color:#000
+</pre>
+
+<details>
+<summary><strong>🏋️ Exercise: Build a Task Pool</strong> (click to expand)</summary>
+<p><strong>Challenge</strong>: Build a function <code>run_with_limit</code> that accepts a list of async closures and a concurrency limit, executing at most N tasks simultaneously. Use <code>tokio::sync::Semaphore</code>.</p>
+<details>
+<summary>🔑 Solution</summary>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::future::Future;
+use std::sync::Arc;
+use tokio::sync::Semaphore;
+
+async fn run_with_limit&lt;F, Fut, T&gt;(tasks: Vec&lt;F&gt;, limit: usize) -&gt; Vec&lt;T&gt;
+where
+    F: FnOnce() -&gt; Fut + Send + 'static,
+    Fut: Future&lt;Output = T&gt; + Send + 'static,
+    T: Send + 'static,
+{
+    let semaphore = Arc::new(Semaphore::new(limit));
+    let mut handles = Vec::new();
+
+    for task in tasks {
+        let permit = Arc::clone(&amp;semaphore);
+        let handle = tokio::spawn(async move {
+            let _permit = permit.acquire().await.unwrap();
+            // Permit is held while task runs, then dropped
+            task().await
+        });
+        handles.push(handle);
+    }
+
+    let mut results = Vec::new();
+    for handle in handles {
+        results.push(handle.await.unwrap());
+    }
+    results
+}
+
+// Usage:
+// let tasks: Vec&lt;_&gt; = urls.into_iter().map(|url| {
+//     move || async move { fetch(url).await }
+// }).collect();
+// let results = run_with_limit(tasks, 10).await; // Max 10 concurrent
+<span class="boring">}</span></code></pre>
+<p><strong>Key takeaway</strong>: <code>Semaphore</code> is the standard way to limit concurrency in tokio. Each task acquires a permit before starting work. When the semaphore is full, new tasks wait asynchronously (non-blocking) until a slot opens.</p>
+</details>
+</details>
+<blockquote>
+<p><strong>Key Takeaways — Tokio Deep Dive</strong></p>
+<ul>
+<li>Use <code>multi_thread</code> for servers (default); <code>current_thread</code> for CLI tools, tests, or <code>!Send</code> types</li>
+<li><code>tokio::spawn</code> requires <code>'static</code> futures — use <code>Arc</code> or channels to share data</li>
+<li>Dropping a <code>JoinHandle</code> does <strong>not</strong> cancel the task — call <code>.abort()</code> explicitly</li>
+<li>Choose sync primitives by need: <code>Mutex</code> for shared state, <code>Semaphore</code> for concurrency limits, <code>mpsc</code>/<code>oneshot</code>/<code>broadcast</code>/<code>watch</code> for communication</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>See also:</strong> <a href="ch09-when-tokio-isnt-the-right-fit.html">Ch 9 — When Tokio Isn’t the Right Fit</a> for alternatives to spawn, <a href="ch12-common-pitfalls.html">Ch 12 — Common Pitfalls</a> for MutexGuard-across-await bugs</p>
+</blockquote>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch07-executors-and-runtimes.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch09-when-tokio-isnt-the-right-fit.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch07-executors-and-runtimes.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch09-when-tokio-isnt-the-right-fit.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

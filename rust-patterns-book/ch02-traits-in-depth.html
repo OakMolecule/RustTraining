@@ -1,0 +1,2006 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>2. Traits In Depth - Rust Patterns &amp; Engineering How-Tos</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-64960533.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-51b340c9.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Patterns &amp; Engineering How-Tos</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="2-traits-in-depth-"><a class="header" href="#2-traits-in-depth-">2. Traits In Depth 🟡</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong></p>
+<ul>
+<li>Associated types vs generic parameters — and when to use each</li>
+<li>GATs, blanket impls, marker traits, and trait object safety rules</li>
+<li>How vtables and fat pointers work under the hood</li>
+<li>Extension traits, enum dispatch, and typed command patterns</li>
+</ul>
+</blockquote>
+<h2 id="associated-types-vs-generic-parameters"><a class="header" href="#associated-types-vs-generic-parameters">Associated Types vs Generic Parameters</a></h2>
+<p>Both let a trait work with different types, but they serve different purposes:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// --- ASSOCIATED TYPE: One implementation per type ---
+trait Iterator {
+    type Item; // Each iterator produces exactly ONE kind of item
+
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;;
+}
+
+// A custom iterator that always yields i32 — there's no choice
+struct Counter { max: i32, current: i32 }
+
+impl Iterator for Counter {
+    type Item = i32; // Exactly one Item type per implementation
+    fn next(&amp;mut self) -&gt; Option&lt;i32&gt; {
+        if self.current &lt; self.max {
+            self.current += 1;
+            Some(self.current)
+        } else {
+            None
+        }
+    }
+}
+
+// --- GENERIC PARAMETER: Multiple implementations per type ---
+trait Convert&lt;T&gt; {
+    fn convert(&amp;self) -&gt; T;
+}
+
+// A single type can implement Convert for MANY target types:
+impl Convert&lt;f64&gt; for i32 {
+    fn convert(&amp;self) -&gt; f64 { *self as f64 }
+}
+impl Convert&lt;String&gt; for i32 {
+    fn convert(&amp;self) -&gt; String { self.to_string() }
+}
+<span class="boring">}</span></code></pre>
+<p><strong>When to use which</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Use</th><th>When</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Associated type</strong></td><td>There’s exactly ONE natural output/result per implementing type. <code>Iterator::Item</code>, <code>Deref::Target</code>, <code>Add::Output</code></td></tr>
+<tr><td><strong>Generic parameter</strong></td><td>A type can meaningfully implement the trait for MANY different types. <code>From&lt;T&gt;</code>, <code>AsRef&lt;T&gt;</code>, <code>PartialEq&lt;Rhs&gt;</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Intuition</strong>: If it makes sense to ask “what is the <code>Item</code> of this iterator?”, use associated type. If it makes sense to ask “can this convert to <code>f64</code>? to <code>String</code>? to <code>bool</code>?”, use a generic parameter.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Real-world example: std::ops::Add
+trait Add&lt;Rhs = Self&gt; {
+    type Output; // Associated type — addition has ONE result type
+    fn add(self, rhs: Rhs) -&gt; Self::Output;
+}
+
+// Rhs is a generic parameter — you can add different types to Meters:
+struct Meters(f64);
+struct Centimeters(f64);
+
+impl Add&lt;Meters&gt; for Meters {
+    type Output = Meters;
+    fn add(self, rhs: Meters) -&gt; Meters { Meters(self.0 + rhs.0) }
+}
+impl Add&lt;Centimeters&gt; for Meters {
+    type Output = Meters;
+    fn add(self, rhs: Centimeters) -&gt; Meters { Meters(self.0 + rhs.0 / 100.0) }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="generic-associated-types-gats"><a class="header" href="#generic-associated-types-gats">Generic Associated Types (GATs)</a></h3>
+<p>Since Rust 1.65, associated types can have generic parameters of their own.
+This enables <strong>lending iterators</strong> — iterators that return references tied to
+the iterator rather than to the underlying collection:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Without GATs — impossible to express a lending iterator:
+// trait LendingIterator {
+//     type Item&lt;'a&gt;;  // ← This was rejected before 1.65
+// }
+
+// With GATs (Rust 1.65+):
+trait LendingIterator {
+    type Item&lt;'a&gt; where Self: 'a;
+
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&lt;'_&gt;&gt;;
+}
+
+// Example: an iterator that yields overlapping windows
+struct WindowIter&lt;'data&gt; {
+    data: &amp;'data [u8],
+    pos: usize,
+    window_size: usize,
+}
+
+impl&lt;'data&gt; LendingIterator for WindowIter&lt;'data&gt; {
+    type Item&lt;'a&gt; = &amp;'a [u8] where Self: 'a;
+
+    fn next(&amp;mut self) -&gt; Option&lt;&amp;[u8]&gt; {
+        if self.pos + self.window_size &lt;= self.data.len() {
+            let window = &amp;self.data[self.pos..self.pos + self.window_size];
+            self.pos += 1;
+            Some(window)
+        } else {
+            None
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>When you need GATs</strong>: Lending iterators, streaming parsers, or any trait
+where the associated type’s lifetime depends on the <code>&amp;self</code> borrow.
+For most code, plain associated types are sufficient.</p>
+</blockquote>
+<h3 id="supertraits-and-trait-hierarchies"><a class="header" href="#supertraits-and-trait-hierarchies">Supertraits and Trait Hierarchies</a></h3>
+<p>Traits can require other traits as prerequisites, forming hierarchies:</p>
+<pre class="mermaid">graph BT
+    Display["Display"]
+    Debug["Debug"]
+    Error["Error"]
+    Clone["Clone"]
+    Copy["Copy"]
+    PartialEq["PartialEq"]
+    Eq["Eq"]
+    PartialOrd["PartialOrd"]
+    Ord["Ord"]
+
+    Error --&gt; Display
+    Error --&gt; Debug
+    Copy --&gt; Clone
+    Eq --&gt; PartialEq
+    Ord --&gt; Eq
+    Ord --&gt; PartialOrd
+    PartialOrd --&gt; PartialEq
+
+    style Display fill:#e8f4f8,stroke:#2980b9,color:#000
+    style Debug fill:#e8f4f8,stroke:#2980b9,color:#000
+    style Error fill:#fdebd0,stroke:#e67e22,color:#000
+    style Clone fill:#d4efdf,stroke:#27ae60,color:#000
+    style Copy fill:#d4efdf,stroke:#27ae60,color:#000
+    style PartialEq fill:#fef9e7,stroke:#f1c40f,color:#000
+    style Eq fill:#fef9e7,stroke:#f1c40f,color:#000
+    style PartialOrd fill:#fef9e7,stroke:#f1c40f,color:#000
+    style Ord fill:#fef9e7,stroke:#f1c40f,color:#000
+</pre>
+
+<blockquote>
+<p>Arrows point from subtrait to supertrait: implementing <code>Error</code> requires <code>Display</code> + <code>Debug</code>.</p>
+</blockquote>
+<p>A trait can require that implementors also implement other traits:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::fmt;
+
+// Display is a supertrait of Error
+trait Error: fmt::Display + fmt::Debug {
+    fn source(&amp;self) -&gt; Option&lt;&amp;(dyn Error + 'static)&gt; { None }
+}
+// Any type implementing Error MUST also implement Display and Debug
+
+// Build your own hierarchies:
+trait Identifiable {
+    fn id(&amp;self) -&gt; u64;
+}
+
+trait Timestamped {
+    fn created_at(&amp;self) -&gt; chrono::DateTime&lt;chrono::Utc&gt;;
+}
+
+// Entity requires both:
+trait Entity: Identifiable + Timestamped {
+    fn is_active(&amp;self) -&gt; bool;
+}
+
+// Implementing Entity forces you to implement all three:
+struct User { id: u64, name: String, created: chrono::DateTime&lt;chrono::Utc&gt; }
+
+impl Identifiable for User {
+    fn id(&amp;self) -&gt; u64 { self.id }
+}
+impl Timestamped for User {
+    fn created_at(&amp;self) -&gt; chrono::DateTime&lt;chrono::Utc&gt; { self.created }
+}
+impl Entity for User {
+    fn is_active(&amp;self) -&gt; bool { true }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="blanket-implementations"><a class="header" href="#blanket-implementations">Blanket Implementations</a></h3>
+<p>Implement a trait for ALL types that satisfy some bound:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// std does this: any type that implements Display automatically gets ToString
+impl&lt;T: fmt::Display&gt; ToString for T {
+    fn to_string(&amp;self) -&gt; String {
+        format!("{self}")
+    }
+}
+// Now i32, &amp;str, your custom types — anything with Display — gets to_string() for free.
+
+// Your own blanket impl:
+trait Loggable {
+    fn log(&amp;self);
+}
+
+// Every Debug type is automatically Loggable:
+impl&lt;T: std::fmt::Debug&gt; Loggable for T {
+    fn log(&amp;self) {
+        eprintln!("[LOG] {self:?}");
+    }
+}
+
+// Now ANY Debug type has .log():
+// 42.log();              // [LOG] 42
+// "hello".log();         // [LOG] "hello"
+// vec![1, 2, 3].log();   // [LOG] [1, 2, 3]
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>Caution</strong>: Blanket impls are powerful but irreversible — you can’t add a
+more specific impl for a type that’s already covered by a blanket impl
+(orphan rules + coherence). Design them carefully.</p>
+</blockquote>
+<h3 id="marker-traits"><a class="header" href="#marker-traits">Marker Traits</a></h3>
+<p>Traits with no methods — they mark a type as having some property:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Standard library marker traits:
+// Send    — safe to transfer between threads
+// Sync    — safe to share (&amp;T) between threads
+// Unpin   — safe to move after pinning
+// Sized   — has a known size at compile time
+// Copy    — can be duplicated with memcpy
+
+// Your own marker trait:
+/// Marker: this sensor has been factory-calibrated
+trait Calibrated {}
+
+struct RawSensor { reading: f64 }
+struct CalibratedSensor { reading: f64 }
+
+impl Calibrated for CalibratedSensor {}
+
+// Only calibrated sensors can be used in production:
+fn record_measurement&lt;S: Calibrated&gt;(sensor: &amp;S) {
+    // ...
+}
+// record_measurement(&amp;RawSensor { reading: 0.0 }); // ❌ Compile error
+// record_measurement(&amp;CalibratedSensor { reading: 0.0 }); // ✅
+<span class="boring">}</span></code></pre>
+<p>This connects directly to the <strong>type-state pattern</strong> in Chapter 3.</p>
+<h3 id="trait-object-safety-rules"><a class="header" href="#trait-object-safety-rules">Trait Object Safety Rules</a></h3>
+<p>Not every trait can be used as <code>dyn Trait</code>. A trait is <strong>object-safe</strong> only if:</p>
+<ol>
+<li><strong>No <code>Self: Sized</code> bound</strong> on the trait itself</li>
+<li><strong>No generic type parameters</strong> on methods</li>
+<li><strong>No use of <code>Self</code> in return position</strong> (except via indirection like <code>Box&lt;Self&gt;</code>)</li>
+<li><strong>No associated functions</strong> (methods must have <code>&amp;self</code>, <code>&amp;mut self</code>, or <code>self</code>)</li>
+</ol>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// ✅ Object-safe — can be used as dyn Drawable
+trait Drawable {
+    fn draw(&amp;self);
+    fn bounding_box(&amp;self) -&gt; (f64, f64, f64, f64);
+}
+
+let shapes: Vec&lt;Box&lt;dyn Drawable&gt;&gt; = vec![/* ... */]; // ✅ Works
+
+// ❌ NOT object-safe — uses Self in return position
+trait Cloneable {
+    fn clone_self(&amp;self) -&gt; Self;
+    //                       ^^^^ Can't know the concrete size at runtime
+}
+// let items: Vec&lt;Box&lt;dyn Cloneable&gt;&gt; = ...; // ❌ Compile error
+
+// ❌ NOT object-safe — generic method
+trait Converter {
+    fn convert&lt;T&gt;(&amp;self) -&gt; T;
+    //        ^^^ The vtable can't contain infinite monomorphizations
+}
+
+// ❌ NOT object-safe — associated function (no self)
+trait Factory {
+    fn create() -&gt; Self;
+    // No &amp;self — how would you call this through a trait object?
+}
+<span class="boring">}</span></code></pre>
+<p><strong>Workarounds</strong>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Add `where Self: Sized` to exclude a method from the vtable:
+trait MyTrait {
+    fn regular_method(&amp;self); // Included in vtable
+
+    fn generic_method&lt;T&gt;(&amp;self) -&gt; T
+    where
+        Self: Sized; // Excluded from vtable — can't be called via dyn MyTrait
+}
+
+// Now dyn MyTrait is valid, but generic_method can only be called
+// when the concrete type is known.
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>Rule of thumb</strong>: If you plan to use <code>dyn Trait</code>, keep methods simple —
+no generics, no <code>Self</code> in return types, no <code>Sized</code> bounds. When in doubt,
+try <code>let _: Box&lt;dyn YourTrait&gt;;</code> and let the compiler tell you.</p>
+</blockquote>
+<h3 id="trait-objects-under-the-hood--vtables-and-fat-pointers"><a class="header" href="#trait-objects-under-the-hood--vtables-and-fat-pointers">Trait Objects Under the Hood — vtables and Fat Pointers</a></h3>
+<p>A <code>&amp;dyn Trait</code> (or <code>Box&lt;dyn Trait&gt;</code>) is a <strong>fat pointer</strong> — two machine words:</p>
+<pre><code class="language-text">┌──────────────────────────────────────────────────┐
+│  &amp;dyn Drawable (on 64-bit: 16 bytes total)       │
+├──────────────┬───────────────────────────────────┤
+│  data_ptr    │  vtable_ptr                       │
+│  (8 bytes)   │  (8 bytes)                        │
+│  ↓           │  ↓                                │
+│  ┌─────────┐ │  ┌──────────────────────────────┐ │
+│  │ Circle  │ │  │ vtable for &lt;Circle as        │ │
+│  │ {       │ │  │           Drawable&gt;          │ │
+│  │  r: 5.0 │ │  │                              │ │
+│  │ }       │ │  │  drop_in_place: 0x7f...a0    │ │
+│  └─────────┘ │  │  size:           8           │ │
+│              │  │  align:          8           │ │
+│              │  │  draw:          0x7f...b4    │ │
+│              │  │  bounding_box:  0x7f...c8    │ │
+│              │  └──────────────────────────────┘ │
+└──────────────┴───────────────────────────────────┘
+</code></pre>
+<p><strong>How a vtable call works</strong> (e.g., <code>shape.draw()</code>):</p>
+<ol>
+<li>Load <code>vtable_ptr</code> from the fat pointer (second word)</li>
+<li>Index into the vtable to find the <code>draw</code> function pointer</li>
+<li>Call it, passing <code>data_ptr</code> as the <code>self</code> argument</li>
+</ol>
+<p>This is similar to C++ virtual dispatch in cost (one pointer indirection
+per call), but Rust stores the vtable pointer in the fat pointer rather
+than inside the object — so a plain <code>Circle</code> on the stack carries no
+vtable pointer at all.</p>
+<pre class="playground"><code class="language-rust">trait Drawable {
+    fn draw(&amp;self);
+    fn area(&amp;self) -&gt; f64;
+}
+
+struct Circle { radius: f64 }
+
+impl Drawable for Circle {
+    fn draw(&amp;self) { println!("Drawing circle r={}", self.radius); }
+    fn area(&amp;self) -&gt; f64 { std::f64::consts::PI * self.radius * self.radius }
+}
+
+struct Square { side: f64 }
+
+impl Drawable for Square {
+    fn draw(&amp;self) { println!("Drawing square s={}", self.side); }
+    fn area(&amp;self) -&gt; f64 { self.side * self.side }
+}
+
+fn main() {
+    let shapes: Vec&lt;Box&lt;dyn Drawable&gt;&gt; = vec![
+        Box::new(Circle { radius: 5.0 }),
+        Box::new(Square { side: 3.0 }),
+    ];
+
+    // Each element is a fat pointer: (data_ptr, vtable_ptr)
+    // The vtable for Circle and Square are DIFFERENT
+    for shape in &amp;shapes {
+        shape.draw();  // vtable dispatch → Circle::draw or Square::draw
+        println!("  area = {:.2}", shape.area());
+    }
+
+    // Size comparison:
+    println!("size_of::&lt;&amp;Circle&gt;()        = {}", size_of::&lt;&amp;Circle&gt;());
+    // → 8 bytes (one pointer — the compiler knows the type)
+    println!("size_of::&lt;&amp;dyn Drawable&gt;()  = {}", size_of::&lt;&amp;dyn Drawable&gt;());
+    // → 16 bytes (data_ptr + vtable_ptr)
+}</code></pre>
+<p><strong>Performance cost model</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Aspect</th><th>Static dispatch (<code>impl Trait</code> / generics)</th><th>Dynamic dispatch (<code>dyn Trait</code>)</th></tr>
+</thead>
+<tbody>
+<tr><td>Call overhead</td><td>Zero — inlined by LLVM</td><td>One pointer indirection per call</td></tr>
+<tr><td>Inlining</td><td>✅ Compiler can inline</td><td>❌ Opaque function pointer</td></tr>
+<tr><td>Binary size</td><td>Larger (one copy per type)</td><td>Smaller (one shared function)</td></tr>
+<tr><td>Pointer size</td><td>Thin (1 word)</td><td>Fat (2 words)</td></tr>
+<tr><td>Heterogeneous collections</td><td>❌</td><td>✅ <code>Vec&lt;Box&lt;dyn Trait&gt;&gt;</code></td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>When vtable cost matters</strong>: In tight loops calling a trait method millions
+of times, the indirection and inability to inline can be significant (2-10×
+slower). For cold paths, configuration, or plugin architectures, the
+flexibility of <code>dyn Trait</code> is worth the small cost.</p>
+</blockquote>
+<h3 id="higher-ranked-trait-bounds-hrtbs"><a class="header" href="#higher-ranked-trait-bounds-hrtbs">Higher-Ranked Trait Bounds (HRTBs)</a></h3>
+<p>Sometimes you need a function that works with references of <em>any</em> lifetime, not a specific one. This is where <code>for&lt;'a&gt;</code> syntax appears:</p>
+<pre class="playground"><code class="language-rust">// Problem: this function needs a closure that can process
+// references with ANY lifetime, not just one specific lifetime.
+
+// ❌ This is too restrictive — 'a is fixed by the caller:
+// fn apply&lt;'a, F: Fn(&amp;'a str) -&gt; &amp;'a str&gt;(f: F, data: &amp;'a str) -&gt; &amp;'a str
+
+// ✅ HRTB: F must work for ALL possible lifetimes:
+fn apply&lt;F&gt;(f: F, data: &amp;str) -&gt; &amp;str
+where
+    F: for&lt;'a&gt; Fn(&amp;'a str) -&gt; &amp;'a str,
+{
+    f(data)
+}
+
+fn main() {
+    let result = apply(|s| s.trim(), "  hello  ");
+    println!("{result}"); // "hello"
+}</code></pre>
+<p><strong>When you encounter HRTBs</strong>:</p>
+<ul>
+<li><code>Fn(&amp;T) -&gt; &amp;U</code> traits — the compiler infers <code>for&lt;'a&gt;</code> automatically in most cases</li>
+<li>Custom trait implementations that must work across different borrows</li>
+<li>Deserialization with <code>serde</code>: <code>for&lt;'de&gt; Deserialize&lt;'de&gt;</code></li>
+</ul>
+<pre><code class="language-rust ignore">// serde's DeserializeOwned is defined as:
+// trait DeserializeOwned: for&lt;'de&gt; Deserialize&lt;'de&gt; {}
+// Meaning: "can be deserialized from data with ANY lifetime"
+// (i.e., the result doesn't borrow from the input)
+
+use serde::de::DeserializeOwned;
+
+fn parse_json&lt;T: DeserializeOwned&gt;(input: &amp;str) -&gt; T {
+    serde_json::from_str(input).unwrap()
+}</code></pre>
+<blockquote>
+<p><strong>Practical advice</strong>: You’ll rarely write <code>for&lt;'a&gt;</code> yourself. It mostly appears
+in trait bounds on closure parameters, where the compiler handles it implicitly.
+But recognizing it in error messages (“expected a <code>for&lt;'a&gt; Fn(&amp;'a ...)</code> bound”)
+helps you understand what the compiler is asking for.</p>
+</blockquote>
+<h3 id="impl-trait--argument-position-vs-return-position"><a class="header" href="#impl-trait--argument-position-vs-return-position"><code>impl Trait</code> — Argument Position vs Return Position</a></h3>
+<p><code>impl Trait</code> appears in two positions with <strong>different semantics</strong>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// --- Argument-Position impl Trait (APIT) ---
+// "Caller chooses the type" — syntactic sugar for a generic parameter
+fn print_all(items: impl Iterator&lt;Item = i32&gt;) {
+    for item in items { println!("{item}"); }
+}
+// Equivalent to:
+fn print_all_verbose&lt;I: Iterator&lt;Item = i32&gt;&gt;(items: I) {
+    for item in items { println!("{item}"); }
+}
+// Caller decides: print_all(vec![1,2,3].into_iter())
+//                 print_all(0..10)
+
+// --- Return-Position impl Trait (RPIT) ---
+// "Callee chooses the type" — the function picks one concrete type
+fn evens(limit: i32) -&gt; impl Iterator&lt;Item = i32&gt; {
+    (0..limit).filter(|x| x % 2 == 0)
+    // The concrete type is Filter&lt;Range&lt;i32&gt;, Closure&gt;
+    // but the caller only sees "some Iterator&lt;Item = i32&gt;"
+}
+<span class="boring">}</span></code></pre>
+<p><strong>Key difference</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th>APIT (<code>fn foo(x: impl T)</code>)</th><th>RPIT (<code>fn foo() -&gt; impl T</code>)</th></tr>
+</thead>
+<tbody>
+<tr><td>Who picks the type?</td><td>Caller</td><td>Callee (function body)</td></tr>
+<tr><td>Monomorphized?</td><td>Yes — one copy per type</td><td>Yes — one concrete type</td></tr>
+<tr><td>Turbofish?</td><td>No (<code>foo::&lt;X&gt;()</code> not allowed)</td><td>N/A</td></tr>
+<tr><td>Equivalent to</td><td><code>fn foo&lt;X: T&gt;(x: X)</code></td><td>Existential type</td></tr>
+</tbody>
+</table>
+</div>
+<h4 id="rpit-in-trait-definitions-rpitit"><a class="header" href="#rpit-in-trait-definitions-rpitit">RPIT in Trait Definitions (RPITIT)</a></h4>
+<p>Since Rust 1.75, you can use <code>-&gt; impl Trait</code> directly in trait definitions:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Container {
+    fn items(&amp;self) -&gt; impl Iterator&lt;Item = &amp;str&gt;;
+    //                 ^^^^ Each implementor returns its own concrete type
+}
+
+struct CsvRow {
+    fields: Vec&lt;String&gt;,
+}
+
+impl Container for CsvRow {
+    fn items(&amp;self) -&gt; impl Iterator&lt;Item = &amp;str&gt; {
+        self.fields.iter().map(String::as_str)
+    }
+}
+
+struct FixedFields;
+
+impl Container for FixedFields {
+    fn items(&amp;self) -&gt; impl Iterator&lt;Item = &amp;str&gt; {
+        ["host", "port", "timeout"].into_iter()
+    }
+}
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>Before Rust 1.75</strong>, you had to use <code>Box&lt;dyn Iterator&gt;</code> or an associated
+type to achieve this in traits. RPITIT removes the allocation.</p>
+</blockquote>
+<h4 id="impl-trait-vs-dyn-trait--decision-guide"><a class="header" href="#impl-trait-vs-dyn-trait--decision-guide"><code>impl Trait</code> vs <code>dyn Trait</code> — Decision Guide</a></h4>
+<pre><code class="language-text">Do you know the concrete type at compile time?
+├── YES → Use impl Trait or generics (zero cost, inlinable)
+└── NO  → Do you need a heterogeneous collection?
+     ├── YES → Use dyn Trait (Box&lt;dyn T&gt;, &amp;dyn T)
+     └── NO  → Do you need the SAME trait object across an API boundary?
+          ├── YES → Use dyn Trait
+          └── NO  → Use generics / impl Trait
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Feature</th><th><code>impl Trait</code></th><th><code>dyn Trait</code></th></tr>
+</thead>
+<tbody>
+<tr><td>Dispatch</td><td>Static (monomorphized)</td><td>Dynamic (vtable)</td></tr>
+<tr><td>Performance</td><td>Best — inlinable</td><td>One indirection per call</td></tr>
+<tr><td>Heterogeneous collections</td><td>❌</td><td>✅</td></tr>
+<tr><td>Binary size per type</td><td>One copy each</td><td>Shared code</td></tr>
+<tr><td>Trait must be object-safe?</td><td>No</td><td>Yes</td></tr>
+<tr><td>Works in trait definitions</td><td>✅ (Rust 1.75+)</td><td>Always</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="type-erasure-with-any-and-typeid"><a class="header" href="#type-erasure-with-any-and-typeid">Type Erasure with <code>Any</code> and <code>TypeId</code></a></h2>
+<p>Sometimes you need to store values of <em>unknown</em> types and downcast them later — a pattern
+familiar from <code>void*</code> in C or <code>object</code> in C#. Rust provides this through <code>std::any::Any</code>:</p>
+<pre class="playground"><code class="language-rust">use std::any::Any;
+
+// Store heterogeneous values:
+fn log_value(value: &amp;dyn Any) {
+    if let Some(s) = value.downcast_ref::&lt;String&gt;() {
+        println!("String: {s}");
+    } else if let Some(n) = value.downcast_ref::&lt;i32&gt;() {
+        println!("i32: {n}");
+    } else {
+        // TypeId lets you inspect the type at runtime:
+        println!("Unknown type: {:?}", value.type_id());
+    }
+}
+
+// Useful for plugin systems, event buses, or ECS-style architectures:
+struct AnyMap(std::collections::HashMap&lt;std::any::TypeId, Box&lt;dyn Any + Send&gt;&gt;);
+
+impl AnyMap {
+    fn new() -&gt; Self { AnyMap(std::collections::HashMap::new()) }
+
+    fn insert&lt;T: Any + Send + 'static&gt;(&amp;mut self, value: T) {
+        self.0.insert(std::any::TypeId::of::&lt;T&gt;(), Box::new(value));
+    }
+
+    fn get&lt;T: Any + Send + 'static&gt;(&amp;self) -&gt; Option&lt;&amp;T&gt; {
+        self.0.get(&amp;std::any::TypeId::of::&lt;T&gt;())?
+            .downcast_ref()
+    }
+}
+
+fn main() {
+    let mut map = AnyMap::new();
+    map.insert(42_i32);
+    map.insert(String::from("hello"));
+
+    assert_eq!(map.get::&lt;i32&gt;(), Some(&amp;42));
+    assert_eq!(map.get::&lt;String&gt;().map(|s| s.as_str()), Some("hello"));
+    assert_eq!(map.get::&lt;f64&gt;(), None); // Never inserted
+}</code></pre>
+<blockquote>
+<p><strong>When to use <code>Any</code></strong>: Plugin/extension systems, type-indexed maps (<code>typemap</code>),
+error downcasting (<code>anyhow::Error::downcast_ref</code>). Prefer generics or trait
+objects when the set of types is known at compile time — <code>Any</code> is a last resort
+that trades compile-time safety for flexibility.</p>
+</blockquote>
+<hr>
+<h2 id="extension-traits--adding-methods-to-types-you-dont-own"><a class="header" href="#extension-traits--adding-methods-to-types-you-dont-own">Extension Traits — Adding Methods to Types You Don’t Own</a></h2>
+<p>Rust’s orphan rule prevents you from implementing a foreign trait on a foreign type.
+Extension traits are the standard workaround: define a <strong>new trait</strong> in your crate whose
+methods have a blanket implementation for any type that meets a bound. The caller imports
+the trait and the new methods appear on existing types.</p>
+<p>This pattern is pervasive in the Rust ecosystem: <code>itertools::Itertools</code>, <code>futures::StreamExt</code>,
+<code>tokio::io::AsyncReadExt</code>, <code>tower::ServiceExt</code>.</p>
+<h3 id="the-problem"><a class="header" href="#the-problem">The Problem</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// We want to add a .mean() method to all iterators that yield f64.
+// But Iterator is defined in std and f64 is a primitive — orphan rule prevents:
+//
+// impl&lt;I: Iterator&lt;Item = f64&gt;&gt; I {   // ❌ Cannot add inherent methods to a foreign type
+//     fn mean(self) -&gt; f64 { ... }
+// }
+<span class="boring">}</span></code></pre>
+<h3 id="the-solution-an-extension-trait"><a class="header" href="#the-solution-an-extension-trait">The Solution: An Extension Trait</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Extension methods for iterators over numeric values.
+pub trait IteratorExt: Iterator {
+    /// Computes the arithmetic mean. Returns `None` for empty iterators.
+    fn mean(self) -&gt; Option&lt;f64&gt;
+    where
+        Self: Sized,
+        Self::Item: Into&lt;f64&gt;;
+}
+
+// Blanket implementation — automatically applies to ALL iterators
+impl&lt;I: Iterator&gt; IteratorExt for I {
+    fn mean(self) -&gt; Option&lt;f64&gt;
+    where
+        Self: Sized,
+        Self::Item: Into&lt;f64&gt;,
+    {
+        let mut sum: f64 = 0.0;
+        let mut count: u64 = 0;
+        for item in self {
+            sum += item.into();
+            count += 1;
+        }
+        if count == 0 { None } else { Some(sum / count as f64) }
+    }
+}
+
+// Usage — just import the trait:
+use crate::IteratorExt;  // One import and the method appears on all iterators
+
+fn analyze_temperatures(readings: &amp;[f64]) -&gt; Option&lt;f64&gt; {
+    readings.iter().copied().mean()  // .mean() is now available!
+}
+
+fn analyze_sensor_data(data: &amp;[i32]) -&gt; Option&lt;f64&gt; {
+    data.iter().copied().mean()  // Works on i32 too (i32: Into&lt;f64&gt;)
+}
+<span class="boring">}</span></code></pre>
+<h3 id="real-world-example-diagnostic-result-extensions"><a class="header" href="#real-world-example-diagnostic-result-extensions">Real-World Example: Diagnostic Result Extensions</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::collections::HashMap;
+
+struct DiagResult {
+    component: String,
+    passed: bool,
+    message: String,
+}
+
+/// Extension trait for Vec&lt;DiagResult&gt; — adds domain-specific analysis methods.
+pub trait DiagResultsExt {
+    fn passed_count(&amp;self) -&gt; usize;
+    fn failed_count(&amp;self) -&gt; usize;
+    fn overall_pass(&amp;self) -&gt; bool;
+    fn failures_by_component(&amp;self) -&gt; HashMap&lt;String, Vec&lt;&amp;DiagResult&gt;&gt;;
+}
+
+impl DiagResultsExt for Vec&lt;DiagResult&gt; {
+    fn passed_count(&amp;self) -&gt; usize {
+        self.iter().filter(|r| r.passed).count()
+    }
+
+    fn failed_count(&amp;self) -&gt; usize {
+        self.iter().filter(|r| !r.passed).count()
+    }
+
+    fn overall_pass(&amp;self) -&gt; bool {
+        self.iter().all(|r| r.passed)
+    }
+
+    fn failures_by_component(&amp;self) -&gt; HashMap&lt;String, Vec&lt;&amp;DiagResult&gt;&gt; {
+        let mut map = HashMap::new();
+        for r in self.iter().filter(|r| !r.passed) {
+            map.entry(r.component.clone()).or_default().push(r);
+        }
+        map
+    }
+}
+
+// Now any Vec&lt;DiagResult&gt; has these methods:
+fn report(results: Vec&lt;DiagResult&gt;) {
+    if !results.overall_pass() {
+        let failures = results.failures_by_component();
+        for (component, fails) in &amp;failures {
+            eprintln!("{component}: {} failures", fails.len());
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="naming-convention"><a class="header" href="#naming-convention">Naming Convention</a></h3>
+<p>The Rust ecosystem uses a consistent <code>Ext</code> suffix:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Crate</th><th>Extension Trait</th><th>Extends</th></tr>
+</thead>
+<tbody>
+<tr><td><code>itertools</code></td><td><code>Itertools</code></td><td><code>Iterator</code></td></tr>
+<tr><td><code>futures</code></td><td><code>StreamExt</code>, <code>FutureExt</code></td><td><code>Stream</code>, <code>Future</code></td></tr>
+<tr><td><code>tokio</code></td><td><code>AsyncReadExt</code>, <code>AsyncWriteExt</code></td><td><code>AsyncRead</code>, <code>AsyncWrite</code></td></tr>
+<tr><td><code>tower</code></td><td><code>ServiceExt</code></td><td><code>Service</code></td></tr>
+<tr><td><code>bytes</code></td><td><code>BufMut</code> (partial)</td><td><code>&amp;mut [u8]</code></td></tr>
+<tr><td>Your crate</td><td><code>DiagResultsExt</code></td><td><code>Vec&lt;DiagResult&gt;</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="when-to-use"><a class="header" href="#when-to-use">When to Use</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Situation</th><th style="text-align: center">Use Extension Trait?</th></tr>
+</thead>
+<tbody>
+<tr><td>Adding convenience methods to a foreign type</td><td style="text-align: center">✅</td></tr>
+<tr><td>Grouping domain-specific logic on generic collections</td><td style="text-align: center">✅</td></tr>
+<tr><td>The method needs access to private fields</td><td style="text-align: center">❌ (use a wrapper/newtype)</td></tr>
+<tr><td>The method logically belongs on a new type you control</td><td style="text-align: center">❌ (just add it to your type)</td></tr>
+<tr><td>You want the method available without any import</td><td style="text-align: center">❌ (inherent methods only)</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="enum-dispatch--static-polymorphism-without-dyn"><a class="header" href="#enum-dispatch--static-polymorphism-without-dyn">Enum Dispatch — Static Polymorphism Without <code>dyn</code></a></h2>
+<p>When you have a <strong>closed set</strong> of types implementing a trait, you can replace <code>dyn Trait</code>
+with an enum whose variants hold the concrete types. This eliminates the vtable indirection
+and heap allocation while preserving the same caller-facing interface.</p>
+<h3 id="the-problem-with-dyn-trait"><a class="header" href="#the-problem-with-dyn-trait">The Problem with <code>dyn Trait</code></a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait Sensor {
+    fn read(&amp;self) -&gt; f64;
+    fn name(&amp;self) -&gt; &amp;str;
+}
+
+struct Gps { lat: f64, lon: f64 }
+struct Thermometer { temp_c: f64 }
+struct Accelerometer { g_force: f64 }
+
+impl Sensor for Gps {
+    fn read(&amp;self) -&gt; f64 { self.lat }
+    fn name(&amp;self) -&gt; &amp;str { "GPS" }
+}
+impl Sensor for Thermometer {
+    fn read(&amp;self) -&gt; f64 { self.temp_c }
+    fn name(&amp;self) -&gt; &amp;str { "Thermometer" }
+}
+impl Sensor for Accelerometer {
+    fn read(&amp;self) -&gt; f64 { self.g_force }
+    fn name(&amp;self) -&gt; &amp;str { "Accelerometer" }
+}
+
+// Heterogeneous collection with dyn — works, but has costs:
+fn read_all_dyn(sensors: &amp;[Box&lt;dyn Sensor&gt;]) -&gt; Vec&lt;f64&gt; {
+    sensors.iter().map(|s| s.read()).collect()
+    // Each .read() goes through a vtable indirection
+    // Each Box allocates on the heap
+}
+<span class="boring">}</span></code></pre>
+<h3 id="the-enum-dispatch-solution"><a class="header" href="#the-enum-dispatch-solution">The Enum Dispatch Solution</a></h3>
+<pre class="playground"><code class="language-rust">// Replace the trait object with an enum:
+enum AnySensor {
+    Gps(Gps),
+    Thermometer(Thermometer),
+    Accelerometer(Accelerometer),
+}
+
+impl AnySensor {
+    fn read(&amp;self) -&gt; f64 {
+        match self {
+            AnySensor::Gps(s) =&gt; s.read(),
+            AnySensor::Thermometer(s) =&gt; s.read(),
+            AnySensor::Accelerometer(s) =&gt; s.read(),
+        }
+    }
+
+    fn name(&amp;self) -&gt; &amp;str {
+        match self {
+            AnySensor::Gps(s) =&gt; s.name(),
+            AnySensor::Thermometer(s) =&gt; s.name(),
+            AnySensor::Accelerometer(s) =&gt; s.name(),
+        }
+    }
+}
+
+// Now: no heap allocation, no vtable, stored inline
+fn read_all(sensors: &amp;[AnySensor]) -&gt; Vec&lt;f64&gt; {
+    sensors.iter().map(|s| s.read()).collect()
+    // Each .read() is a match branch — compiler can inline everything
+}
+
+fn main() {
+    let sensors = vec![
+        AnySensor::Gps(Gps { lat: 47.6, lon: -122.3 }),
+        AnySensor::Thermometer(Thermometer { temp_c: 72.5 }),
+        AnySensor::Accelerometer(Accelerometer { g_force: 1.02 }),
+    ];
+
+    for sensor in &amp;sensors {
+        println!("{}: {:.2}", sensor.name(), sensor.read());
+    }
+}</code></pre>
+<h3 id="implement-the-trait-on-the-enum"><a class="header" href="#implement-the-trait-on-the-enum">Implement the Trait on the Enum</a></h3>
+<p>For interoperability, you can implement the original trait on the enum itself:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl Sensor for AnySensor {
+    fn read(&amp;self) -&gt; f64 {
+        match self {
+            AnySensor::Gps(s) =&gt; s.read(),
+            AnySensor::Thermometer(s) =&gt; s.read(),
+            AnySensor::Accelerometer(s) =&gt; s.read(),
+        }
+    }
+
+    fn name(&amp;self) -&gt; &amp;str {
+        match self {
+            AnySensor::Gps(s) =&gt; s.name(),
+            AnySensor::Thermometer(s) =&gt; s.name(),
+            AnySensor::Accelerometer(s) =&gt; s.name(),
+        }
+    }
+}
+
+// Now AnySensor works anywhere a Sensor is expected via generics:
+fn report&lt;S: Sensor&gt;(s: &amp;S) {
+    println!("{}: {:.2}", s.name(), s.read());
+}
+<span class="boring">}</span></code></pre>
+<h3 id="reducing-boilerplate-with-a-macro"><a class="header" href="#reducing-boilerplate-with-a-macro">Reducing Boilerplate with a Macro</a></h3>
+<p>The match-arm delegation is repetitive. A macro eliminates it:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>macro_rules! dispatch_sensor {
+    ($self:expr, $method:ident $(, $arg:expr)*) =&gt; {
+        match $self {
+            AnySensor::Gps(s) =&gt; s.$method($($arg),*),
+            AnySensor::Thermometer(s) =&gt; s.$method($($arg),*),
+            AnySensor::Accelerometer(s) =&gt; s.$method($($arg),*),
+        }
+    };
+}
+
+impl Sensor for AnySensor {
+    fn read(&amp;self) -&gt; f64     { dispatch_sensor!(self, read) }
+    fn name(&amp;self) -&gt; &amp;str    { dispatch_sensor!(self, name) }
+}
+<span class="boring">}</span></code></pre>
+<p>For larger projects, the <code>enum_dispatch</code> crate automates this entirely:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use enum_dispatch::enum_dispatch;
+
+#[enum_dispatch]
+trait Sensor {
+    fn read(&amp;self) -&gt; f64;
+    fn name(&amp;self) -&gt; &amp;str;
+}
+
+#[enum_dispatch(Sensor)]
+enum AnySensor {
+    Gps,
+    Thermometer,
+    Accelerometer,
+}
+// All delegation code is generated automatically.
+<span class="boring">}</span></code></pre>
+<h3 id="dyn-trait-vs-enum-dispatch--decision-guide"><a class="header" href="#dyn-trait-vs-enum-dispatch--decision-guide"><code>dyn Trait</code> vs Enum Dispatch — Decision Guide</a></h3>
+<pre><code class="language-text">Is the set of types closed (known at compile time)?
+├── YES → Prefer enum dispatch (faster, no heap allocation)
+│         ├── Few variants (&lt; ~20)?     → Manual enum
+│         └── Many variants or growing? → enum_dispatch crate
+└── NO  → Must use dyn Trait (plugins, user-provided types)
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Property</th><th style="text-align: center"><code>dyn Trait</code></th><th style="text-align: center">Enum Dispatch</th></tr>
+</thead>
+<tbody>
+<tr><td>Dispatch cost</td><td style="text-align: center">Vtable indirection (~2ns)</td><td style="text-align: center">Branch prediction (~0.3ns)</td></tr>
+<tr><td>Heap allocation</td><td style="text-align: center">Usually (Box)</td><td style="text-align: center">None (inline)</td></tr>
+<tr><td>Cache-friendly</td><td style="text-align: center">No (pointer chasing)</td><td style="text-align: center">Yes (contiguous)</td></tr>
+<tr><td>Open to new types</td><td style="text-align: center">✅ (anyone can impl)</td><td style="text-align: center">❌ (closed set)</td></tr>
+<tr><td>Code size</td><td style="text-align: center">Shared</td><td style="text-align: center">One copy per variant</td></tr>
+<tr><td>Trait must be object-safe</td><td style="text-align: center">Yes</td><td style="text-align: center">No</td></tr>
+<tr><td>Adding a variant</td><td style="text-align: center">No code changes</td><td style="text-align: center">Update enum + match arms</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="when-to-use-enum-dispatch"><a class="header" href="#when-to-use-enum-dispatch">When to Use Enum Dispatch</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Scenario</th><th>Recommendation</th></tr>
+</thead>
+<tbody>
+<tr><td>Diagnostic test types (CPU, GPU, NIC, Memory, …)</td><td>✅ Enum dispatch — closed set, known at compile time</td></tr>
+<tr><td>Bus protocols (SPI, I2C, UART, …)</td><td>✅ Enum dispatch or Config trait</td></tr>
+<tr><td>Plugin system (user loads .so at runtime)</td><td>❌ Use <code>dyn Trait</code></td></tr>
+<tr><td>2-3 variants</td><td>✅ Manual enum dispatch</td></tr>
+<tr><td>10+ variants with many methods</td><td>✅ <code>enum_dispatch</code> crate</td></tr>
+<tr><td>Performance-critical inner loop</td><td>✅ Enum dispatch (eliminates vtable)</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="capability-mixins--associated-types-as-zero-cost-composition"><a class="header" href="#capability-mixins--associated-types-as-zero-cost-composition">Capability Mixins — Associated Types as Zero-Cost Composition</a></h2>
+<p>Ruby developers compose behaviour with <strong>mixins</strong> — <code>include SomeModule</code> injects methods
+into a class.  Rust traits with <strong>associated types + default methods + blanket impls</strong>
+produce the same result, except:</p>
+<ul>
+<li>Everything resolves at <strong>compile time</strong> — no method-missing surprises</li>
+<li>Each associated type is a <strong>knob</strong> that changes what the default methods produce</li>
+<li>The compiler <strong>monomorphises</strong> each combination — zero vtable overhead</li>
+</ul>
+<h3 id="the-problem-cross-cutting-bus-dependencies"><a class="header" href="#the-problem-cross-cutting-bus-dependencies">The Problem: Cross-Cutting Bus Dependencies</a></h3>
+<p>Hardware diagnostic routines share common operations — read an IPMI sensor, toggle a
+GPIO rail, sample a temperature over SPI — but different diagnostics need different
+combinations.  Inheritance hierarchies don’t exist in Rust.  Passing every bus handle
+as a function argument creates unwieldy signatures.  We need a way to <strong>mix in</strong> bus
+capabilities à la carte.</p>
+<h3 id="step-1--define-ingredient-traits"><a class="header" href="#step-1--define-ingredient-traits">Step 1 — Define “Ingredient” Traits</a></h3>
+<p>Each ingredient provides one hardware capability via an associated type:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::io;
+
+// ── Bus abstractions (traits the hardware team provides) ──────────
+pub trait SpiBus {
+    fn spi_transfer(&amp;self, tx: &amp;[u8], rx: &amp;mut [u8]) -&gt; io::Result&lt;()&gt;;
+}
+
+pub trait I2cBus {
+    fn i2c_read(&amp;self, addr: u8, reg: u8, buf: &amp;mut [u8]) -&gt; io::Result&lt;()&gt;;
+    fn i2c_write(&amp;self, addr: u8, reg: u8, data: &amp;[u8]) -&gt; io::Result&lt;()&gt;;
+}
+
+pub trait GpioPin {
+    fn set_high(&amp;self) -&gt; io::Result&lt;()&gt;;
+    fn set_low(&amp;self) -&gt; io::Result&lt;()&gt;;
+    fn read_level(&amp;self) -&gt; io::Result&lt;bool&gt;;
+}
+
+pub trait IpmiBmc {
+    fn raw_command(&amp;self, net_fn: u8, cmd: u8, data: &amp;[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt;;
+    fn read_sensor(&amp;self, sensor_id: u8) -&gt; io::Result&lt;f64&gt;;
+}
+
+// ── Ingredient traits — one per bus, carries an associated type ───
+pub trait HasSpi {
+    type Spi: SpiBus;
+    fn spi(&amp;self) -&gt; &amp;Self::Spi;
+}
+
+pub trait HasI2c {
+    type I2c: I2cBus;
+    fn i2c(&amp;self) -&gt; &amp;Self::I2c;
+}
+
+pub trait HasGpio {
+    type Gpio: GpioPin;
+    fn gpio(&amp;self) -&gt; &amp;Self::Gpio;
+}
+
+pub trait HasIpmi {
+    type Ipmi: IpmiBmc;
+    fn ipmi(&amp;self) -&gt; &amp;Self::Ipmi;
+}
+<span class="boring">}</span></code></pre>
+<p>Each ingredient is tiny, generic, and testable in isolation.</p>
+<h3 id="step-2--define-mixin-traits"><a class="header" href="#step-2--define-mixin-traits">Step 2 — Define “Mixin” Traits</a></h3>
+<p>A mixin trait declares its required ingredients as supertraits, then provides all
+its methods via <strong>defaults</strong> — implementors get them for free:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Mixin: fan diagnostics — needs I2C (tachometer) + GPIO (PWM enable)
+pub trait FanDiagMixin: HasI2c + HasGpio {
+    /// Read fan RPM from the tachometer IC over I2C.
+    fn read_fan_rpm(&amp;self, fan_id: u8) -&gt; io::Result&lt;u32&gt; {
+        let mut buf = [0u8; 2];
+        self.i2c().i2c_read(0x48 + fan_id, 0x00, &amp;mut buf)?;
+        Ok(u16::from_be_bytes(buf) as u32 * 60) // tach counts → RPM
+    }
+
+    /// Enable or disable the fan PWM output via GPIO.
+    fn set_fan_pwm(&amp;self, enable: bool) -&gt; io::Result&lt;()&gt; {
+        if enable { self.gpio().set_high() }
+        else      { self.gpio().set_low() }
+    }
+
+    /// Full fan health check — read RPM + verify within threshold.
+    fn check_fan_health(&amp;self, fan_id: u8, min_rpm: u32) -&gt; io::Result&lt;bool&gt; {
+        let rpm = self.read_fan_rpm(fan_id)?;
+        Ok(rpm &gt;= min_rpm)
+    }
+}
+
+/// Mixin: temperature monitoring — needs SPI (thermocouple ADC) + IPMI (BMC sensors)
+pub trait TempMonitorMixin: HasSpi + HasIpmi {
+    /// Read a thermocouple via the SPI ADC (e.g. MAX31855).
+    fn read_thermocouple(&amp;self) -&gt; io::Result&lt;f64&gt; {
+        let mut rx = [0u8; 4];
+        self.spi().spi_transfer(&amp;[0x00; 4], &amp;mut rx)?;
+        let raw = i32::from_be_bytes(rx) &gt;&gt; 18; // 14-bit signed
+        Ok(raw as f64 * 0.25)
+    }
+
+    /// Read a BMC-managed temperature sensor via IPMI.
+    fn read_bmc_temp(&amp;self, sensor_id: u8) -&gt; io::Result&lt;f64&gt; {
+        self.ipmi().read_sensor(sensor_id)
+    }
+
+    /// Cross-validate: thermocouple vs BMC must agree within delta.
+    fn validate_temps(&amp;self, sensor_id: u8, max_delta: f64) -&gt; io::Result&lt;bool&gt; {
+        let tc = self.read_thermocouple()?;
+        let bmc = self.read_bmc_temp(sensor_id)?;
+        Ok((tc - bmc).abs() &lt;= max_delta)
+    }
+}
+
+/// Mixin: power sequencing — needs GPIO (rail enable) + IPMI (event logging)
+pub trait PowerSeqMixin: HasGpio + HasIpmi {
+    /// Assert the power-good GPIO and verify via IPMI sensor.
+    fn enable_power_rail(&amp;self, sensor_id: u8) -&gt; io::Result&lt;bool&gt; {
+        self.gpio().set_high()?;
+        std::thread::sleep(std::time::Duration::from_millis(50));
+        let voltage = self.ipmi().read_sensor(sensor_id)?;
+        Ok(voltage &gt; 0.8) // above 80% nominal = good
+    }
+
+    /// De-assert power and log shutdown via IPMI OEM command.
+    fn disable_power_rail(&amp;self) -&gt; io::Result&lt;()&gt; {
+        self.gpio().set_low()?;
+        // Log OEM "power rail disabled" event to BMC
+        self.ipmi().raw_command(0x2E, 0x01, &amp;[0x00, 0x01])?;
+        Ok(())
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="step-3--blanket-impls-make-it-truly-mixin"><a class="header" href="#step-3--blanket-impls-make-it-truly-mixin">Step 3 — Blanket Impls Make It Truly “Mixin”</a></h3>
+<p>The magic line — provide the ingredients, get the methods:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>impl&lt;T: HasI2c + HasGpio&gt;  FanDiagMixin    for T {}
+impl&lt;T: HasSpi  + HasIpmi&gt;  TempMonitorMixin for T {}
+impl&lt;T: HasGpio + HasIpmi&gt;  PowerSeqMixin   for T {}
+<span class="boring">}</span></code></pre>
+<p>Any struct that implements the right ingredient traits <strong>automatically</strong> gains every
+mixin method — no boilerplate, no forwarding, no inheritance.</p>
+<h3 id="step-4--wire-up-production"><a class="header" href="#step-4--wire-up-production">Step 4 — Wire Up Production</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// ── Concrete bus implementations (Linux platform) ────────────────
+struct LinuxSpi  { dev: String }
+struct LinuxI2c  { dev: String }
+struct SysfsGpio { pin: u32 }
+struct IpmiTool  { timeout_secs: u32 }
+
+impl SpiBus for LinuxSpi {
+    fn spi_transfer(&amp;self, _tx: &amp;[u8], _rx: &amp;mut [u8]) -&gt; io::Result&lt;()&gt; {
+        // spidev ioctl — omitted for brevity
+        Ok(())
+    }
+}
+impl I2cBus for LinuxI2c {
+    fn i2c_read(&amp;self, _addr: u8, _reg: u8, _buf: &amp;mut [u8]) -&gt; io::Result&lt;()&gt; {
+        // i2c-dev ioctl — omitted for brevity
+        Ok(())
+    }
+    fn i2c_write(&amp;self, _addr: u8, _reg: u8, _data: &amp;[u8]) -&gt; io::Result&lt;()&gt; { Ok(()) }
+}
+impl GpioPin for SysfsGpio {
+    fn set_high(&amp;self) -&gt; io::Result&lt;()&gt;  { /* /sys/class/gpio */ Ok(()) }
+    fn set_low(&amp;self) -&gt; io::Result&lt;()&gt;   { Ok(()) }
+    fn read_level(&amp;self) -&gt; io::Result&lt;bool&gt; { Ok(true) }
+}
+impl IpmiBmc for IpmiTool {
+    fn raw_command(&amp;self, _nf: u8, _cmd: u8, _data: &amp;[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+        // shells out to ipmitool — omitted for brevity
+        Ok(vec![])
+    }
+    fn read_sensor(&amp;self, _id: u8) -&gt; io::Result&lt;f64&gt; { Ok(25.0) }
+}
+
+// ── Production platform — all four buses ─────────────────────────
+struct DiagPlatform {
+    spi:  LinuxSpi,
+    i2c:  LinuxI2c,
+    gpio: SysfsGpio,
+    ipmi: IpmiTool,
+}
+
+impl HasSpi  for DiagPlatform { type Spi  = LinuxSpi;  fn spi(&amp;self)  -&gt; &amp;LinuxSpi  { &amp;self.spi  } }
+impl HasI2c  for DiagPlatform { type I2c  = LinuxI2c;  fn i2c(&amp;self)  -&gt; &amp;LinuxI2c  { &amp;self.i2c  } }
+impl HasGpio for DiagPlatform { type Gpio = SysfsGpio; fn gpio(&amp;self) -&gt; &amp;SysfsGpio { &amp;self.gpio } }
+impl HasIpmi for DiagPlatform { type Ipmi = IpmiTool;  fn ipmi(&amp;self) -&gt; &amp;IpmiTool  { &amp;self.ipmi } }
+
+// DiagPlatform now has ALL mixin methods:
+fn production_diagnostics(platform: &amp;DiagPlatform) -&gt; io::Result&lt;()&gt; {
+    let rpm = platform.read_fan_rpm(0)?;       // from FanDiagMixin
+    let tc  = platform.read_thermocouple()?;   // from TempMonitorMixin
+    let ok  = platform.enable_power_rail(42)?;  // from PowerSeqMixin
+    println!("Fan: {rpm} RPM, Temp: {tc}°C, Power: {ok}");
+    Ok(())
+}
+<span class="boring">}</span></code></pre>
+<h3 id="step-5--test-with-mocks-no-hardware-required"><a class="header" href="#step-5--test-with-mocks-no-hardware-required">Step 5 — Test With Mocks (No Hardware Required)</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::cell::Cell;
+
+    struct MockSpi  { temp: Cell&lt;f64&gt; }
+    struct MockI2c  { rpm: Cell&lt;u32&gt; }
+    struct MockGpio { level: Cell&lt;bool&gt; }
+    struct MockIpmi { sensor_val: Cell&lt;f64&gt; }
+
+    impl SpiBus for MockSpi {
+        fn spi_transfer(&amp;self, _tx: &amp;[u8], rx: &amp;mut [u8]) -&gt; io::Result&lt;()&gt; {
+            // Encode mock temp as MAX31855 format
+            let raw = ((self.temp.get() / 0.25) as i32) &lt;&lt; 18;
+            rx.copy_from_slice(&amp;raw.to_be_bytes());
+            Ok(())
+        }
+    }
+    impl I2cBus for MockI2c {
+        fn i2c_read(&amp;self, _addr: u8, _reg: u8, buf: &amp;mut [u8]) -&gt; io::Result&lt;()&gt; {
+            let tach = (self.rpm.get() / 60) as u16;
+            buf.copy_from_slice(&amp;tach.to_be_bytes());
+            Ok(())
+        }
+        fn i2c_write(&amp;self, _: u8, _: u8, _: &amp;[u8]) -&gt; io::Result&lt;()&gt; { Ok(()) }
+    }
+    impl GpioPin for MockGpio {
+        fn set_high(&amp;self)  -&gt; io::Result&lt;()&gt;   { self.level.set(true);  Ok(()) }
+        fn set_low(&amp;self)   -&gt; io::Result&lt;()&gt;   { self.level.set(false); Ok(()) }
+        fn read_level(&amp;self) -&gt; io::Result&lt;bool&gt; { Ok(self.level.get()) }
+    }
+    impl IpmiBmc for MockIpmi {
+        fn raw_command(&amp;self, _: u8, _: u8, _: &amp;[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; { Ok(vec![]) }
+        fn read_sensor(&amp;self, _: u8) -&gt; io::Result&lt;f64&gt; { Ok(self.sensor_val.get()) }
+    }
+
+    // ── Partial platform: only fan-related buses ─────────────────
+    struct FanTestRig {
+        i2c:  MockI2c,
+        gpio: MockGpio,
+    }
+    impl HasI2c  for FanTestRig { type I2c  = MockI2c;  fn i2c(&amp;self)  -&gt; &amp;MockI2c  { &amp;self.i2c  } }
+    impl HasGpio for FanTestRig { type Gpio = MockGpio; fn gpio(&amp;self) -&gt; &amp;MockGpio { &amp;self.gpio } }
+    // FanTestRig gets FanDiagMixin but NOT TempMonitorMixin or PowerSeqMixin
+
+    #[test]
+    fn fan_health_check_passes_above_threshold() {
+        let rig = FanTestRig {
+            i2c:  MockI2c  { rpm: Cell::new(6000) },
+            gpio: MockGpio { level: Cell::new(false) },
+        };
+        assert!(rig.check_fan_health(0, 4000).unwrap());
+    }
+
+    #[test]
+    fn fan_health_check_fails_below_threshold() {
+        let rig = FanTestRig {
+            i2c:  MockI2c  { rpm: Cell::new(2000) },
+            gpio: MockGpio { level: Cell::new(false) },
+        };
+        assert!(!rig.check_fan_health(0, 4000).unwrap());
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>Notice that <code>FanTestRig</code> only implements <code>HasI2c + HasGpio</code> — it gets <code>FanDiagMixin</code>
+automatically, but the compiler <strong>refuses</strong> <code>rig.read_thermocouple()</code> because <code>HasSpi</code>
+is not satisfied.  This is mixin scoping enforced at compile time.</p>
+<h3 id="conditional-methods--beyond-what-ruby-can-do"><a class="header" href="#conditional-methods--beyond-what-ruby-can-do">Conditional Methods — Beyond What Ruby Can Do</a></h3>
+<p>Add <code>where</code> bounds to individual default methods.  The method only <strong>exists</strong> when
+the associated type satisfies the extra bound:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Marker trait for DMA-capable SPI controllers
+pub trait DmaCapable: SpiBus {
+    fn dma_transfer(&amp;self, tx: &amp;[u8], rx: &amp;mut [u8]) -&gt; io::Result&lt;()&gt;;
+}
+
+/// Marker trait for interrupt-capable GPIO pins
+pub trait InterruptCapable: GpioPin {
+    fn wait_for_edge(&amp;self, timeout_ms: u32) -&gt; io::Result&lt;bool&gt;;
+}
+
+pub trait AdvancedDiagMixin: HasSpi + HasGpio {
+    // Always available
+    fn basic_probe(&amp;self) -&gt; io::Result&lt;bool&gt; {
+        let mut rx = [0u8; 1];
+        self.spi().spi_transfer(&amp;[0xFF], &amp;mut rx)?;
+        Ok(rx[0] != 0x00)
+    }
+
+    // Only exists when the SPI controller supports DMA
+    fn bulk_sensor_read(&amp;self, buf: &amp;mut [u8]) -&gt; io::Result&lt;()&gt;
+    where
+        Self::Spi: DmaCapable,
+    {
+        self.spi().dma_transfer(&amp;vec![0x00; buf.len()], buf)
+    }
+
+    // Only exists when the GPIO pin supports interrupts
+    fn wait_for_fault_signal(&amp;self, timeout_ms: u32) -&gt; io::Result&lt;bool&gt;
+    where
+        Self::Gpio: InterruptCapable,
+    {
+        self.gpio().wait_for_edge(timeout_ms)
+    }
+}
+
+impl&lt;T: HasSpi + HasGpio&gt; AdvancedDiagMixin for T {}
+<span class="boring">}</span></code></pre>
+<p>If your platform’s SPI doesn’t support DMA, calling <code>bulk_sensor_read()</code> is a
+<strong>compile error</strong>, not a runtime crash.  Ruby’s <code>respond_to?</code> check is the closest
+equivalent — but it happens at deploy time, not compile time.</p>
+<h3 id="composability-stacking-mixins"><a class="header" href="#composability-stacking-mixins">Composability: Stacking Mixins</a></h3>
+<p>Multiple mixins can share the same ingredient — no diamond problem:</p>
+<pre><code class="language-text">┌─────────────┐    ┌───────────┐    ┌──────────────┐
+│ FanDiagMixin│    │TempMonitor│    │ PowerSeqMixin│
+│  (I2C+GPIO) │    │ (SPI+IPMI)│    │  (GPIO+IPMI) │
+└──────┬──────┘    └─────┬─────┘    └──────┬───────┘
+       │                 │                 │
+       │   ┌─────────────┴─────────────┐   │
+       └──►│      DiagPlatform         │◄──┘
+           │ HasSpi+HasI2c+HasGpio     │
+           │        +HasIpmi           │
+           └───────────────────────────┘
+</code></pre>
+<p><code>DiagPlatform</code> implements <code>HasGpio</code> <strong>once</strong>, and both <code>FanDiagMixin</code> and
+<code>PowerSeqMixin</code> use the same <code>self.gpio()</code>.  In Ruby, this would be two modules
+both calling <code>self.gpio_pin</code> — but if they expected different pin numbers, you’d
+discover the conflict at runtime.  In Rust, you can disambiguate at the type level.</p>
+<h3 id="comparison-ruby-mixins-vs-rust-capability-mixins"><a class="header" href="#comparison-ruby-mixins-vs-rust-capability-mixins">Comparison: Ruby Mixins vs Rust Capability Mixins</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Dimension</th><th>Ruby Mixins</th><th>Rust Capability Mixins</th></tr>
+</thead>
+<tbody>
+<tr><td>Dispatch</td><td>Runtime (method table lookup)</td><td>Compile-time (monomorphised)</td></tr>
+<tr><td>Safe composition</td><td>MRO linearisation hides conflicts</td><td>Compiler rejects ambiguity</td></tr>
+<tr><td>Conditional methods</td><td><code>respond_to?</code> at runtime</td><td><code>where</code> bounds at compile time</td></tr>
+<tr><td>Overhead</td><td>Method dispatch + GC</td><td>Zero-cost (inlined)</td></tr>
+<tr><td>Testability</td><td>Stub/mock via metaprogramming</td><td>Generic over mock types</td></tr>
+<tr><td>Adding new buses</td><td><code>include</code> at runtime</td><td>Add ingredient trait, recompile</td></tr>
+<tr><td>Runtime flexibility</td><td><code>extend</code>, <code>prepend</code>, open classes</td><td>None (fully static)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="when-to-use-capability-mixins"><a class="header" href="#when-to-use-capability-mixins">When to Use Capability Mixins</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Scenario</th><th style="text-align: center">Use Mixins?</th></tr>
+</thead>
+<tbody>
+<tr><td>Multiple diagnostics share bus-reading logic</td><td style="text-align: center">✅</td></tr>
+<tr><td>Test harness needs different bus subsets</td><td style="text-align: center">✅ (partial ingredient structs)</td></tr>
+<tr><td>Methods only valid for certain bus capabilities (DMA, IRQ)</td><td style="text-align: center">✅ (conditional <code>where</code> bounds)</td></tr>
+<tr><td>You need runtime module loading (plugins)</td><td style="text-align: center">❌ (use <code>dyn Trait</code> or enum dispatch)</td></tr>
+<tr><td>Single struct with one bus — no sharing needed</td><td style="text-align: center">❌ (keep it simple)</td></tr>
+<tr><td>Cross-crate ingredients with coherence issues</td><td style="text-align: center">⚠️ (use newtype wrappers)</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>Key Takeaways — Capability Mixins</strong></p>
+<ol>
+<li><strong>Ingredient trait</strong> = associated type + accessor method (e.g., <code>HasSpi</code>)</li>
+<li><strong>Mixin trait</strong> = supertrait bounds on ingredients + default method bodies</li>
+<li><strong>Blanket impl</strong> = <code>impl&lt;T: HasX + HasY&gt; Mixin for T {}</code> — auto-injects methods</li>
+<li><strong>Conditional methods</strong> = <code>where Self::Spi: DmaCapable</code> on individual defaults</li>
+<li><strong>Partial platforms</strong> = test structs that only impl the needed ingredients</li>
+<li><strong>No runtime cost</strong> — the compiler generates specialised code for each platform type</li>
+</ol>
+</blockquote>
+<hr>
+<h2 id="typed-commands--gadt-style-return-type-safety"><a class="header" href="#typed-commands--gadt-style-return-type-safety">Typed Commands — GADT-Style Return Type Safety</a></h2>
+<p>In Haskell, <strong>Generalised Algebraic Data Types (GADTs)</strong> let each constructor of a
+data type refine the type parameter — so <code>Expr Int</code> and <code>Expr Bool</code> are enforced by
+the type checker.  Rust has no direct GADT syntax, but <strong>traits with associated types</strong>
+achieve the same guarantee: the command type <strong>determines</strong> the response type, and
+mixing them up is a compile error.</p>
+<p>This pattern is particularly powerful for hardware diagnostics, where IPMI commands,
+register reads, and sensor queries each return different physical quantities that
+should never be confused.</p>
+<h3 id="the-problem-the-untyped-vecu8-swamp"><a class="header" href="#the-problem-the-untyped-vecu8-swamp">The Problem: The Untyped <code>Vec&lt;u8&gt;</code> Swamp</a></h3>
+<p>Most C/C++ IPMI stacks — and naïve Rust ports — use raw bytes everywhere:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::io;
+
+struct BmcConnectionUntyped { timeout_secs: u32 }
+
+impl BmcConnectionUntyped {
+    fn raw_command(&amp;self, net_fn: u8, cmd: u8, data: &amp;[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+        // ... shells out to ipmitool ...
+        Ok(vec![0x00, 0x19, 0x00]) // stub
+    }
+}
+
+fn diagnose_thermal_untyped(bmc: &amp;BmcConnectionUntyped) -&gt; io::Result&lt;()&gt; {
+    // Read CPU temperature — sensor ID 0x20
+    let raw = bmc.raw_command(0x04, 0x2D, &amp;[0x20])?;
+    let cpu_temp = raw[0] as f64;  // 🤞 hope byte 0 is the reading
+
+    // Read fan speed — sensor ID 0x30
+    let raw = bmc.raw_command(0x04, 0x2D, &amp;[0x30])?;
+    let fan_rpm = raw[0] as u32;  // 🐛 BUG: fan speed is 2 bytes LE
+
+    // Read inlet voltage — sensor ID 0x40
+    let raw = bmc.raw_command(0x04, 0x2D, &amp;[0x40])?;
+    let voltage = raw[0] as f64;  // 🐛 BUG: need to divide by 1000
+
+    // 🐛 Comparing °C to RPM — compiles, but nonsensical
+    if cpu_temp &gt; fan_rpm as f64 {
+        println!("uh oh");
+    }
+
+    // 🐛 Passing Volts as temperature — compiles fine
+    log_temp_untyped(voltage);
+    log_volts_untyped(cpu_temp);
+
+    Ok(())
+}
+
+fn log_temp_untyped(t: f64)  { println!("Temp: {t}°C"); }
+fn log_volts_untyped(v: f64) { println!("Voltage: {v}V"); }
+<span class="boring">}</span></code></pre>
+<p><strong>Every reading is <code>f64</code></strong> — the compiler has no idea that one is a temperature, another
+is RPM, another is voltage.  Four distinct bugs compile without warning:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>#</th><th>Bug</th><th>Consequence</th><th>Discovered</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Fan RPM parsed as 1 byte instead of 2</td><td>Reads 25 RPM instead of 6400</td><td>Production, 3 AM fan-failure flood</td></tr>
+<tr><td>2</td><td>Voltage not divided by 1000</td><td>12000V instead of 12.0V</td><td>Threshold check flags every PSU</td></tr>
+<tr><td>3</td><td>Comparing °C to RPM</td><td>Meaningless boolean</td><td>Possibly never</td></tr>
+<tr><td>4</td><td>Voltage passed to <code>log_temp_untyped()</code></td><td>Silent data corruption in logs</td><td>6 months later, reading history</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-solution-typed-commands-via-associated-types"><a class="header" href="#the-solution-typed-commands-via-associated-types">The Solution: Typed Commands via Associated Types</a></h3>
+<h4 id="step-1--domain-newtypes"><a class="header" href="#step-1--domain-newtypes">Step 1 — Domain newtypes</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+struct Celsius(f64);
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+struct Rpm(u32);
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+struct Volts(f64);
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+struct Watts(f64);
+<span class="boring">}</span></code></pre>
+<h4 id="step-2--the-command-trait-the-gadt-equivalent"><a class="header" href="#step-2--the-command-trait-the-gadt-equivalent">Step 2 — The command trait (the GADT equivalent)</a></h4>
+<p>The associated type <code>Response</code> is the key — it binds each command to its return type:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>trait IpmiCmd {
+    /// The GADT "index" — determines what execute() returns.
+    type Response;
+
+    fn net_fn(&amp;self) -&gt; u8;
+    fn cmd_byte(&amp;self) -&gt; u8;
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt;;
+
+    /// Parsing is encapsulated HERE — each command knows its own byte layout.
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Self::Response&gt;;
+}
+<span class="boring">}</span></code></pre>
+<h4 id="step-3--one-struct-per-command-parsing-written-once"><a class="header" href="#step-3--one-struct-per-command-parsing-written-once">Step 3 — One struct per command, parsing written once</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct ReadTemp { sensor_id: u8 }
+impl IpmiCmd for ReadTemp {
+    type Response = Celsius;  // ← "this command returns a temperature"
+    fn net_fn(&amp;self) -&gt; u8 { 0x04 }
+    fn cmd_byte(&amp;self) -&gt; u8 { 0x2D }
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt; { vec![self.sensor_id] }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Celsius&gt; {
+        // Signed byte per IPMI SDR — written once, tested once
+        Ok(Celsius(raw[0] as i8 as f64))
+    }
+}
+
+struct ReadFanSpeed { fan_id: u8 }
+impl IpmiCmd for ReadFanSpeed {
+    type Response = Rpm;     // ← "this command returns RPM"
+    fn net_fn(&amp;self) -&gt; u8 { 0x04 }
+    fn cmd_byte(&amp;self) -&gt; u8 { 0x2D }
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt; { vec![self.fan_id] }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Rpm&gt; {
+        // 2-byte LE — the correct layout, encoded once
+        Ok(Rpm(u16::from_le_bytes([raw[0], raw[1]]) as u32))
+    }
+}
+
+struct ReadVoltage { rail: u8 }
+impl IpmiCmd for ReadVoltage {
+    type Response = Volts;   // ← "this command returns voltage"
+    fn net_fn(&amp;self) -&gt; u8 { 0x04 }
+    fn cmd_byte(&amp;self) -&gt; u8 { 0x2D }
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt; { vec![self.rail] }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;Volts&gt; {
+        // Millivolts → Volts, always correct
+        Ok(Volts(u16::from_le_bytes([raw[0], raw[1]]) as f64 / 1000.0))
+    }
+}
+
+struct ReadFru { fru_id: u8 }
+impl IpmiCmd for ReadFru {
+    type Response = String;
+    fn net_fn(&amp;self) -&gt; u8 { 0x0A }
+    fn cmd_byte(&amp;self) -&gt; u8 { 0x11 }
+    fn payload(&amp;self) -&gt; Vec&lt;u8&gt; { vec![self.fru_id, 0x00, 0x00, 0xFF] }
+    fn parse_response(&amp;self, raw: &amp;[u8]) -&gt; io::Result&lt;String&gt; {
+        Ok(String::from_utf8_lossy(raw).to_string())
+    }
+}
+<span class="boring">}</span></code></pre>
+<h4 id="step-4--the-executor-zero-dyn-monomorphised"><a class="header" href="#step-4--the-executor-zero-dyn-monomorphised">Step 4 — The executor (zero <code>dyn</code>, monomorphised)</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>struct BmcConnection { timeout_secs: u32 }
+
+impl BmcConnection {
+    /// Generic over any command — compiler generates one version per command type.
+    fn execute&lt;C: IpmiCmd&gt;(&amp;self, cmd: &amp;C) -&gt; io::Result&lt;C::Response&gt; {
+        let raw = self.raw_send(cmd.net_fn(), cmd.cmd_byte(), &amp;cmd.payload())?;
+        cmd.parse_response(&amp;raw)
+    }
+
+    fn raw_send(&amp;self, _nf: u8, _cmd: u8, _data: &amp;[u8]) -&gt; io::Result&lt;Vec&lt;u8&gt;&gt; {
+        Ok(vec![0x19, 0x00]) // stub — real impl calls ipmitool
+    }
+}
+<span class="boring">}</span></code></pre>
+<h4 id="step-5--caller-code-all-four-bugs-become-compile-errors"><a class="header" href="#step-5--caller-code-all-four-bugs-become-compile-errors">Step 5 — Caller code: all four bugs become compile errors</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>fn diagnose_thermal(bmc: &amp;BmcConnection) -&gt; io::Result&lt;()&gt; {
+    let cpu_temp: Celsius = bmc.execute(&amp;ReadTemp { sensor_id: 0x20 })?;
+    let fan_rpm:  Rpm     = bmc.execute(&amp;ReadFanSpeed { fan_id: 0x30 })?;
+    let voltage:  Volts   = bmc.execute(&amp;ReadVoltage { rail: 0x40 })?;
+
+    // Bug #1 — IMPOSSIBLE: parsing lives in ReadFanSpeed::parse_response
+    // Bug #2 — IMPOSSIBLE: scaling lives in ReadVoltage::parse_response
+
+    // Bug #3 — COMPILE ERROR:
+    // if cpu_temp &gt; fan_rpm { }
+    //    ^^^^^^^^   ^^^^^^^
+    //    Celsius    Rpm      → "mismatched types" ❌
+
+    // Bug #4 — COMPILE ERROR:
+    // log_temperature(voltage);
+    //                 ^^^^^^^  Volts, expected Celsius ❌
+
+    // Only correct comparisons compile:
+    if cpu_temp &gt; Celsius(85.0) {
+        println!("CPU overheating: {:?}", cpu_temp);
+    }
+    if fan_rpm &lt; Rpm(4000) {
+        println!("Fan too slow: {:?}", fan_rpm);
+    }
+
+    Ok(())
+}
+
+fn log_temperature(t: Celsius) { println!("Temp: {:?}", t); }
+fn log_voltage(v: Volts)       { println!("Voltage: {:?}", v); }
+<span class="boring">}</span></code></pre>
+<h3 id="macro-dsl-for-diagnostic-scripts"><a class="header" href="#macro-dsl-for-diagnostic-scripts">Macro DSL for Diagnostic Scripts</a></h3>
+<p>For large diagnostic routines that run many commands in sequence, a macro gives
+concise declarative syntax while preserving full type safety:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Execute a series of typed IPMI commands, returning a tuple of results.
+/// Each element of the tuple has the command's own Response type.
+macro_rules! diag_script {
+    ($bmc:expr; $($cmd:expr),+ $(,)?) =&gt; {{
+        ( $( $bmc.execute(&amp;$cmd)?, )+ )
+    }};
+}
+
+fn full_pre_flight(bmc: &amp;BmcConnection) -&gt; io::Result&lt;()&gt; {
+    // Expands to: (Celsius, Rpm, Volts, String) — every type tracked
+    let (temp, rpm, volts, board_pn) = diag_script!(bmc;
+        ReadTemp     { sensor_id: 0x20 },
+        ReadFanSpeed { fan_id:    0x30 },
+        ReadVoltage  { rail:      0x40 },
+        ReadFru      { fru_id:    0x00 },
+    );
+
+    println!("Board: {:?}", board_pn);
+    println!("CPU: {:?}, Fan: {:?}, 12V: {:?}", temp, rpm, volts);
+
+    // Type-safe threshold checks:
+    assert!(temp  &lt; Celsius(95.0), "CPU too hot");
+    assert!(rpm   &gt; Rpm(3000),     "Fan too slow");
+    assert!(volts &gt; Volts(11.4),   "12V rail sagging");
+
+    Ok(())
+}
+<span class="boring">}</span></code></pre>
+<p>The macro is just syntactic sugar — the tuple type <code>(Celsius, Rpm, Volts, String)</code> is
+fully inferred by the compiler.  Swap two commands and the destructuring breaks at
+compile time, not at runtime.</p>
+<h3 id="enum-dispatch-for-heterogeneous-command-lists"><a class="header" href="#enum-dispatch-for-heterogeneous-command-lists">Enum Dispatch for Heterogeneous Command Lists</a></h3>
+<p>When you need a <code>Vec</code> of mixed commands (e.g., a configurable script loaded from JSON),
+use enum dispatch to stay <code>dyn</code>-free:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>enum AnyReading {
+    Temp(Celsius),
+    Rpm(Rpm),
+    Volt(Volts),
+    Text(String),
+}
+
+enum AnyCmd {
+    Temp(ReadTemp),
+    Fan(ReadFanSpeed),
+    Voltage(ReadVoltage),
+    Fru(ReadFru),
+}
+
+impl AnyCmd {
+    fn execute(&amp;self, bmc: &amp;BmcConnection) -&gt; io::Result&lt;AnyReading&gt; {
+        match self {
+            AnyCmd::Temp(c)    =&gt; Ok(AnyReading::Temp(bmc.execute(c)?)),
+            AnyCmd::Fan(c)     =&gt; Ok(AnyReading::Rpm(bmc.execute(c)?)),
+            AnyCmd::Voltage(c) =&gt; Ok(AnyReading::Volt(bmc.execute(c)?)),
+            AnyCmd::Fru(c)     =&gt; Ok(AnyReading::Text(bmc.execute(c)?)),
+        }
+    }
+}
+
+/// Dynamic diagnostic script — commands loaded at runtime
+fn run_script(bmc: &amp;BmcConnection, script: &amp;[AnyCmd]) -&gt; io::Result&lt;Vec&lt;AnyReading&gt;&gt; {
+    script.iter().map(|cmd| cmd.execute(bmc)).collect()
+}
+<span class="boring">}</span></code></pre>
+<p>You lose per-element type tracking (everything is <code>AnyReading</code>), but you gain
+runtime flexibility — and the parsing is still encapsulated in each <code>IpmiCmd</code> impl.</p>
+<h3 id="testing-typed-commands"><a class="header" href="#testing-typed-commands">Testing Typed Commands</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct StubBmc {
+        responses: std::collections::HashMap&lt;u8, Vec&lt;u8&gt;&gt;,
+    }
+
+    impl StubBmc {
+        fn execute&lt;C: IpmiCmd&gt;(&amp;self, cmd: &amp;C) -&gt; io::Result&lt;C::Response&gt; {
+            let key = cmd.payload()[0]; // sensor ID as key
+            let raw = self.responses.get(&amp;key)
+                .ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "no stub"))?;
+            cmd.parse_response(raw)
+        }
+    }
+
+    #[test]
+    fn read_temp_parses_signed_byte() {
+        let bmc = StubBmc {
+            responses: [( 0x20, vec![0xE7] )].into() // -25 as i8 = 0xE7
+        };
+        let temp = bmc.execute(&amp;ReadTemp { sensor_id: 0x20 }).unwrap();
+        assert_eq!(temp, Celsius(-25.0));
+    }
+
+    #[test]
+    fn read_fan_parses_two_byte_le() {
+        let bmc = StubBmc {
+            responses: [( 0x30, vec![0x00, 0x19] )].into() // 0x1900 = 6400
+        };
+        let rpm = bmc.execute(&amp;ReadFanSpeed { fan_id: 0x30 }).unwrap();
+        assert_eq!(rpm, Rpm(6400));
+    }
+
+    #[test]
+    fn read_voltage_scales_millivolts() {
+        let bmc = StubBmc {
+            responses: [( 0x40, vec![0xE8, 0x2E] )].into() // 0x2EE8 = 12008 mV
+        };
+        let v = bmc.execute(&amp;ReadVoltage { rail: 0x40 }).unwrap();
+        assert!((v.0 - 12.008).abs() &lt; 0.001);
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>Each command’s parsing is tested independently.  If <code>ReadFanSpeed</code> changes from 2-byte
+LE to 4-byte BE in a new IPMI spec revision, you update <strong>one</strong> <code>parse_response</code> and
+the test catches regressions.</p>
+<h3 id="how-this-maps-to-haskell-gadts"><a class="header" href="#how-this-maps-to-haskell-gadts">How This Maps to Haskell GADTs</a></h3>
+<pre><code class="language-text">Haskell GADT                         Rust Equivalent
+────────────────                     ───────────────────────
+data Cmd a where                     trait IpmiCmd {
+  ReadTemp :: SensorId -&gt; Cmd Temp       type Response;
+  ReadFan  :: FanId    -&gt; Cmd Rpm        ...
+                                     }
+
+eval :: Cmd a -&gt; IO a                fn execute&lt;C: IpmiCmd&gt;(&amp;self, cmd: &amp;C)
+                                         -&gt; io::Result&lt;C::Response&gt;
+
+Type refinement in case branches     Monomorphisation: compiler generates
+                                     execute::&lt;ReadTemp&gt;() → returns Celsius
+                                     execute::&lt;ReadFanSpeed&gt;() → returns Rpm
+</code></pre>
+<p>Both guarantee: <strong>the command determines the return type</strong>.  Rust achieves it through
+generic monomorphisation instead of type-level case analysis — same safety, zero
+runtime cost.</p>
+<h3 id="before-vs-after-summary"><a class="header" href="#before-vs-after-summary">Before vs After Summary</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Dimension</th><th style="text-align: center">Untyped (<code>Vec&lt;u8&gt;</code>)</th><th style="text-align: center">Typed Commands</th></tr>
+</thead>
+<tbody>
+<tr><td>Lines per sensor</td><td style="text-align: center">~3 (duplicated at every call site)</td><td style="text-align: center">~15 (written and tested once)</td></tr>
+<tr><td>Parsing errors possible</td><td style="text-align: center">At every call site</td><td style="text-align: center">In one <code>parse_response</code> impl</td></tr>
+<tr><td>Unit confusion bugs</td><td style="text-align: center">Unlimited</td><td style="text-align: center">Zero (compile error)</td></tr>
+<tr><td>Adding a new sensor</td><td style="text-align: center">Touch N files, copy-paste parsing</td><td style="text-align: center">Add 1 struct + 1 impl</td></tr>
+<tr><td>Runtime cost</td><td style="text-align: center">—</td><td style="text-align: center">Identical (monomorphised)</td></tr>
+<tr><td>IDE autocomplete</td><td style="text-align: center"><code>f64</code> everywhere</td><td style="text-align: center"><code>Celsius</code>, <code>Rpm</code>, <code>Volts</code> — self-documenting</td></tr>
+<tr><td>Code review burden</td><td style="text-align: center">Must verify every raw byte parse</td><td style="text-align: center">Verify one <code>parse_response</code> per sensor</td></tr>
+<tr><td>Macro DSL</td><td style="text-align: center">N/A</td><td style="text-align: center"><code>diag_script!(bmc; ReadTemp{..}, ReadFan{..})</code> → <code>(Celsius, Rpm)</code></td></tr>
+<tr><td>Dynamic scripts</td><td style="text-align: center">Manual dispatch</td><td style="text-align: center"><code>AnyCmd</code> enum — still <code>dyn</code>-free</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="when-to-use-typed-commands"><a class="header" href="#when-to-use-typed-commands">When to Use Typed Commands</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Scenario</th><th style="text-align: center">Recommendation</th></tr>
+</thead>
+<tbody>
+<tr><td>IPMI sensor reads with distinct physical units</td><td style="text-align: center">✅ Typed commands</td></tr>
+<tr><td>Register map with different-width fields</td><td style="text-align: center">✅ Typed commands</td></tr>
+<tr><td>Network protocol messages (request → response)</td><td style="text-align: center">✅ Typed commands</td></tr>
+<tr><td>Single command type with one return format</td><td style="text-align: center">❌ Overkill — just return the type directly</td></tr>
+<tr><td>Prototyping / exploring an unknown device</td><td style="text-align: center">❌ Raw bytes first, type later</td></tr>
+<tr><td>Plugin system where commands aren’t known at compile time</td><td style="text-align: center">⚠️ Use <code>AnyCmd</code> enum dispatch</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>Key Takeaways — Traits</strong></p>
+<ul>
+<li>Associated types = one impl per type; generic parameters = many impls per type</li>
+<li>GATs unlock lending iterators and async-in-traits patterns</li>
+<li>Use enum dispatch for closed sets (fast); <code>dyn Trait</code> for open sets (flexible)</li>
+<li><code>Any</code> + <code>TypeId</code> is the escape hatch when compile-time types are unknown</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>See also:</strong> <a href="ch01-generics-the-full-picture.html">Ch 1 — Generics</a> for monomorphization and when generics cause code bloat. <a href="ch03-the-newtype-and-type-state-patterns.html">Ch 3 — Newtype &amp; Type-State</a> for using traits with the config trait pattern.</p>
+</blockquote>
+<hr>
+<h3 id="exercise-repository-with-associated-types--40-min"><a class="header" href="#exercise-repository-with-associated-types--40-min">Exercise: Repository with Associated Types ★★★ (~40 min)</a></h3>
+<p>Design a <code>Repository</code> trait with associated <code>Error</code>, <code>Id</code>, and <code>Item</code> types. Implement it for an in-memory store and demonstrate compile-time type safety.</p>
+<details>
+<summary>🔑 Solution</summary>
+<pre class="playground"><code class="language-rust">use std::collections::HashMap;
+
+trait Repository {
+    type Item;
+    type Id;
+    type Error;
+
+    fn get(&amp;self, id: &amp;Self::Id) -&gt; Result&lt;Option&lt;&amp;Self::Item&gt;, Self::Error&gt;;
+    fn insert(&amp;mut self, item: Self::Item) -&gt; Result&lt;Self::Id, Self::Error&gt;;
+    fn delete(&amp;mut self, id: &amp;Self::Id) -&gt; Result&lt;bool, Self::Error&gt;;
+}
+
+#[derive(Debug, Clone)]
+struct User {
+    name: String,
+    email: String,
+}
+
+struct InMemoryUserRepo {
+    data: HashMap&lt;u64, User&gt;,
+    next_id: u64,
+}
+
+impl InMemoryUserRepo {
+    fn new() -&gt; Self {
+        InMemoryUserRepo { data: HashMap::new(), next_id: 1 }
+    }
+}
+
+impl Repository for InMemoryUserRepo {
+    type Item = User;
+    type Id = u64;
+    type Error = std::convert::Infallible;
+
+    fn get(&amp;self, id: &amp;u64) -&gt; Result&lt;Option&lt;&amp;User&gt;, Self::Error&gt; {
+        Ok(self.data.get(id))
+    }
+
+    fn insert(&amp;mut self, item: User) -&gt; Result&lt;u64, Self::Error&gt; {
+        let id = self.next_id;
+        self.next_id += 1;
+        self.data.insert(id, item);
+        Ok(id)
+    }
+
+    fn delete(&amp;mut self, id: &amp;u64) -&gt; Result&lt;bool, Self::Error&gt; {
+        Ok(self.data.remove(id).is_some())
+    }
+}
+
+fn create_and_fetch&lt;R: Repository&gt;(repo: &amp;mut R, item: R::Item) -&gt; Result&lt;(), R::Error&gt;
+where
+    R::Item: std::fmt::Debug,
+    R::Id: std::fmt::Debug,
+{
+    let id = repo.insert(item)?;
+    println!("Inserted with id: {id:?}");
+    let retrieved = repo.get(&amp;id)?;
+    println!("Retrieved: {retrieved:?}");
+    Ok(())
+}
+
+fn main() {
+    let mut repo = InMemoryUserRepo::new();
+    create_and_fetch(&amp;mut repo, User {
+        name: "Alice".into(),
+        email: "alice@example.com".into(),
+    }).unwrap();
+}</code></pre>
+</details>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch01-generics-the-full-picture.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch03-the-newtype-and-type-state-patterns.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch01-generics-the-full-picture.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch03-the-newtype-and-type-state-patterns.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

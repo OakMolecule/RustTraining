@@ -1,0 +1,783 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>10. Traits and Generics - Rust for C# Programmers</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-37ee69cf.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-6cd9c3d0.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust for C# Programmers</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h2 id="traits---rusts-interfaces"><a class="header" href="#traits---rusts-interfaces">Traits - Rust’s Interfaces</a></h2>
+<blockquote>
+<p><strong>What you’ll learn:</strong> Traits vs C# interfaces, default method implementations, trait objects (<code>dyn Trait</code>)
+vs generic bounds (<code>impl Trait</code>), derived traits, common standard library traits, associated types,
+and operator overloading via traits.</p>
+<p><strong>Difficulty:</strong> 🟡 Intermediate</p>
+</blockquote>
+<p>Traits are Rust’s way of defining shared behavior, similar to interfaces in C# but more powerful.</p>
+<h3 id="c-interface-comparison"><a class="header" href="#c-interface-comparison">C# Interface Comparison</a></h3>
+<pre><code class="language-csharp">// C# interface definition
+public interface IAnimal
+{
+    string Name { get; }
+    void MakeSound();
+    
+    // Default implementation (C# 8+)
+    string Describe()
+    {
+        return $"{Name} makes a sound";
+    }
+}
+
+// C# interface implementation
+public class Dog : IAnimal
+{
+    public string Name { get; }
+    
+    public Dog(string name)
+    {
+        Name = name;
+    }
+    
+    public void MakeSound()
+    {
+        Console.WriteLine("Woof!");
+    }
+    
+    // Can override default implementation
+    public string Describe()
+    {
+        return $"{Name} is a loyal dog";
+    }
+}
+
+// Generic constraints
+public void ProcessAnimal&lt;T&gt;(T animal) where T : IAnimal
+{
+    animal.MakeSound();
+    Console.WriteLine(animal.Describe());
+}
+</code></pre>
+<h3 id="rust-trait-definition-and-implementation"><a class="header" href="#rust-trait-definition-and-implementation">Rust Trait Definition and Implementation</a></h3>
+<pre class="playground"><code class="language-rust">// Trait definition
+trait Animal {
+    fn name(&amp;self) -&gt; &amp;str;
+    fn make_sound(&amp;self);
+    
+    // Default implementation
+    fn describe(&amp;self) -&gt; String {
+        format!("{} makes a sound", self.name())
+    }
+    
+    // Default implementation using other trait methods
+    fn introduce(&amp;self) {
+        println!("Hi, I'm {}", self.name());
+        self.make_sound();
+    }
+}
+
+// Struct definition
+#[derive(Debug)]
+struct Dog {
+    name: String,
+    breed: String,
+}
+
+impl Dog {
+    fn new(name: String, breed: String) -&gt; Dog {
+        Dog { name, breed }
+    }
+}
+
+// Trait implementation
+impl Animal for Dog {
+    fn name(&amp;self) -&gt; &amp;str {
+        &amp;self.name
+    }
+    
+    fn make_sound(&amp;self) {
+        println!("Woof!");
+    }
+    
+    // Override default implementation
+    fn describe(&amp;self) -&gt; String {
+        format!("{} is a loyal {} dog", self.name, self.breed)
+    }
+}
+
+// Another implementation
+#[derive(Debug)]
+struct Cat {
+    name: String,
+    indoor: bool,
+}
+
+impl Animal for Cat {
+    fn name(&amp;self) -&gt; &amp;str {
+        &amp;self.name
+    }
+    
+    fn make_sound(&amp;self) {
+        println!("Meow!");
+    }
+    
+    // Use default describe() implementation
+}
+
+// Generic function with trait bounds
+fn process_animal&lt;T: Animal&gt;(animal: &amp;T) {
+    animal.make_sound();
+    println!("{}", animal.describe());
+    animal.introduce();
+}
+
+// Multiple trait bounds
+fn process_animal_debug&lt;T: Animal + std::fmt::Debug&gt;(animal: &amp;T) {
+    println!("Debug: {:?}", animal);
+    process_animal(animal);
+}
+
+fn main() {
+    let dog = Dog::new("Buddy".to_string(), "Golden Retriever".to_string());
+    let cat = Cat { name: "Whiskers".to_string(), indoor: true };
+    
+    process_animal(&amp;dog);
+    process_animal(&amp;cat);
+    
+    process_animal_debug(&amp;dog);
+}</code></pre>
+<h3 id="trait-objects-and-dynamic-dispatch"><a class="header" href="#trait-objects-and-dynamic-dispatch">Trait Objects and Dynamic Dispatch</a></h3>
+<pre><code class="language-csharp">// C# dynamic polymorphism
+public void ProcessAnimals(List&lt;IAnimal&gt; animals)
+{
+    foreach (var animal in animals)
+    {
+        animal.MakeSound(); // Dynamic dispatch
+        Console.WriteLine(animal.Describe());
+    }
+}
+
+// Usage
+var animals = new List&lt;IAnimal&gt;
+{
+    new Dog("Buddy"),
+    new Cat("Whiskers"),
+    new Dog("Rex")
+};
+
+ProcessAnimals(animals);
+</code></pre>
+<pre class="playground"><code class="language-rust">// Rust trait objects for dynamic dispatch
+fn process_animals(animals: &amp;[Box&lt;dyn Animal&gt;]) {
+    for animal in animals {
+        animal.make_sound(); // Dynamic dispatch
+        println!("{}", animal.describe());
+    }
+}
+
+// Alternative: using references
+fn process_animal_refs(animals: &amp;[&amp;dyn Animal]) {
+    for animal in animals {
+        animal.make_sound();
+        println!("{}", animal.describe());
+    }
+}
+
+fn main() {
+    // Using Box&lt;dyn Trait&gt;
+    let animals: Vec&lt;Box&lt;dyn Animal&gt;&gt; = vec![
+        Box::new(Dog::new("Buddy".to_string(), "Golden Retriever".to_string())),
+        Box::new(Cat { name: "Whiskers".to_string(), indoor: true }),
+        Box::new(Dog::new("Rex".to_string(), "German Shepherd".to_string())),
+    ];
+    
+    process_animals(&amp;animals);
+    
+    // Using references
+    let dog = Dog::new("Buddy".to_string(), "Golden Retriever".to_string());
+    let cat = Cat { name: "Whiskers".to_string(), indoor: true };
+    
+    let animal_refs: Vec&lt;&amp;dyn Animal&gt; = vec![&amp;dog, &amp;cat];
+    process_animal_refs(&amp;animal_refs);
+}</code></pre>
+<h3 id="derived-traits"><a class="header" href="#derived-traits">Derived Traits</a></h3>
+<pre class="playground"><code class="language-rust">// Automatically derive common traits
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+struct Person {
+    name: String,
+    age: u32,
+}
+
+// What this generates (simplified):
+impl std::fmt::Debug for Person {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        f.debug_struct("Person")
+            .field("name", &amp;self.name)
+            .field("age", &amp;self.age)
+            .finish()
+    }
+}
+
+impl Clone for Person {
+    fn clone(&amp;self) -&gt; Self {
+        Person {
+            name: self.name.clone(),
+            age: self.age,
+        }
+    }
+}
+
+impl PartialEq for Person {
+    fn eq(&amp;self, other: &amp;Self) -&gt; bool {
+        self.name == other.name &amp;&amp; self.age == other.age
+    }
+}
+
+// Usage
+fn main() {
+    let person1 = Person {
+        name: "Alice".to_string(),
+        age: 30,
+    };
+    
+    let person2 = person1.clone(); // Clone trait
+    
+    println!("{:?}", person1); // Debug trait
+    println!("Equal: {}", person1 == person2); // PartialEq trait
+}</code></pre>
+<h3 id="common-standard-library-traits"><a class="header" href="#common-standard-library-traits">Common Standard Library Traits</a></h3>
+<pre class="playground"><code class="language-rust">use std::collections::HashMap;
+
+// Display trait for user-friendly output
+impl std::fmt::Display for Person {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        write!(f, "{} (age {})", self.name, self.age)
+    }
+}
+
+// From trait for conversions
+impl From&lt;(String, u32)&gt; for Person {
+    fn from((name, age): (String, u32)) -&gt; Self {
+        Person { name, age }
+    }
+}
+
+// Into trait is automatically implemented when From is implemented
+fn create_person() {
+    let person: Person = ("Alice".to_string(), 30).into();
+    println!("{}", person);
+}
+
+// Iterator trait implementation
+struct PersonIterator {
+    people: Vec&lt;Person&gt;,
+    index: usize,
+}
+
+impl Iterator for PersonIterator {
+    type Item = Person;
+    
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt; {
+        if self.index &lt; self.people.len() {
+            let person = self.people[self.index].clone();
+            self.index += 1;
+            Some(person)
+        } else {
+            None
+        }
+    }
+}
+
+impl Person {
+    fn iterator(people: Vec&lt;Person&gt;) -&gt; PersonIterator {
+        PersonIterator { people, index: 0 }
+    }
+}
+
+fn main() {
+    let people = vec![
+        Person::from(("Alice".to_string(), 30)),
+        Person::from(("Bob".to_string(), 25)),
+        Person::from(("Charlie".to_string(), 35)),
+    ];
+    
+    // Use our custom iterator
+    for person in Person::iterator(people.clone()) {
+        println!("{}", person); // Uses Display trait
+    }
+}</code></pre>
+<hr><details>
+<summary><strong>🏋️ Exercise: Trait-Based Drawing System</strong> (click to expand)</summary>
+<p><strong>Challenge</strong>: Implement a <code>Drawable</code> trait with an <code>area()</code> method and a <code>draw()</code> default method. Create <code>Circle</code> and <code>Rect</code> structs. Write a function that accepts <code>&amp;[Box&lt;dyn Drawable&gt;]</code> and prints total area.</p>
+<details>
+<summary>🔑 Solution</summary>
+<pre class="playground"><code class="language-rust">use std::f64::consts::PI;
+
+trait Drawable {
+    fn area(&amp;self) -&gt; f64;
+
+    fn draw(&amp;self) {
+        println!("Drawing shape with area {:.2}", self.area());
+    }
+}
+
+struct Circle { radius: f64 }
+struct Rect   { w: f64, h: f64 }
+
+impl Drawable for Circle {
+    fn area(&amp;self) -&gt; f64 { PI * self.radius * self.radius }
+}
+
+impl Drawable for Rect {
+    fn area(&amp;self) -&gt; f64 { self.w * self.h }
+}
+
+fn total_area(shapes: &amp;[Box&lt;dyn Drawable&gt;]) -&gt; f64 {
+    shapes.iter().map(|s| s.area()).sum()
+}
+
+fn main() {
+    let shapes: Vec&lt;Box&lt;dyn Drawable&gt;&gt; = vec![
+        Box::new(Circle { radius: 5.0 }),
+        Box::new(Rect { w: 4.0, h: 6.0 }),
+        Box::new(Circle { radius: 2.0 }),
+    ];
+    for s in &amp;shapes { s.draw(); }
+    println!("Total area: {:.2}", total_area(&amp;shapes));
+}</code></pre>
+<p><strong>Key takeaways</strong>:</p>
+<ul>
+<li><code>dyn Trait</code> gives runtime polymorphism (like C# <code>IDrawable</code>)</li>
+<li><code>Box&lt;dyn Trait&gt;</code> is heap-allocated, needed for heterogeneous collections</li>
+<li>Default methods work exactly like C# 8+ default interface methods</li>
+</ul>
+</details>
+</details>
+<h3 id="associated-types-traits-with-type-members"><a class="header" href="#associated-types-traits-with-type-members">Associated Types: Traits With Type Members</a></h3>
+<p>C# interfaces don’t have associated types — Rust traits do. This is how <code>Iterator</code> works:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// The Iterator trait has an associated type 'Item'
+trait Iterator {
+    type Item;                         // Each implementor defines what Item is
+    fn next(&amp;mut self) -&gt; Option&lt;Self::Item&gt;;
+}
+
+struct Counter { max: u32, current: u32 }
+
+impl Iterator for Counter {
+    type Item = u32;                   // This Counter yields u32 values
+    fn next(&amp;mut self) -&gt; Option&lt;u32&gt; {
+        if self.current &lt; self.max {
+            self.current += 1;
+            Some(self.current)
+        } else {
+            None
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>In C#, <code>IEnumerator&lt;T&gt;</code> uses a generic parameter (<code>T</code>) for this purpose. Rust’s associated types are different: <code>Iterator</code> has <em>one</em> <code>Item</code> type per implementation, not a generic parameter at the trait level. This makes trait bounds simpler: <code>impl Iterator&lt;Item = u32&gt;</code> vs C#’s <code>IEnumerable&lt;int&gt;</code>.</p>
+<h3 id="operator-overloading-via-traits"><a class="header" href="#operator-overloading-via-traits">Operator Overloading via Traits</a></h3>
+<p>In C#, you define <code>public static MyType operator+(MyType a, MyType b)</code>. In Rust, every operator maps to a trait in <code>std::ops</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::ops::Add;
+
+#[derive(Debug, Clone, Copy)]
+struct Vec2 { x: f64, y: f64 }
+
+impl Add for Vec2 {
+    type Output = Vec2;
+    fn add(self, rhs: Vec2) -&gt; Vec2 {
+        Vec2 { x: self.x + rhs.x, y: self.y + rhs.y }
+    }
+}
+
+let a = Vec2 { x: 1.0, y: 2.0 };
+let b = Vec2 { x: 3.0, y: 4.0 };
+let c = a + b;  // calls &lt;Vec2 as Add&gt;::add(a, b)
+<span class="boring">}</span></code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>C#</th><th>Rust</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr><td><code>operator+</code></td><td><code>impl Add</code></td><td><code>self</code> by value — consumes for non-<code>Copy</code> types</td></tr>
+<tr><td><code>operator==</code></td><td><code>impl PartialEq</code></td><td>Usually <code>#[derive(PartialEq)]</code></td></tr>
+<tr><td><code>operator&lt;</code></td><td><code>impl PartialOrd</code></td><td>Usually <code>#[derive(PartialOrd)]</code></td></tr>
+<tr><td><code>ToString()</code></td><td><code>impl fmt::Display</code></td><td>Used by <code>println!("{}", x)</code></td></tr>
+<tr><td>Implicit conversion</td><td>No equivalent</td><td>Rust has no implicit conversions — use <code>From</code>/<code>Into</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="coherence-the-orphan-rule"><a class="header" href="#coherence-the-orphan-rule">Coherence: The Orphan Rule</a></h3>
+<p>You can only implement a trait if you own either the trait or the type. This prevents conflicting implementations across crates:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// ✅ OK — you own MyType
+impl Display for MyType { ... }
+
+// ✅ OK — you own MyTrait
+impl MyTrait for String { ... }
+
+// ❌ ERROR — you own neither Display nor String
+impl Display for String { ... }
+<span class="boring">}</span></code></pre>
+<p>C# has no equivalent restriction — any code can add extension methods to any type, which can lead to ambiguity.</p>
+<!-- ch10.0a: impl Trait and Dispatch Strategies -->
+<h2 id="impl-trait-returning-traits-without-boxing"><a class="header" href="#impl-trait-returning-traits-without-boxing"><code>impl Trait</code>: Returning Traits Without Boxing</a></h2>
+<p>C# interfaces can always be used as return types. In Rust, returning a trait requires a decision: static dispatch (<code>impl Trait</code>) or dynamic dispatch (<code>dyn Trait</code>).</p>
+<h3 id="impl-trait-in-argument-position-shorthand-for-generics"><a class="header" href="#impl-trait-in-argument-position-shorthand-for-generics"><code>impl Trait</code> in Argument Position (Shorthand for Generics)</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// These two are equivalent:
+fn print_animal(animal: &amp;impl Animal) { animal.make_sound(); }
+fn print_animal&lt;T: Animal&gt;(animal: &amp;T)  { animal.make_sound(); }
+
+// impl Trait is just syntactic sugar for a generic parameter
+// The compiler generates a specialized copy for each concrete type (monomorphization)
+<span class="boring">}</span></code></pre>
+<h3 id="impl-trait-in-return-position-the-key-difference"><a class="header" href="#impl-trait-in-return-position-the-key-difference"><code>impl Trait</code> in Return Position (The Key Difference)</a></h3>
+<pre class="playground"><code class="language-rust">// Return an iterator without exposing the concrete type
+fn even_squares(limit: u32) -&gt; impl Iterator&lt;Item = u32&gt; {
+    (0..limit)
+        .filter(|n| n % 2 == 0)
+        .map(|n| n * n)
+}
+// The caller sees "some type that implements Iterator&lt;Item = u32&gt;"
+// The actual type (Filter&lt;Map&lt;Range&lt;u32&gt;, ...&gt;&gt;) is unnameable — impl Trait solves this.
+
+fn main() {
+    for n in even_squares(20) {
+        print!("{n} ");
+    }
+    // Output: 0 4 16 36 64 100 144 196 256 324
+}</code></pre>
+<pre><code class="language-csharp">// C# — returning an interface (always dynamic dispatch, heap-allocated iterator object)
+public IEnumerable&lt;int&gt; EvenSquares(int limit) =&gt;
+    Enumerable.Range(0, limit)
+        .Where(n =&gt; n % 2 == 0)
+        .Select(n =&gt; n * n);
+// The return type hides the concrete iterator behind the IEnumerable interface
+// Unlike Rust's Box&lt;dyn Trait&gt;, C# doesn't explicitly box — the runtime handles allocation
+</code></pre>
+<h3 id="returning-closures-impl-fn-vs-boxdyn-fn"><a class="header" href="#returning-closures-impl-fn-vs-boxdyn-fn">Returning Closures: <code>impl Fn</code> vs <code>Box&lt;dyn Fn&gt;</code></a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Return a closure — you CANNOT name the closure type, so impl Fn is essential
+fn make_adder(x: i32) -&gt; impl Fn(i32) -&gt; i32 {
+    move |y| x + y
+}
+
+let add5 = make_adder(5);
+println!("{}", add5(3)); // 8
+
+// If you need to return DIFFERENT closures conditionally, you need Box:
+fn choose_op(add: bool) -&gt; Box&lt;dyn Fn(i32, i32) -&gt; i32&gt; {
+    if add {
+        Box::new(|a, b| a + b)
+    } else {
+        Box::new(|a, b| a * b)
+    }
+}
+// impl Trait requires a SINGLE concrete type; different closures are different types
+<span class="boring">}</span></code></pre>
+<pre><code class="language-csharp">// C# — delegates handle this naturally (always heap-allocated)
+Func&lt;int, int&gt; MakeAdder(int x) =&gt; y =&gt; x + y;
+Func&lt;int, int, int&gt; ChooseOp(bool add) =&gt; add ? (a, b) =&gt; a + b : (a, b) =&gt; a * b;
+</code></pre>
+<h3 id="the-dispatch-decision-impl-trait-vs-dyn-trait-vs-generics"><a class="header" href="#the-dispatch-decision-impl-trait-vs-dyn-trait-vs-generics">The Dispatch Decision: <code>impl Trait</code> vs <code>dyn Trait</code> vs Generics</a></h3>
+<p>This is an architectural decision C# developers face immediately in Rust. Here’s the complete guide:</p>
+<pre class="mermaid">graph TD
+    START["Function accepts or returns&lt;br/&gt;a trait-based type?"]
+    POSITION["Argument or return position?"]
+    ARG_SAME["All callers pass&lt;br/&gt;the same type?"]
+    RET_SINGLE["Always returns the&lt;br/&gt;same concrete type?"]
+    COLLECTION["Storing in a collection&lt;br/&gt;or as struct field?"]
+
+    GENERIC["Use generics&lt;br/&gt;&lt;code&gt;fn foo&amp;lt;T: Trait&amp;gt;(x: T)&lt;/code&gt;"]
+    IMPL_ARG["Use impl Trait&lt;br/&gt;&lt;code&gt;fn foo(x: impl Trait)&lt;/code&gt;"]
+    IMPL_RET["Use impl Trait&lt;br/&gt;&lt;code&gt;fn foo() -&gt; impl Trait&lt;/code&gt;"]
+    DYN_BOX["Use Box&amp;lt;dyn Trait&amp;gt;&lt;br/&gt;Dynamic dispatch"]
+    DYN_REF["Use &amp;dyn Trait&lt;br/&gt;Borrowed dynamic dispatch"]
+
+    START --&gt; POSITION
+    POSITION --&gt;|Argument| ARG_SAME
+    POSITION --&gt;|Return| RET_SINGLE
+    ARG_SAME --&gt;|"Yes (syntactic sugar)"| IMPL_ARG
+    ARG_SAME --&gt;|"Complex bounds/multiple uses"| GENERIC
+    RET_SINGLE --&gt;|Yes| IMPL_RET
+    RET_SINGLE --&gt;|"No (conditional types)"| DYN_BOX
+    RET_SINGLE --&gt;|"Heterogeneous collection"| COLLECTION
+    COLLECTION --&gt;|Owned| DYN_BOX
+    COLLECTION --&gt;|Borrowed| DYN_REF
+
+    style GENERIC fill:#c8e6c9,color:#000
+    style IMPL_ARG fill:#c8e6c9,color:#000
+    style IMPL_RET fill:#c8e6c9,color:#000
+    style DYN_BOX fill:#fff3e0,color:#000
+    style DYN_REF fill:#fff3e0,color:#000
+</pre>
+
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Approach</th><th>Dispatch</th><th>Allocation</th><th>When to Use</th></tr>
+</thead>
+<tbody>
+<tr><td><code>fn foo&lt;T: Trait&gt;(x: T)</code></td><td>Static (monomorphized)</td><td>Stack</td><td>Multiple trait bounds, turbofish needed, same type reused</td></tr>
+<tr><td><code>fn foo(x: impl Trait)</code></td><td>Static (monomorphized)</td><td>Stack</td><td>Simple bounds, cleaner syntax, one-off parameters</td></tr>
+<tr><td><code>fn foo() -&gt; impl Trait</code></td><td>Static</td><td>Stack</td><td>Single concrete return type, iterators, closures</td></tr>
+<tr><td><code>fn foo() -&gt; Box&lt;dyn Trait&gt;</code></td><td>Dynamic (vtable)</td><td><strong>Heap</strong></td><td>Different return types, trait objects in collections</td></tr>
+<tr><td><code>&amp;dyn Trait</code> / <code>&amp;mut dyn Trait</code></td><td>Dynamic (vtable)</td><td>No alloc</td><td>Borrowed heterogeneous references, function parameters</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Summary: from fastest to most flexible
+fn static_dispatch(x: impl Display)             { /* fastest, no alloc */ }
+fn generic_dispatch&lt;T: Display + Clone&gt;(x: T)    { /* fastest, multiple bounds */ }
+fn dynamic_dispatch(x: &amp;dyn Display)             { /* vtable lookup, no alloc */ }
+fn boxed_dispatch(x: Box&lt;dyn Display&gt;)           { /* vtable lookup + heap alloc */ }
+<span class="boring">}</span></code></pre>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch09-1-crate-level-error-types-and-result-alias.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch10-1-generic-constraints.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch09-1-crate-level-error-types-and-result-alias.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch10-1-generic-constraints.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

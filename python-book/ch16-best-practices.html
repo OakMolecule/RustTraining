@@ -1,0 +1,578 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>16. Best Practices - Rust for Python Programmers</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-e36a9ff1.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-1c7d0ecb.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust for Python Programmers</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h2 id="idiomatic-rust-for-python-developers"><a class="header" href="#idiomatic-rust-for-python-developers">Idiomatic Rust for Python Developers</a></h2>
+<blockquote>
+<p><strong>What you’ll learn:</strong> Top 10 habits to build, common pitfalls with fixes, a structured 3-month learning path,
+the complete Python→Rust “Rosetta Stone” reference table, and recommended learning resources.</p>
+<p><strong>Difficulty:</strong> 🟡 Intermediate</p>
+</blockquote>
+<pre class="mermaid">flowchart LR
+    A["🟢 Week 1-2&lt;br/&gt;Foundations&lt;br/&gt;'Why won't this compile?'"] --&gt; B["🟡 Week 3-4&lt;br/&gt;Core Concepts&lt;br/&gt;'Oh, it's protecting me'"] 
+    B --&gt; C["🟡 Month 2&lt;br/&gt;Intermediate&lt;br/&gt;'I see why this matters'"]
+    C --&gt; D["🔴 Month 3+&lt;br/&gt;Advanced&lt;br/&gt;'Caught a bug at compile time!'"]
+    D --&gt; E["🏆 Month 6&lt;br/&gt;Fluent&lt;br/&gt;'Better programmer everywhere'"]
+    style A fill:#d4edda
+    style B fill:#fff3cd
+    style C fill:#fff3cd
+    style D fill:#f8d7da
+    style E fill:#c3e6cb,stroke:#28a745
+</pre>
+
+<h3 id="top-10-habits-to-build"><a class="header" href="#top-10-habits-to-build">Top 10 Habits to Build</a></h3>
+<ol>
+<li>
+<p><strong>Use <code>match</code> on enums instead of <code>if isinstance()</code></strong></p>
+<pre><code class="language-python"># Python                              # Rust
+if isinstance(shape, Circle): ...     match shape { Shape::Circle(r) =&gt; ... }
+</code></pre>
+</li>
+<li>
+<p><strong>Let the compiler guide you</strong> — Read error messages carefully. Rust’s
+compiler is the best in any language. It tells you what’s wrong AND how to fix it.</p>
+</li>
+<li>
+<p><strong>Prefer <code>&amp;str</code> over <code>String</code> in function parameters</strong> — Accept the most
+general type. <code>&amp;str</code> works with both <code>String</code> and string literals.</p>
+</li>
+<li>
+<p><strong>Use iterators instead of index loops</strong> — Iterator chains are more idiomatic
+and often faster than <code>for i in 0..vec.len()</code>.</p>
+</li>
+<li>
+<p><strong>Embrace <code>Option</code> and <code>Result</code></strong> — Don’t <code>.unwrap()</code> everything. Use <code>?</code>,
+<code>map</code>, <code>and_then</code>, <code>unwrap_or_else</code>.</p>
+</li>
+<li>
+<p><strong>Derive traits liberally</strong> — <code>#[derive(Debug, Clone, PartialEq)]</code> should be
+on most structs. It’s free and makes testing easier.</p>
+</li>
+<li>
+<p><strong>Use <code>cargo clippy</code> religiously</strong> — It catches hundreds of style and correctness
+issues. Treat it like <code>ruff</code> for Rust.</p>
+</li>
+<li>
+<p><strong>Don’t fight the borrow checker</strong> — If you’re fighting it, you’re probably
+structuring data wrong. Refactor to make ownership clear.</p>
+</li>
+<li>
+<p><strong>Use enums for state machines</strong> — Instead of string flags or booleans, use
+enums. The compiler ensures you handle every state.</p>
+</li>
+<li>
+<p><strong>Clone first, optimize later</strong> — When learning, use <code>.clone()</code> freely to
+avoid ownership complexity. Optimize only when profiling shows a need.</p>
+</li>
+</ol>
+<h3 id="common-mistakes-from-python-developers"><a class="header" href="#common-mistakes-from-python-developers">Common Mistakes from Python Developers</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mistake</th><th>Why</th><th>Fix</th></tr>
+</thead>
+<tbody>
+<tr><td><code>.unwrap()</code> everywhere</td><td>Panics at runtime</td><td>Use <code>?</code> or <code>match</code></td></tr>
+<tr><td>String instead of &amp;str</td><td>Unnecessary allocation</td><td>Use <code>&amp;str</code> for params</td></tr>
+<tr><td><code>for i in 0..vec.len()</code></td><td>Not idiomatic</td><td><code>for item in &amp;vec</code></td></tr>
+<tr><td>Ignoring clippy warnings</td><td>Miss easy improvements</td><td><code>cargo clippy</code></td></tr>
+<tr><td>Too many <code>.clone()</code> calls</td><td>Performance overhead</td><td>Refactor ownership</td></tr>
+<tr><td>Giant main() function</td><td>Hard to test</td><td>Extract into lib.rs</td></tr>
+<tr><td>Not using <code>#[derive()]</code></td><td>Re-inventing the wheel</td><td>Derive common traits</td></tr>
+<tr><td>Panicking on errors</td><td>Not recoverable</td><td>Return <code>Result&lt;T, E&gt;</code></td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="performance-comparison"><a class="header" href="#performance-comparison">Performance Comparison</a></h2>
+<h3 id="benchmark-common-operations"><a class="header" href="#benchmark-common-operations">Benchmark: Common Operations</a></h3>
+<pre><code class="language-text">Operation              Python 3.12    Rust (release)    Speedup
+─────────────────────  ────────────   ──────────────    ─────────
+Fibonacci(40)          ~25s           ~0.3s             ~80x
+Sort 10M integers      ~5.2s          ~0.6s             ~9x
+JSON parse 100MB       ~8.5s          ~0.4s             ~21x
+Regex 1M matches       ~3.1s          ~0.3s             ~10x
+HTTP server (req/s)    ~5,000         ~150,000          ~30x
+SHA-256 1GB file       ~12s           ~1.2s             ~10x
+CSV parse 1M rows      ~4.5s          ~0.2s             ~22x
+String concatenation   ~2.1s          ~0.05s            ~42x
+</code></pre>
+<blockquote>
+<p><strong>Note</strong>: Python with C extensions (NumPy, etc.) dramatically narrows the gap
+for numerical work. These benchmarks compare pure Python vs pure Rust.</p>
+</blockquote>
+<h3 id="memory-usage"><a class="header" href="#memory-usage">Memory Usage</a></h3>
+<pre><code class="language-text">Python:                                 Rust:
+─────────                               ─────
+- Object header: 28 bytes/object       - No object header
+- int: 28 bytes (even for 0)           - i32: 4 bytes, i64: 8 bytes
+- str "hello": 54 bytes                - &amp;str "hello": 16 bytes (ptr + len)
+- list of 1000 ints: ~36 KB            - Vec&lt;i32&gt;: ~4 KB
+  (8 KB pointers + 28 KB int objects)
+- dict of 100 items: ~5.5 KB           - HashMap of 100: ~2.4 KB
+
+Total for typical application:
+- Python: 50-200 MB baseline           - Rust: 1-5 MB baseline
+</code></pre>
+<hr>
+<h2 id="common-pitfalls-and-solutions"><a class="header" href="#common-pitfalls-and-solutions">Common Pitfalls and Solutions</a></h2>
+<h3 id="pitfall-1-the-borrow-checker-wont-let-me"><a class="header" href="#pitfall-1-the-borrow-checker-wont-let-me">Pitfall 1: “The Borrow Checker Won’t Let Me”</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Problem: trying to iterate and modify
+let mut items = vec![1, 2, 3, 4, 5];
+// for item in &amp;items {
+//     if *item &gt; 3 { items.push(*item * 2); }  // ❌ Can't borrow mut while borrowed
+// }
+
+// Solution 1: collect changes, apply after
+let additions: Vec&lt;i32&gt; = items.iter()
+    .filter(|&amp;&amp;x| x &gt; 3)
+    .map(|&amp;x| x * 2)
+    .collect();
+items.extend(additions);
+
+// Solution 2: use retain/extend
+items.retain(|&amp;x| x &lt;= 3);
+<span class="boring">}</span></code></pre>
+<h3 id="pitfall-2-too-many-string-types"><a class="header" href="#pitfall-2-too-many-string-types">Pitfall 2: “Too Many String Types”</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// When in doubt:
+// - &amp;str for function parameters
+// - String for struct fields and return values
+// - &amp;str literals ("hello") work everywhere &amp;str is expected
+
+fn process(input: &amp;str) -&gt; String {    // Accept &amp;str, return String
+    format!("Processed: {}", input)
+}
+<span class="boring">}</span></code></pre>
+<h3 id="pitfall-3-i-miss-pythons-simplicity"><a class="header" href="#pitfall-3-i-miss-pythons-simplicity">Pitfall 3: “I Miss Python’s Simplicity”</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Python one-liner:
+// result = [x**2 for x in data if x &gt; 0]
+
+// Rust equivalent:
+let result: Vec&lt;i32&gt; = data.iter()
+    .filter(|&amp;&amp;x| x &gt; 0)
+    .map(|&amp;x| x * x)
+    .collect();
+
+// It's more verbose, but:
+// - Type-safe at compile time
+// - 10-100x faster
+// - No runtime type errors possible
+// - Explicit about memory allocation (.collect())
+<span class="boring">}</span></code></pre>
+<h3 id="pitfall-4-wheres-my-repl"><a class="header" href="#pitfall-4-wheres-my-repl">Pitfall 4: “Where’s My REPL?”</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Rust has no REPL. Instead:
+// 1. Use `cargo test` as your REPL — write small tests to try things
+// 2. Use Rust Playground (play.rust-lang.org) for quick experiments
+// 3. Use `dbg!()` macro for quick debug output
+// 4. Use `cargo watch -x test` for auto-running tests on save
+
+#[test]
+fn playground() {
+    // Use this as your "REPL" — run with `cargo test playground`
+    let result = "hello world"
+        .split_whitespace()
+        .map(|w| w.to_uppercase())
+        .collect::&lt;Vec&lt;_&gt;&gt;();
+    dbg!(&amp;result);  // Prints: [src/main.rs:5] &amp;result = ["HELLO", "WORLD"]
+}
+<span class="boring">}</span></code></pre>
+<hr>
+<h2 id="learning-path-and-resources"><a class="header" href="#learning-path-and-resources">Learning Path and Resources</a></h2>
+<h3 id="week-1-2-foundations"><a class="header" href="#week-1-2-foundations">Week 1-2: Foundations</a></h3>
+<ul>
+<li><input disabled="" type="checkbox"> Install Rust, set up VS Code with rust-analyzer</li>
+<li><input disabled="" type="checkbox"> Complete chapters 1-4 of this guide (types, control flow)</li>
+<li><input disabled="" type="checkbox"> Write 5 small programs converting Python scripts to Rust</li>
+<li><input disabled="" type="checkbox"> Get comfortable with <code>cargo build</code>, <code>cargo test</code>, <code>cargo clippy</code></li>
+</ul>
+<h3 id="week-3-4-core-concepts"><a class="header" href="#week-3-4-core-concepts">Week 3-4: Core Concepts</a></h3>
+<ul>
+<li><input disabled="" type="checkbox"> Complete chapters 5-8 (structs, enums, ownership, modules)</li>
+<li><input disabled="" type="checkbox"> Rewrite a Python data processing script in Rust</li>
+<li><input disabled="" type="checkbox"> Practice with <code>Option&lt;T&gt;</code> and <code>Result&lt;T, E&gt;</code> until natural</li>
+<li><input disabled="" type="checkbox"> Read compiler error messages carefully — they’re teaching you</li>
+</ul>
+<h3 id="month-2-intermediate"><a class="header" href="#month-2-intermediate">Month 2: Intermediate</a></h3>
+<ul>
+<li><input disabled="" type="checkbox"> Complete chapters 9-12 (error handling, traits, iterators)</li>
+<li><input disabled="" type="checkbox"> Build a CLI tool with <code>clap</code> and <code>serde</code></li>
+<li><input disabled="" type="checkbox"> Write a PyO3 extension for a Python project hotspot</li>
+<li><input disabled="" type="checkbox"> Practice iterator chains until they feel like comprehensions</li>
+</ul>
+<h3 id="month-3-advanced"><a class="header" href="#month-3-advanced">Month 3: Advanced</a></h3>
+<ul>
+<li><input disabled="" type="checkbox"> Complete chapters 13-16 (concurrency, unsafe, testing)</li>
+<li><input disabled="" type="checkbox"> Build a web service with <code>axum</code> and <code>tokio</code></li>
+<li><input disabled="" type="checkbox"> Contribute to an open-source Rust project</li>
+<li><input disabled="" type="checkbox"> Read “Programming Rust” (O’Reilly) for deeper understanding</li>
+</ul>
+<h3 id="recommended-resources"><a class="header" href="#recommended-resources">Recommended Resources</a></h3>
+<ul>
+<li><strong>The Rust Book</strong>: https://doc.rust-lang.org/book/ (official, excellent)</li>
+<li><strong>Rust by Example</strong>: https://doc.rust-lang.org/rust-by-example/ (learn by doing)</li>
+<li><strong>Rustlings</strong>: https://github.com/rust-lang/rustlings (exercises)</li>
+<li><strong>Rust Playground</strong>: https://play.rust-lang.org/ (online compiler)</li>
+<li><strong>This Week in Rust</strong>: https://this-week-in-rust.org/ (newsletter)</li>
+<li><strong>PyO3 Guide</strong>: https://pyo3.rs/ (Python ↔ Rust bridge)</li>
+<li><strong>Comprehensive Rust</strong> (Google): https://google.github.io/comprehensive-rust/</li>
+</ul>
+<h3 id="python--rust-rosetta-stone"><a class="header" href="#python--rust-rosetta-stone">Python → Rust Rosetta Stone</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Python</th><th>Rust</th><th>Chapter</th></tr>
+</thead>
+<tbody>
+<tr><td><code>list</code></td><td><code>Vec&lt;T&gt;</code></td><td>5</td></tr>
+<tr><td><code>dict</code></td><td><code>HashMap&lt;K,V&gt;</code></td><td>5</td></tr>
+<tr><td><code>set</code></td><td><code>HashSet&lt;T&gt;</code></td><td>5</td></tr>
+<tr><td><code>tuple</code></td><td><code>(T1, T2, ...)</code></td><td>5</td></tr>
+<tr><td><code>class</code></td><td><code>struct</code> + <code>impl</code></td><td>5</td></tr>
+<tr><td><code>@dataclass</code></td><td><code>#[derive(...)]</code></td><td>5, 12a</td></tr>
+<tr><td><code>Enum</code></td><td><code>enum</code></td><td>6</td></tr>
+<tr><td><code>None</code></td><td><code>Option&lt;T&gt;</code></td><td>6</td></tr>
+<tr><td><code>raise</code>/<code>try</code>/<code>except</code></td><td><code>Result&lt;T,E&gt;</code> + <code>?</code></td><td>9</td></tr>
+<tr><td><code>Protocol</code> (PEP 544)</td><td><code>trait</code></td><td>10</td></tr>
+<tr><td><code>TypeVar</code></td><td>Generics <code>&lt;T&gt;</code></td><td>10</td></tr>
+<tr><td><code>__dunder__</code> methods</td><td>Traits (Display, Add, etc.)</td><td>10</td></tr>
+<tr><td><code>lambda</code></td><td><code>|args| body</code></td><td>12</td></tr>
+<tr><td>generator <code>yield</code></td><td><code>impl Iterator</code></td><td>12</td></tr>
+<tr><td>list comprehension</td><td><code>.map().filter().collect()</code></td><td>12</td></tr>
+<tr><td><code>@decorator</code></td><td>Higher-order fn or macro</td><td>12a, 15</td></tr>
+<tr><td><code>asyncio</code></td><td><code>tokio</code></td><td>13</td></tr>
+<tr><td><code>threading</code></td><td><code>std::thread</code></td><td>13</td></tr>
+<tr><td><code>multiprocessing</code></td><td><code>rayon</code></td><td>13</td></tr>
+<tr><td><code>unittest.mock</code></td><td><code>mockall</code></td><td>14a</td></tr>
+<tr><td><code>pytest</code></td><td><code>cargo test</code> + <code>rstest</code></td><td>14a</td></tr>
+<tr><td><code>pip install</code></td><td><code>cargo add</code></td><td>8</td></tr>
+<tr><td><code>requirements.txt</code></td><td><code>Cargo.lock</code></td><td>8</td></tr>
+<tr><td><code>pyproject.toml</code></td><td><code>Cargo.toml</code></td><td>8</td></tr>
+<tr><td><code>with</code> (context mgr)</td><td>Scope-based <code>Drop</code></td><td>15</td></tr>
+<tr><td><code>json.dumps/loads</code></td><td><code>serde_json</code></td><td>15</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="final-thoughts-for-python-developers"><a class="header" href="#final-thoughts-for-python-developers">Final Thoughts for Python Developers</a></h2>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>What you'll miss from Python:
+- REPL and interactive exploration
+- Rapid prototyping speed
+- Rich ML/AI ecosystem (PyTorch, etc.)
+- "Just works" dynamic typing
+- pip install and immediate use
+
+What you'll gain from Rust:
+- "If it compiles, it works" confidence
+- 10-100x performance improvement
+- No more runtime type errors
+- No more None/null crashes
+- True parallelism (no GIL!)
+- Single binary deployment
+- Predictable memory usage
+- The best compiler error messages in any language
+
+The journey:
+Week 1:   "Why does the compiler hate me?"
+Week 2:   "Oh, it's actually protecting me from bugs"
+Month 1:  "I see why this matters"
+Month 2:  "I caught a bug at compile time that would've been a production incident"
+Month 3:  "I don't want to go back to untyped code"
+Month 6:  "Rust has made me a better programmer in every language"
+<span class="boring">}</span></code></pre>
+<hr>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<details>
+<summary><strong>🏋️ Exercise: Code Review Checklist</strong> (click to expand)</summary>
+<p><strong>Challenge</strong>: Review this Rust code (written by a Python developer) and identify 5 idiomatic improvements:</p>
+<pre class="playground"><code class="language-rust">fn get_name(names: Vec&lt;String&gt;, index: i32) -&gt; String {
+    if index &gt;= 0 &amp;&amp; (index as usize) &lt; names.len() {
+        return names[index as usize].clone();
+    } else {
+        return String::from("");
+    }
+}
+
+fn main() {
+    let mut result = String::from("");
+    let names = vec!["Alice".to_string(), "Bob".to_string()];
+    result = get_name(names.clone(), 0);
+    println!("{}", result);
+}</code></pre>
+<details>
+<summary>🔑 Solution</summary>
+<p>Five improvements:</p>
+<pre class="playground"><code class="language-rust">// 1. Take &amp;[String] not Vec&lt;String&gt; (don't take ownership of the whole vec)
+// 2. Use usize for index (not i32 — indices are always non-negative)
+// 3. Return Option&lt;&amp;str&gt; instead of empty string (use the type system!)
+// 4. Use .get() instead of bounds-checking manually
+// 5. Don't clone() in main — pass a reference
+
+fn get_name(names: &amp;[String], index: usize) -&gt; Option&lt;&amp;str&gt; {
+    names.get(index).map(|s| s.as_str())
+}
+
+fn main() {
+    let names = vec!["Alice".to_string(), "Bob".to_string()];
+    match get_name(&amp;names, 0) {
+        Some(name) =&gt; println!("{name}"),
+        None =&gt; println!("Not found"),
+    }
+}</code></pre>
+<p><strong>Key takeaway</strong>: Python habits that hurt in Rust: cloning everything (use borrows), using sentinel values like <code>""</code> (use <code>Option</code>), taking ownership when borrowing suffices, and using signed integers for indices.</p>
+</details>
+</details>
+<hr>
+<p><em>End of Rust for Python Programmers Training Guide</em></p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch15-migration-patterns.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch17-capstone-project.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch15-migration-patterns.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch17-capstone-project.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

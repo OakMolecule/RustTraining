@@ -1,0 +1,1696 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>7. Validated Boundaries — Parse, Don&#x27;t Validate - Type-Driven Correctness in Rust</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-df8e101b.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-f24cd47a.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Type-Driven Correctness in Rust</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="validated-boundaries--parse-dont-validate-"><a class="header" href="#validated-boundaries--parse-dont-validate-">Validated Boundaries — Parse, Don’t Validate 🟡</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong> How to validate data exactly once at the system boundary, carry the proof of validity in a dedicated type, and never re-check — applied to IPMI FRU records (flat bytes), Redfish JSON (structured documents), and IPMI SEL records (polymorphic binary with nested dispatch), with a complete end-to-end walkthrough.</p>
+<p><strong>Cross-references:</strong> <a href="ch02-typed-command-interfaces-request-determi.html">ch02</a> (typed commands), <a href="ch06-dimensional-analysis-making-the-compiler.html">ch06</a> (dimensional types), <a href="ch11-fourteen-tricks-from-the-trenches.html">ch11</a> (trick 2 — sealed traits, trick 3 — <code>#[non_exhaustive]</code>, trick 5 — FromStr), <a href="ch14-testing-type-level-guarantees.html">ch14</a> (proptest)</p>
+</blockquote>
+<h2 id="the-problem-shotgun-validation"><a class="header" href="#the-problem-shotgun-validation">The Problem: Shotgun Validation</a></h2>
+<p>In typical code, validation is scattered everywhere. Every function that receives
+data re-checks it “just in case”:</p>
+<pre><code class="language-c">// C — validation scattered across the codebase
+int process_fru_data(uint8_t *data, int len) {
+    if (data == NULL) return -1;          // check: non-null
+    if (len &lt; 8) return -1;              // check: minimum length
+    if (data[0] != 0x01) return -1;      // check: format version
+    if (checksum(data, len) != 0) return -1; // check: checksum
+
+    // ... 10 more functions that repeat the same checks ...
+}
+</code></pre>
+<p>This pattern (“shotgun validation”) has two problems:</p>
+<ol>
+<li><strong>Redundancy</strong> — the same checks appear in dozens of places</li>
+<li><strong>Incompleteness</strong> — forget one check in one function and you have a bug</li>
+</ol>
+<h2 id="parse-dont-validate"><a class="header" href="#parse-dont-validate">Parse, Don’t Validate</a></h2>
+<p>The correct-by-construction approach: <strong>validate once at the boundary, then carry
+the proof of validity in the type</strong>.</p>
+<pre><code class="language-rust ignore">/// Raw bytes from the wire — not yet validated.
+#[derive(Debug)]
+pub struct RawFruData(Vec&lt;u8&gt;);</code></pre>
+<h3 id="case-study-ipmi-fru-data"><a class="header" href="#case-study-ipmi-fru-data">Case Study: IPMI FRU Data</a></h3>
+<pre><code class="language-rust ignore"><span class="boring">#[derive(Debug)]
+</span><span class="boring">pub struct RawFruData(Vec&lt;u8&gt;);
+</span>
+/// Validated IPMI FRU data. Can only be created via TryFrom,
+/// which enforces all invariants. Once you have a ValidFru,
+/// all data is guaranteed correct.
+#[derive(Debug)]
+pub struct ValidFru {
+    format_version: u8,
+    internal_area_offset: u8,
+    chassis_area_offset: u8,
+    board_area_offset: u8,
+    product_area_offset: u8,
+    data: Vec&lt;u8&gt;,
+}
+
+#[derive(Debug)]
+pub enum FruError {
+    TooShort { actual: usize, minimum: usize },
+    BadFormatVersion(u8),
+    ChecksumMismatch { expected: u8, actual: u8 },
+    InvalidAreaOffset { area: &amp;'static str, offset: u8 },
+}
+
+impl std::fmt::Display for FruError {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        match self {
+            Self::TooShort { actual, minimum } =&gt;
+                write!(f, "FRU data too short: {actual} bytes (minimum {minimum})"),
+            Self::BadFormatVersion(v) =&gt;
+                write!(f, "unsupported FRU format version: {v}"),
+            Self::ChecksumMismatch { expected, actual } =&gt;
+                write!(f, "checksum mismatch: expected 0x{expected:02X}, got 0x{actual:02X}"),
+            Self::InvalidAreaOffset { area, offset } =&gt;
+                write!(f, "invalid {area} area offset: {offset}"),
+        }
+    }
+}
+
+impl TryFrom&lt;RawFruData&gt; for ValidFru {
+    type Error = FruError;
+
+    fn try_from(raw: RawFruData) -&gt; Result&lt;Self, FruError&gt; {
+        let data = raw.0;
+
+        // 1. Length check
+        if data.len() &lt; 8 {
+            return Err(FruError::TooShort {
+                actual: data.len(),
+                minimum: 8,
+            });
+        }
+
+        // 2. Format version
+        if data[0] != 0x01 {
+            return Err(FruError::BadFormatVersion(data[0]));
+        }
+
+        // 3. Checksum (header is first 8 bytes, checksum at byte 7)
+        let checksum: u8 = data[..8].iter().fold(0u8, |acc, &amp;b| acc.wrapping_add(b));
+        if checksum != 0 {
+            return Err(FruError::ChecksumMismatch {
+                expected: 0,
+                actual: checksum,
+            });
+        }
+
+        // 4. Area offsets must be within bounds
+        for (name, idx) in [
+            ("internal", 1), ("chassis", 2),
+            ("board", 3), ("product", 4),
+        ] {
+            let offset = data[idx];
+            if offset != 0 &amp;&amp; (offset as usize * 8) &gt;= data.len() {
+                return Err(FruError::InvalidAreaOffset {
+                    area: name,
+                    offset,
+                });
+            }
+        }
+
+        // All checks passed — construct the validated type
+        Ok(ValidFru {
+            format_version: data[0],
+            internal_area_offset: data[1],
+            chassis_area_offset: data[2],
+            board_area_offset: data[3],
+            product_area_offset: data[4],
+            data,
+        })
+    }
+}
+
+impl ValidFru {
+    /// No validation needed — the type guarantees correctness.
+    pub fn board_area(&amp;self) -&gt; Option&lt;&amp;[u8]&gt; {
+        if self.board_area_offset == 0 {
+            return None;
+        }
+        let start = self.board_area_offset as usize * 8;
+        Some(&amp;self.data[start..])  // safe — bounds checked during parsing
+    }
+
+    pub fn product_area(&amp;self) -&gt; Option&lt;&amp;[u8]&gt; {
+        if self.product_area_offset == 0 {
+            return None;
+        }
+        let start = self.product_area_offset as usize * 8;
+        Some(&amp;self.data[start..])
+    }
+
+    pub fn format_version(&amp;self) -&gt; u8 {
+        self.format_version
+    }
+}</code></pre>
+<p>Any function that takes <code>&amp;ValidFru</code> <strong>knows</strong> the data is well-formed. No re-checking:</p>
+<pre><code class="language-rust ignore"><span class="boring">pub struct ValidFru { board_area_offset: u8, data: Vec&lt;u8&gt; }
+</span><span class="boring">impl ValidFru {
+</span><span class="boring">    pub fn board_area(&amp;self) -&gt; Option&lt;&amp;[u8]&gt; { None }
+</span><span class="boring">}
+</span>
+/// This function does NOT need to validate the FRU data.
+/// The type signature guarantees it's already valid.
+fn extract_board_serial(fru: &amp;ValidFru) -&gt; Option&lt;String&gt; {
+    let board = fru.board_area()?;
+    // ... parse serial from board area ...
+    // No bounds checks needed — ValidFru guarantees offsets are in range
+    Some("ABC123".to_string()) // stub
+}
+
+fn extract_board_manufacturer(fru: &amp;ValidFru) -&gt; Option&lt;String&gt; {
+    let board = fru.board_area()?;
+    // Still no validation needed — same guarantee
+    Some("Acme Corp".to_string()) // stub
+}</code></pre>
+<h2 id="validated-redfish-json"><a class="header" href="#validated-redfish-json">Validated Redfish JSON</a></h2>
+<p>The same pattern applies to Redfish API responses. Parse once, carry validity in
+the type:</p>
+<pre><code class="language-rust ignore">use std::collections::HashMap;
+
+/// Raw JSON string from a Redfish endpoint.
+pub struct RawRedfishResponse(pub String);
+
+/// A validated Redfish Thermal response.
+/// All required fields are guaranteed present and within range.
+#[derive(Debug)]
+pub struct ValidThermalResponse {
+    pub temperatures: Vec&lt;ValidTemperatureReading&gt;,
+    pub fans: Vec&lt;ValidFanReading&gt;,
+}
+
+#[derive(Debug)]
+pub struct ValidTemperatureReading {
+    pub name: String,
+    pub reading_celsius: f64,     // guaranteed non-NaN, within sensor range
+    pub upper_critical: f64,
+    pub status: HealthStatus,
+}
+
+#[derive(Debug)]
+pub struct ValidFanReading {
+    pub name: String,
+    pub reading_rpm: u32,        // guaranteed &gt; 0 for present fans
+    pub status: HealthStatus,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum HealthStatus {
+    Ok,
+    Warning,
+    Critical,
+}
+
+#[derive(Debug)]
+pub enum RedfishValidationError {
+    MissingField(&amp;'static str),
+    OutOfRange { field: &amp;'static str, value: f64 },
+    InvalidStatus(String),
+}
+
+impl std::fmt::Display for RedfishValidationError {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        match self {
+            Self::MissingField(name) =&gt; write!(f, "missing required field: {name}"),
+            Self::OutOfRange { field, value } =&gt;
+                write!(f, "field {field} out of range: {value}"),
+            Self::InvalidStatus(s) =&gt; write!(f, "invalid health status: {s}"),
+        }
+    }
+}
+
+// Once validated, downstream code never re-checks:
+fn check_thermal_health(thermal: &amp;ValidThermalResponse) -&gt; bool {
+    // No need to check for missing fields or NaN values.
+    // ValidThermalResponse guarantees all readings are sensible.
+    thermal.temperatures.iter().all(|t| {
+        t.reading_celsius &lt; t.upper_critical &amp;&amp; t.status != HealthStatus::Critical
+    }) &amp;&amp; thermal.fans.iter().all(|f| {
+        f.reading_rpm &gt; 0 &amp;&amp; f.status != HealthStatus::Critical
+    })
+}</code></pre>
+<h2 id="polymorphic-validation-ipmi-sel-records"><a class="header" href="#polymorphic-validation-ipmi-sel-records">Polymorphic Validation: IPMI SEL Records</a></h2>
+<p>The first two case studies validated <strong>flat</strong> structures — a fixed byte layout (FRU)
+and a known JSON schema (Redfish). Real-world data is often <strong>polymorphic</strong>: the
+interpretation of later bytes depends on earlier bytes. IPMI System Event Log (SEL)
+records are the canonical example.</p>
+<h3 id="the-shape-of-the-problem"><a class="header" href="#the-shape-of-the-problem">The Shape of the Problem</a></h3>
+<p>Every SEL record is exactly 16 bytes. But what those bytes <em>mean</em> depends on a
+dispatch chain:</p>
+<pre><code>Byte 2: Record Type
+  ├─ 0x02 → System Event
+  │    Byte 10[6:4]: Event Type
+  │      ├─ 0x01       → Threshold event (reading + threshold in data bytes 2-3)
+  │      ├─ 0x02-0x0C  → Discrete event (bit in offset field)
+  │      └─ 0x6F       → Sensor-specific (meaning depends on Sensor Type in byte 7)
+  │           Byte 7: Sensor Type
+  │             ├─ 0x01 → Temperature events
+  │             ├─ 0x02 → Voltage events
+  │             ├─ 0x04 → Fan events
+  │             ├─ 0x07 → Processor events
+  │             ├─ 0x0C → Memory events
+  │             ├─ 0x08 → Power Supply events
+  │             └─ ...  → (42 sensor types in IPMI 2.0 Table 42-3)
+  ├─ 0xC0-0xDF → OEM Timestamped
+  └─ 0xE0-0xFF → OEM Non-Timestamped
+</code></pre>
+<p>In C, this is a <code>switch</code> inside a <code>switch</code> inside a <code>switch</code>, with each level sharing
+the same <code>uint8_t *data</code> pointer. Forget one level, misread the spec table, or index
+the wrong byte — the bug is silent.</p>
+<pre><code class="language-c">// C — the polymorphic parsing problem
+void process_sel_entry(uint8_t *data, int len) {
+    if (data[2] == 0x02) {  // system event
+        uint8_t event_type = (data[10] &gt;&gt; 4) &amp; 0x07;
+        if (event_type == 0x01) {  // threshold
+            uint8_t reading = data[11];   // 🐛 or is it data[13]?
+            uint8_t threshold = data[12]; // 🐛 spec says byte 12 is trigger, not threshold
+            printf("Temp: %d crossed %d\n", reading, threshold);
+        } else if (event_type == 0x6F) {  // sensor-specific
+            uint8_t sensor_type = data[7];
+            if (sensor_type == 0x0C) {  // memory
+                // 🐛 forgot to check event data 1 offset bits
+                printf("Memory ECC error\n");
+            }
+            // 🐛 no else — silently drops 30+ other sensor types
+        }
+    }
+    // 🐛 OEM record types silently ignored
+}
+</code></pre>
+<h3 id="step-1--parse-the-outer-frame"><a class="header" href="#step-1--parse-the-outer-frame">Step 1 — Parse the Outer Frame</a></h3>
+<p>The first <code>TryFrom</code> dispatches on record type — the outermost layer of the union:</p>
+<pre><code class="language-rust ignore">/// Raw 16-byte SEL record, straight from `Get SEL Entry` (IPMI cmd 0x43).
+pub struct RawSelRecord(pub [u8; 16]);
+
+/// Validated SEL record — record type dispatched, all fields checked.
+pub enum ValidSelRecord {
+    SystemEvent(SystemEventRecord),
+    OemTimestamped(OemTimestampedRecord),
+    OemNonTimestamped(OemNonTimestampedRecord),
+}
+
+#[derive(Debug)]
+pub struct OemTimestampedRecord {
+    pub record_id: u16,
+    pub timestamp: u32,
+    pub manufacturer_id: [u8; 3],
+    pub oem_data: [u8; 6],
+}
+
+#[derive(Debug)]
+pub struct OemNonTimestampedRecord {
+    pub record_id: u16,
+    pub oem_data: [u8; 13],
+}
+
+#[derive(Debug)]
+pub enum SelParseError {
+    UnknownRecordType(u8),
+    UnknownSensorType(u8),
+    UnknownEventType(u8),
+    InvalidEventData { reason: &amp;'static str },
+}
+
+impl std::fmt::Display for SelParseError {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        match self {
+            Self::UnknownRecordType(t) =&gt; write!(f, "unknown record type: 0x{t:02X}"),
+            Self::UnknownSensorType(t) =&gt; write!(f, "unknown sensor type: 0x{t:02X}"),
+            Self::UnknownEventType(t) =&gt; write!(f, "unknown event type: 0x{t:02X}"),
+            Self::InvalidEventData { reason } =&gt; write!(f, "invalid event data: {reason}"),
+        }
+    }
+}
+
+impl TryFrom&lt;RawSelRecord&gt; for ValidSelRecord {
+    type Error = SelParseError;
+
+    fn try_from(raw: RawSelRecord) -&gt; Result&lt;Self, SelParseError&gt; {
+        let d = &amp;raw.0;
+        let record_id = u16::from_le_bytes([d[0], d[1]]);
+
+        match d[2] {
+            0x02 =&gt; {
+                let system = parse_system_event(record_id, d)?;
+                Ok(ValidSelRecord::SystemEvent(system))
+            }
+            0xC0..=0xDF =&gt; {
+                Ok(ValidSelRecord::OemTimestamped(OemTimestampedRecord {
+                    record_id,
+                    timestamp: u32::from_le_bytes([d[3], d[4], d[5], d[6]]),
+                    manufacturer_id: [d[7], d[8], d[9]],
+                    oem_data: [d[10], d[11], d[12], d[13], d[14], d[15]],
+                }))
+            }
+            0xE0..=0xFF =&gt; {
+                Ok(ValidSelRecord::OemNonTimestamped(OemNonTimestampedRecord {
+                    record_id,
+                    oem_data: [d[3], d[4], d[5], d[6], d[7], d[8], d[9],
+                               d[10], d[11], d[12], d[13], d[14], d[15]],
+                }))
+            }
+            other =&gt; Err(SelParseError::UnknownRecordType(other)),
+        }
+    }
+}</code></pre>
+<p>After this boundary, every consumer matches on the enum. The compiler enforces
+handling all three record types — you can’t “forget” OEM records.</p>
+<h3 id="step-2--parse-the-system-event-sensor-type--typed-event"><a class="header" href="#step-2--parse-the-system-event-sensor-type--typed-event">Step 2 — Parse the System Event: Sensor Type → Typed Event</a></h3>
+<p>The inner dispatch turns the event data bytes into a sum type indexed by sensor
+type. This is where the C <code>switch</code>-in-a-<code>switch</code> becomes a nested enum:</p>
+<pre><code class="language-rust ignore">#[derive(Debug)]
+pub struct SystemEventRecord {
+    pub record_id: u16,
+    pub timestamp: u32,
+    pub generator: GeneratorId,
+    pub sensor_type: SensorType,
+    pub sensor_number: u8,
+    pub event_direction: EventDirection,
+    pub event: TypedEvent,      // ← the key: event data is TYPED
+}
+
+#[derive(Debug)]
+pub enum GeneratorId {
+    Software(u8),
+    Ipmb { slave_addr: u8, channel: u8, lun: u8 },
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum EventDirection { Assertion, Deassertion }
+
+// ──── The Sensor/Event Type Hierarchy ────
+
+/// Sensor types from IPMI Table 42-3. Non-exhaustive because future
+/// IPMI revisions and OEM ranges will add variants (see ch11 trick 3).
+#[non_exhaustive]
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum SensorType {
+    Temperature,    // 0x01
+    Voltage,        // 0x02
+    Current,        // 0x03
+    Fan,            // 0x04
+    PhysicalSecurity, // 0x05
+    Processor,      // 0x07
+    PowerSupply,    // 0x08
+    Memory,         // 0x0C
+    SystemEvent,    // 0x12
+    Watchdog2,      // 0x23
+}
+
+/// The polymorphic payload — each variant carries its own typed data.
+#[derive(Debug)]
+pub enum TypedEvent {
+    Threshold(ThresholdEvent),
+    SensorSpecific(SensorSpecificEvent),
+    Discrete { offset: u8, event_data: [u8; 3] },
+}
+
+/// Threshold events carry the trigger reading and threshold value.
+/// Both are raw sensor values (pre-linearization), kept as u8.
+/// After SDR linearization, they become dimensional types (ch06).
+#[derive(Debug)]
+pub struct ThresholdEvent {
+    pub crossing: ThresholdCrossing,
+    pub trigger_reading: u8,
+    pub threshold_value: u8,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ThresholdCrossing {
+    LowerNonCriticalLow,
+    LowerNonCriticalHigh,
+    LowerCriticalLow,
+    LowerCriticalHigh,
+    LowerNonRecoverableLow,
+    LowerNonRecoverableHigh,
+    UpperNonCriticalLow,
+    UpperNonCriticalHigh,
+    UpperCriticalLow,
+    UpperCriticalHigh,
+    UpperNonRecoverableLow,
+    UpperNonRecoverableHigh,
+}
+
+/// Sensor-specific events — each sensor type gets its own variant
+/// with an exhaustive enum of that sensor's defined events.
+#[derive(Debug)]
+pub enum SensorSpecificEvent {
+    Temperature(TempEvent),
+    Voltage(VoltageEvent),
+    Fan(FanEvent),
+    Processor(ProcessorEvent),
+    PowerSupply(PowerSupplyEvent),
+    Memory(MemoryEvent),
+    PhysicalSecurity(PhysicalSecurityEvent),
+    Watchdog(WatchdogEvent),
+}
+
+// ──── Per-sensor-type event enums (from IPMI Table 42-3) ────
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum MemoryEvent {
+    CorrectableEcc,
+    UncorrectableEcc,
+    Parity,
+    MemoryBoardScrubFailed,
+    MemoryDeviceDisabled,
+    CorrectableEccLogLimit,
+    PresenceDetected,
+    ConfigurationError,
+    Spare,
+    Throttled,
+    CriticalOvertemperature,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum PowerSupplyEvent {
+    PresenceDetected,
+    Failure,
+    PredictiveFailure,
+    InputLost,
+    InputOutOfRange,
+    InputLostOrOutOfRange,
+    ConfigurationError,
+    InactiveStandby,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum TempEvent {
+    UpperNonCritical,
+    UpperCritical,
+    UpperNonRecoverable,
+    LowerNonCritical,
+    LowerCritical,
+    LowerNonRecoverable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum VoltageEvent {
+    UpperNonCritical,
+    UpperCritical,
+    UpperNonRecoverable,
+    LowerNonCritical,
+    LowerCritical,
+    LowerNonRecoverable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum FanEvent {
+    UpperNonCritical,
+    UpperCritical,
+    UpperNonRecoverable,
+    LowerNonCritical,
+    LowerCritical,
+    LowerNonRecoverable,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum ProcessorEvent {
+    Ierr,
+    ThermalTrip,
+    Frb1BistFailure,
+    Frb2HangInPost,
+    Frb3ProcessorStartupFailure,
+    ConfigurationError,
+    UncorrectableMachineCheck,
+    PresenceDetected,
+    Disabled,
+    TerminatorPresenceDetected,
+    Throttled,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum PhysicalSecurityEvent {
+    ChassisIntrusion,
+    DriveIntrusion,
+    IOCardAreaIntrusion,
+    ProcessorAreaIntrusion,
+    LanLeashedLost,
+    UnauthorizedDocking,
+    FanAreaIntrusion,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum WatchdogEvent {
+    BiosReset,
+    OsReset,
+    OsShutdown,
+    OsPowerDown,
+    OsPowerCycle,
+    BiosNmi,
+    Timer,
+}</code></pre>
+<h3 id="step-3--the-parser-wiring"><a class="header" href="#step-3--the-parser-wiring">Step 3 — The Parser Wiring</a></h3>
+<pre><code class="language-rust ignore">fn parse_system_event(record_id: u16, d: &amp;[u8]) -&gt; Result&lt;SystemEventRecord, SelParseError&gt; {
+    let timestamp = u32::from_le_bytes([d[3], d[4], d[5], d[6]]);
+
+    let generator = if d[7] &amp; 0x01 == 0 {
+        GeneratorId::Ipmb {
+            slave_addr: d[7] &amp; 0xFE,
+            channel: (d[8] &gt;&gt; 4) &amp; 0x0F,
+            lun: d[8] &amp; 0x03,
+        }
+    } else {
+        GeneratorId::Software(d[7])
+    };
+
+    let sensor_type = parse_sensor_type(d[10])?;
+    let sensor_number = d[11];
+    let event_direction = if d[12] &amp; 0x80 != 0 {
+        EventDirection::Deassertion
+    } else {
+        EventDirection::Assertion
+    };
+
+    let event_type_code = d[12] &amp; 0x7F;
+    let event_data = [d[13], d[14], d[15]];
+
+    let event = match event_type_code {
+        0x01 =&gt; {
+            // Threshold — event data byte 2 is trigger reading, byte 3 is threshold
+            let offset = event_data[0] &amp; 0x0F;
+            TypedEvent::Threshold(ThresholdEvent {
+                crossing: parse_threshold_crossing(offset)?,
+                trigger_reading: event_data[1],
+                threshold_value: event_data[2],
+            })
+        }
+        0x6F =&gt; {
+            // Sensor-specific — dispatch on sensor type
+            let offset = event_data[0] &amp; 0x0F;
+            let specific = parse_sensor_specific(&amp;sensor_type, offset)?;
+            TypedEvent::SensorSpecific(specific)
+        }
+        0x02..=0x0C =&gt; {
+            // Generic discrete
+            TypedEvent::Discrete { offset: event_data[0] &amp; 0x0F, event_data }
+        }
+        other =&gt; return Err(SelParseError::UnknownEventType(other)),
+    };
+
+    Ok(SystemEventRecord {
+        record_id,
+        timestamp,
+        generator,
+        sensor_type,
+        sensor_number,
+        event_direction,
+        event,
+    })
+}
+
+fn parse_sensor_type(code: u8) -&gt; Result&lt;SensorType, SelParseError&gt; {
+    match code {
+        0x01 =&gt; Ok(SensorType::Temperature),
+        0x02 =&gt; Ok(SensorType::Voltage),
+        0x03 =&gt; Ok(SensorType::Current),
+        0x04 =&gt; Ok(SensorType::Fan),
+        0x05 =&gt; Ok(SensorType::PhysicalSecurity),
+        0x07 =&gt; Ok(SensorType::Processor),
+        0x08 =&gt; Ok(SensorType::PowerSupply),
+        0x0C =&gt; Ok(SensorType::Memory),
+        0x12 =&gt; Ok(SensorType::SystemEvent),
+        0x23 =&gt; Ok(SensorType::Watchdog2),
+        other =&gt; Err(SelParseError::UnknownSensorType(other)),
+    }
+}
+
+fn parse_threshold_crossing(offset: u8) -&gt; Result&lt;ThresholdCrossing, SelParseError&gt; {
+    match offset {
+        0x00 =&gt; Ok(ThresholdCrossing::LowerNonCriticalLow),
+        0x01 =&gt; Ok(ThresholdCrossing::LowerNonCriticalHigh),
+        0x02 =&gt; Ok(ThresholdCrossing::LowerCriticalLow),
+        0x03 =&gt; Ok(ThresholdCrossing::LowerCriticalHigh),
+        0x04 =&gt; Ok(ThresholdCrossing::LowerNonRecoverableLow),
+        0x05 =&gt; Ok(ThresholdCrossing::LowerNonRecoverableHigh),
+        0x06 =&gt; Ok(ThresholdCrossing::UpperNonCriticalLow),
+        0x07 =&gt; Ok(ThresholdCrossing::UpperNonCriticalHigh),
+        0x08 =&gt; Ok(ThresholdCrossing::UpperCriticalLow),
+        0x09 =&gt; Ok(ThresholdCrossing::UpperCriticalHigh),
+        0x0A =&gt; Ok(ThresholdCrossing::UpperNonRecoverableLow),
+        0x0B =&gt; Ok(ThresholdCrossing::UpperNonRecoverableHigh),
+        _ =&gt; Err(SelParseError::InvalidEventData {
+            reason: "threshold offset out of range",
+        }),
+    }
+}
+
+fn parse_sensor_specific(
+    sensor_type: &amp;SensorType,
+    offset: u8,
+) -&gt; Result&lt;SensorSpecificEvent, SelParseError&gt; {
+    match sensor_type {
+        SensorType::Memory =&gt; {
+            let ev = match offset {
+                0x00 =&gt; MemoryEvent::CorrectableEcc,
+                0x01 =&gt; MemoryEvent::UncorrectableEcc,
+                0x02 =&gt; MemoryEvent::Parity,
+                0x03 =&gt; MemoryEvent::MemoryBoardScrubFailed,
+                0x04 =&gt; MemoryEvent::MemoryDeviceDisabled,
+                0x05 =&gt; MemoryEvent::CorrectableEccLogLimit,
+                0x06 =&gt; MemoryEvent::PresenceDetected,
+                0x07 =&gt; MemoryEvent::ConfigurationError,
+                0x08 =&gt; MemoryEvent::Spare,
+                0x09 =&gt; MemoryEvent::Throttled,
+                0x0A =&gt; MemoryEvent::CriticalOvertemperature,
+                _ =&gt; return Err(SelParseError::InvalidEventData {
+                    reason: "unknown memory event offset",
+                }),
+            };
+            Ok(SensorSpecificEvent::Memory(ev))
+        }
+        SensorType::PowerSupply =&gt; {
+            let ev = match offset {
+                0x00 =&gt; PowerSupplyEvent::PresenceDetected,
+                0x01 =&gt; PowerSupplyEvent::Failure,
+                0x02 =&gt; PowerSupplyEvent::PredictiveFailure,
+                0x03 =&gt; PowerSupplyEvent::InputLost,
+                0x04 =&gt; PowerSupplyEvent::InputOutOfRange,
+                0x05 =&gt; PowerSupplyEvent::InputLostOrOutOfRange,
+                0x06 =&gt; PowerSupplyEvent::ConfigurationError,
+                0x07 =&gt; PowerSupplyEvent::InactiveStandby,
+                _ =&gt; return Err(SelParseError::InvalidEventData {
+                    reason: "unknown power supply event offset",
+                }),
+            };
+            Ok(SensorSpecificEvent::PowerSupply(ev))
+        }
+        SensorType::Processor =&gt; {
+            let ev = match offset {
+                0x00 =&gt; ProcessorEvent::Ierr,
+                0x01 =&gt; ProcessorEvent::ThermalTrip,
+                0x02 =&gt; ProcessorEvent::Frb1BistFailure,
+                0x03 =&gt; ProcessorEvent::Frb2HangInPost,
+                0x04 =&gt; ProcessorEvent::Frb3ProcessorStartupFailure,
+                0x05 =&gt; ProcessorEvent::ConfigurationError,
+                0x06 =&gt; ProcessorEvent::UncorrectableMachineCheck,
+                0x07 =&gt; ProcessorEvent::PresenceDetected,
+                0x08 =&gt; ProcessorEvent::Disabled,
+                0x09 =&gt; ProcessorEvent::TerminatorPresenceDetected,
+                0x0A =&gt; ProcessorEvent::Throttled,
+                _ =&gt; return Err(SelParseError::InvalidEventData {
+                    reason: "unknown processor event offset",
+                }),
+            };
+            Ok(SensorSpecificEvent::Processor(ev))
+        }
+        // Pattern repeats for Temperature, Voltage, Fan, etc.
+        // Each sensor type maps its offsets to a dedicated enum.
+        _ =&gt; Err(SelParseError::InvalidEventData {
+            reason: "sensor-specific dispatch not implemented for this sensor type",
+        }),
+    }
+}</code></pre>
+<h3 id="step-4--consuming-typed-sel-records"><a class="header" href="#step-4--consuming-typed-sel-records">Step 4 — Consuming Typed SEL Records</a></h3>
+<p>Once parsed, downstream code pattern-matches on the nested enums. The compiler
+enforces exhaustive handling — no silent fallthrough, no forgotten sensor type:</p>
+<pre><code class="language-rust ignore">/// Determine whether a SEL event should trigger a hardware alert.
+/// The compiler ensures every variant is handled.
+fn should_alert(record: &amp;ValidSelRecord) -&gt; bool {
+    match record {
+        ValidSelRecord::SystemEvent(sys) =&gt; match &amp;sys.event {
+            TypedEvent::Threshold(t) =&gt; {
+                // Any critical or non-recoverable threshold crossing → alert
+                matches!(t.crossing,
+                    ThresholdCrossing::UpperCriticalLow
+                    | ThresholdCrossing::UpperCriticalHigh
+                    | ThresholdCrossing::LowerCriticalLow
+                    | ThresholdCrossing::LowerCriticalHigh
+                    | ThresholdCrossing::UpperNonRecoverableLow
+                    | ThresholdCrossing::UpperNonRecoverableHigh
+                    | ThresholdCrossing::LowerNonRecoverableLow
+                    | ThresholdCrossing::LowerNonRecoverableHigh
+                )
+            }
+            TypedEvent::SensorSpecific(ss) =&gt; match ss {
+                SensorSpecificEvent::Memory(m) =&gt; matches!(m,
+                    MemoryEvent::UncorrectableEcc
+                    | MemoryEvent::Parity
+                    | MemoryEvent::CriticalOvertemperature
+                ),
+                SensorSpecificEvent::PowerSupply(p) =&gt; matches!(p,
+                    PowerSupplyEvent::Failure
+                    | PowerSupplyEvent::InputLost
+                ),
+                SensorSpecificEvent::Processor(p) =&gt; matches!(p,
+                    ProcessorEvent::Ierr
+                    | ProcessorEvent::ThermalTrip
+                    | ProcessorEvent::UncorrectableMachineCheck
+                ),
+                // New sensor type variant added in a future version?
+                // ❌ Compile error: non-exhaustive patterns
+                _ =&gt; false,
+            },
+            TypedEvent::Discrete { .. } =&gt; false,
+        },
+        // OEM records are not alertable in this policy
+        ValidSelRecord::OemTimestamped(_) =&gt; false,
+        ValidSelRecord::OemNonTimestamped(_) =&gt; false,
+    }
+}
+
+/// Generate a human-readable description.
+/// Every branch produces a specific message — no "unknown event" fallback.
+fn describe(record: &amp;ValidSelRecord) -&gt; String {
+    match record {
+        ValidSelRecord::SystemEvent(sys) =&gt; {
+            let sensor = format!("{:?} sensor #{}", sys.sensor_type, sys.sensor_number);
+            let dir = match sys.event_direction {
+                EventDirection::Assertion =&gt; "asserted",
+                EventDirection::Deassertion =&gt; "deasserted",
+            };
+            match &amp;sys.event {
+                TypedEvent::Threshold(t) =&gt; {
+                    format!("{sensor}: {:?} {dir} (reading: 0x{:02X}, threshold: 0x{:02X})",
+                        t.crossing, t.trigger_reading, t.threshold_value)
+                }
+                TypedEvent::SensorSpecific(ss) =&gt; {
+                    format!("{sensor}: {ss:?} {dir}")
+                }
+                TypedEvent::Discrete { offset, .. } =&gt; {
+                    format!("{sensor}: discrete offset {offset:#x} {dir}")
+                }
+            }
+        }
+        ValidSelRecord::OemTimestamped(oem) =&gt;
+            format!("OEM record 0x{:04X} (mfr {:02X}{:02X}{:02X})",
+                oem.record_id,
+                oem.manufacturer_id[0], oem.manufacturer_id[1], oem.manufacturer_id[2]),
+        ValidSelRecord::OemNonTimestamped(oem) =&gt;
+            format!("OEM non-ts record 0x{:04X}", oem.record_id),
+    }
+}</code></pre>
+<h3 id="walkthrough-end-to-end-sel-processing"><a class="header" href="#walkthrough-end-to-end-sel-processing">Walkthrough: End-to-End SEL Processing</a></h3>
+<p>Here’s a complete flow — from raw bytes off the wire to an alert decision —
+showing every typed handoff:</p>
+<pre><code class="language-rust ignore">/// Process all SEL entries from a BMC, producing typed alerts.
+fn process_sel_log(raw_entries: &amp;[[u8; 16]]) -&gt; Vec&lt;String&gt; {
+    let mut alerts = Vec::new();
+
+    for (i, raw_bytes) in raw_entries.iter().enumerate() {
+        // ─── Boundary: raw bytes → validated record ───
+        let raw = RawSelRecord(*raw_bytes);
+        let record = match ValidSelRecord::try_from(raw) {
+            Ok(r) =&gt; r,
+            Err(e) =&gt; {
+                eprintln!("SEL entry {i}: parse error: {e}");
+                continue;
+            }
+        };
+
+        // ─── From here, everything is typed ───
+
+        // 1. Describe the event (exhaustive match — every variant covered)
+        let description = describe(&amp;record);
+        println!("SEL[{i}]: {description}");
+
+        // 2. Check alert policy (exhaustive match — compiler proves completeness)
+        if should_alert(&amp;record) {
+            alerts.push(description);
+        }
+
+        // 3. Extract dimensional readings from threshold events
+        if let ValidSelRecord::SystemEvent(sys) = &amp;record {
+            if let TypedEvent::Threshold(t) = &amp;sys.event {
+                // The compiler knows t.trigger_reading is a threshold event reading,
+                // not an arbitrary byte. After SDR linearization (ch06), this becomes:
+                //   let temp: Celsius = linearize(t.trigger_reading, &amp;sdr);
+                // And then Celsius can't be compared with Rpm.
+                println!(
+                    "  → raw reading: 0x{:02X}, raw threshold: 0x{:02X}",
+                    t.trigger_reading, t.threshold_value
+                );
+            }
+        }
+    }
+
+    alerts
+}
+
+fn main() {
+    // Example: two SEL entries (fabricated for illustration)
+    let sel_data: Vec&lt;[u8; 16]&gt; = vec![
+        // Entry 1: System event, Memory sensor #3, sensor-specific,
+        //          offset 0x00 = CorrectableEcc, assertion
+        [
+            0x01, 0x00,       // record ID: 1
+            0x02,             // record type: system event
+            0x00, 0x00, 0x00, 0x00, // timestamp (stub)
+            0x20,             // generator: IPMB slave addr 0x20
+            0x00,             // channel/lun
+            0x04,             // event message rev
+            0x0C,             // sensor type: Memory (0x0C)
+            0x03,             // sensor number: 3
+            0x6F,             // event dir: assertion, event type: sensor-specific
+            0x00,             // event data 1: offset 0x00 = CorrectableEcc
+            0x00, 0x00,       // event data 2-3
+        ],
+        // Entry 2: System event, Temperature sensor #1, threshold,
+        //          offset 0x09 = UpperCriticalHigh, reading=95, threshold=90
+        [
+            0x02, 0x00,       // record ID: 2
+            0x02,             // record type: system event
+            0x00, 0x00, 0x00, 0x00, // timestamp (stub)
+            0x20,             // generator
+            0x00,             // channel/lun
+            0x04,             // event message rev
+            0x01,             // sensor type: Temperature (0x01)
+            0x01,             // sensor number: 1
+            0x01,             // event dir: assertion, event type: threshold (0x01)
+            0x09,             // event data 1: offset 0x09 = UpperCriticalHigh
+            0x5F,             // event data 2: trigger reading (95 raw)
+            0x5A,             // event data 3: threshold value (90 raw)
+        ],
+    ];
+
+    let alerts = process_sel_log(&amp;sel_data);
+    println!("\n=== ALERTS ({}) ===", alerts.len());
+    for alert in &amp;alerts {
+        println!("  🚨 {alert}");
+    }
+}</code></pre>
+<p><strong>Expected output:</strong></p>
+<pre><code class="language-text">SEL[0]: Memory sensor #3: Memory(CorrectableEcc) asserted
+SEL[1]: Temperature sensor #1: UpperCriticalHigh asserted (reading: 0x5F, threshold: 0x5A)
+  → raw reading: 0x5F, raw threshold: 0x5A
+
+=== ALERTS (1) ===
+  🚨 Temperature sensor #1: UpperCriticalHigh asserted (reading: 0x5F, threshold: 0x5A)
+</code></pre>
+<p>Entry 0 (correctable ECC) is logged but not alerted. Entry 1 (upper critical
+temperature) triggers an alert. Both decisions are enforced by exhaustive pattern
+matching — the compiler proves every sensor type and threshold crossing is handled.</p>
+<h3 id="from-parsed-events-to-redfish-health-the-consumer-pipeline"><a class="header" href="#from-parsed-events-to-redfish-health-the-consumer-pipeline">From Parsed Events to Redfish Health: The Consumer Pipeline</a></h3>
+<p>The walkthrough above ends with alerts — but in a real BMC, parsed SEL records
+flow into the Redfish health rollup (<a href="ch18-redfish-server-walkthrough.html">ch18</a>).
+The current handoff is a lossy <code>bool</code>:</p>
+<pre><code class="language-rust ignore">// ❌ Lossy — throws away per-subsystem detail
+pub struct SelSummary {
+    pub has_critical_events: bool,
+    pub total_entries: u32,
+}</code></pre>
+<p>This loses everything the type system just gave us: which subsystem is affected,
+what severity level, and whether the reading carries dimensional data. Let’s build
+the full pipeline.</p>
+<h4 id="step-1--sdr-linearization-raw-bytes--dimensional-types-ch06"><a class="header" href="#step-1--sdr-linearization-raw-bytes--dimensional-types-ch06">Step 1 — SDR Linearization: Raw Bytes → Dimensional Types (ch06)</a></h4>
+<p>Threshold SEL events carry raw sensor readings in event data bytes 2-3. The IPMI
+SDR (Sensor Data Record) provides the linearization formula. After linearization,
+the raw byte becomes a dimensional type:</p>
+<pre><code class="language-rust ignore">/// SDR linearization coefficients for a single sensor.
+/// See IPMI spec section 36.3 for the full formula.
+pub struct SdrLinearization {
+    pub sensor_type: SensorType,
+    pub m: i16,        // multiplier
+    pub b: i16,        // offset
+    pub r_exp: i8,     // result exponent (power-of-10)
+    pub b_exp: i8,     // B exponent
+}
+
+/// A linearized sensor reading with its unit attached.
+/// The return type depends on the sensor type — the compiler
+/// enforces that temperature sensors produce Celsius, not Rpm.
+#[derive(Debug, Clone)]
+pub enum LinearizedReading {
+    Temperature(Celsius),
+    Voltage(Volts),
+    Fan(Rpm),
+    Current(Amps),
+    Power(Watts),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, PartialOrd)]
+pub struct Amps(pub f64);
+
+impl SdrLinearization {
+    /// Apply the IPMI linearization formula:
+    ///   y = (M × raw + B × 10^B_exp) × 10^R_exp
+    /// Returns a dimensional type based on the sensor type.
+    pub fn linearize(&amp;self, raw: u8) -&gt; LinearizedReading {
+        let y = (self.m as f64 * raw as f64
+                + self.b as f64 * 10_f64.powi(self.b_exp as i32))
+                * 10_f64.powi(self.r_exp as i32);
+
+        match self.sensor_type {
+            SensorType::Temperature =&gt; LinearizedReading::Temperature(Celsius(y)),
+            SensorType::Voltage     =&gt; LinearizedReading::Voltage(Volts(y)),
+            SensorType::Fan         =&gt; LinearizedReading::Fan(Rpm(y as u32)),
+            SensorType::Current     =&gt; LinearizedReading::Current(Amps(y)),
+            SensorType::PowerSupply =&gt; LinearizedReading::Power(Watts(y)),
+            // Other sensor types — extend as needed
+            _ =&gt; LinearizedReading::Temperature(Celsius(y)),
+        }
+    }
+}</code></pre>
+<p>With this, the raw byte <code>0x5F</code> (95 decimal) from our SEL walkthrough becomes
+<code>Celsius(95.0)</code> — and the compiler prevents comparing it with <code>Rpm</code> or <code>Watts</code>.</p>
+<h4 id="step-2--per-subsystem-health-classification"><a class="header" href="#step-2--per-subsystem-health-classification">Step 2 — Per-Subsystem Health Classification</a></h4>
+<p>Instead of collapsing everything into <code>has_critical_events: bool</code>, classify each
+parsed SEL event into a per-subsystem health bucket:</p>
+<pre><code class="language-rust ignore">/// Worst-of health value — Ord gives us `.max()` for free.
+/// (Full definition in ch18; reproduced here for the SEL pipeline.)
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum HealthValue { OK, Warning, Critical }
+
+/// Health contribution from a single SEL event, classified by subsystem.
+#[derive(Debug, Clone)]
+pub enum SubsystemHealth {
+    Processor(HealthValue),
+    Memory(HealthValue),
+    PowerSupply(HealthValue),
+    Thermal(HealthValue),
+    Fan(HealthValue),
+    Storage(HealthValue),
+    Security(HealthValue),
+}
+
+/// Classify a typed SEL event into per-subsystem health.
+/// Exhaustive matching ensures every sensor type contributes.
+fn classify_event_health(record: &amp;SystemEventRecord) -&gt; SubsystemHealth {
+    match &amp;record.event {
+        TypedEvent::Threshold(t) =&gt; {
+            // Threshold severity depends on the crossing level
+            let health = match t.crossing {
+                // Non-critical → Warning
+                ThresholdCrossing::UpperNonCriticalLow
+                | ThresholdCrossing::UpperNonCriticalHigh
+                | ThresholdCrossing::LowerNonCriticalLow
+                | ThresholdCrossing::LowerNonCriticalHigh =&gt; HealthValue::Warning,
+
+                // Critical or Non-recoverable → Critical
+                ThresholdCrossing::UpperCriticalLow
+                | ThresholdCrossing::UpperCriticalHigh
+                | ThresholdCrossing::LowerCriticalLow
+                | ThresholdCrossing::LowerCriticalHigh
+                | ThresholdCrossing::UpperNonRecoverableLow
+                | ThresholdCrossing::UpperNonRecoverableHigh
+                | ThresholdCrossing::LowerNonRecoverableLow
+                | ThresholdCrossing::LowerNonRecoverableHigh =&gt; HealthValue::Critical,
+            };
+
+            // Route to the correct subsystem based on sensor type
+            match record.sensor_type {
+                SensorType::Temperature =&gt; SubsystemHealth::Thermal(health),
+                SensorType::Voltage     =&gt; SubsystemHealth::PowerSupply(health),
+                SensorType::Current     =&gt; SubsystemHealth::PowerSupply(health),
+                SensorType::Fan         =&gt; SubsystemHealth::Fan(health),
+                SensorType::Processor   =&gt; SubsystemHealth::Processor(health),
+                SensorType::PowerSupply =&gt; SubsystemHealth::PowerSupply(health),
+                SensorType::Memory      =&gt; SubsystemHealth::Memory(health),
+                _                       =&gt; SubsystemHealth::Thermal(health),
+            }
+        }
+
+        TypedEvent::SensorSpecific(ss) =&gt; match ss {
+            SensorSpecificEvent::Memory(m) =&gt; {
+                let health = match m {
+                    MemoryEvent::UncorrectableEcc
+                    | MemoryEvent::Parity
+                    | MemoryEvent::CriticalOvertemperature =&gt; HealthValue::Critical,
+
+                    MemoryEvent::CorrectableEccLogLimit
+                    | MemoryEvent::MemoryBoardScrubFailed
+                    | MemoryEvent::Throttled =&gt; HealthValue::Warning,
+
+                    MemoryEvent::CorrectableEcc
+                    | MemoryEvent::PresenceDetected
+                    | MemoryEvent::MemoryDeviceDisabled
+                    | MemoryEvent::ConfigurationError
+                    | MemoryEvent::Spare =&gt; HealthValue::OK,
+                };
+                SubsystemHealth::Memory(health)
+            }
+
+            SensorSpecificEvent::PowerSupply(p) =&gt; {
+                let health = match p {
+                    PowerSupplyEvent::Failure
+                    | PowerSupplyEvent::InputLost =&gt; HealthValue::Critical,
+
+                    PowerSupplyEvent::PredictiveFailure
+                    | PowerSupplyEvent::InputOutOfRange
+                    | PowerSupplyEvent::InputLostOrOutOfRange
+                    | PowerSupplyEvent::ConfigurationError =&gt; HealthValue::Warning,
+
+                    PowerSupplyEvent::PresenceDetected
+                    | PowerSupplyEvent::InactiveStandby =&gt; HealthValue::OK,
+                };
+                SubsystemHealth::PowerSupply(health)
+            }
+
+            SensorSpecificEvent::Processor(p) =&gt; {
+                let health = match p {
+                    ProcessorEvent::Ierr
+                    | ProcessorEvent::ThermalTrip
+                    | ProcessorEvent::UncorrectableMachineCheck =&gt; HealthValue::Critical,
+
+                    ProcessorEvent::Frb1BistFailure
+                    | ProcessorEvent::Frb2HangInPost
+                    | ProcessorEvent::Frb3ProcessorStartupFailure
+                    | ProcessorEvent::ConfigurationError
+                    | ProcessorEvent::Disabled =&gt; HealthValue::Warning,
+
+                    ProcessorEvent::PresenceDetected
+                    | ProcessorEvent::TerminatorPresenceDetected
+                    | ProcessorEvent::Throttled =&gt; HealthValue::OK,
+                };
+                SubsystemHealth::Processor(health)
+            }
+
+            SensorSpecificEvent::PhysicalSecurity(_) =&gt;
+                SubsystemHealth::Security(HealthValue::Warning),
+
+            SensorSpecificEvent::Watchdog(_) =&gt;
+                SubsystemHealth::Processor(HealthValue::Warning),
+
+            // Temperature, Voltage, Fan sensor-specific events
+            SensorSpecificEvent::Temperature(_) =&gt;
+                SubsystemHealth::Thermal(HealthValue::Warning),
+            SensorSpecificEvent::Voltage(_) =&gt;
+                SubsystemHealth::PowerSupply(HealthValue::Warning),
+            SensorSpecificEvent::Fan(_) =&gt;
+                SubsystemHealth::Fan(HealthValue::Warning),
+        },
+
+        TypedEvent::Discrete { .. } =&gt; {
+            // Generic discrete — classify by sensor type with Warning
+            match record.sensor_type {
+                SensorType::Processor =&gt; SubsystemHealth::Processor(HealthValue::Warning),
+                SensorType::Memory    =&gt; SubsystemHealth::Memory(HealthValue::Warning),
+                _                     =&gt; SubsystemHealth::Thermal(HealthValue::OK),
+            }
+        }
+    }
+}</code></pre>
+<p>Every <code>match</code> arm is exhaustive — add a new <code>MemoryEvent</code> variant and the compiler
+forces you to decide its severity. Add a new <code>SensorSpecificEvent</code> variant and
+every consumer must classify it. This is the payoff of the enum tree from the
+parsing section.</p>
+<h4 id="step-3--aggregate-into-a-typed-sel-summary"><a class="header" href="#step-3--aggregate-into-a-typed-sel-summary">Step 3 — Aggregate into a Typed SEL Summary</a></h4>
+<p>Replace the lossy <code>bool</code> with a structured summary that preserves per-subsystem
+health:</p>
+<pre><code class="language-rust ignore">use std::collections::HashMap;
+
+/// Rich SEL summary — per-subsystem health derived from typed events.
+/// This is what gets handed to the Redfish server (ch18) for health rollup.
+#[derive(Debug, Clone)]
+pub struct TypedSelSummary {
+    pub total_entries: u32,
+    pub processor_health: HealthValue,
+    pub memory_health: HealthValue,
+    pub power_health: HealthValue,
+    pub thermal_health: HealthValue,
+    pub fan_health: HealthValue,
+    pub storage_health: HealthValue,
+    pub security_health: HealthValue,
+    /// Dimensional readings from threshold events (post-linearization).
+    pub threshold_readings: Vec&lt;LinearizedThresholdEvent&gt;,
+}
+
+/// A threshold event with linearized readings attached.
+#[derive(Debug, Clone)]
+pub struct LinearizedThresholdEvent {
+    pub sensor_type: SensorType,
+    pub sensor_number: u8,
+    pub crossing: ThresholdCrossing,
+    pub trigger_reading: LinearizedReading,
+    pub threshold_value: LinearizedReading,
+}
+
+/// Build a TypedSelSummary from parsed SEL records.
+/// This is the consumer pipeline: parse (Step 0 above) → classify → aggregate.
+pub fn summarize_sel(
+    records: &amp;[ValidSelRecord],
+    sdr_table: &amp;HashMap&lt;u8, SdrLinearization&gt;,
+) -&gt; TypedSelSummary {
+    let mut processor = HealthValue::OK;
+    let mut memory = HealthValue::OK;
+    let mut power = HealthValue::OK;
+    let mut thermal = HealthValue::OK;
+    let mut fan = HealthValue::OK;
+    let mut storage = HealthValue::OK;
+    let mut security = HealthValue::OK;
+    let mut threshold_readings = Vec::new();
+    let mut count = 0u32;
+
+    for record in records {
+        count += 1;
+
+        let ValidSelRecord::SystemEvent(sys) = record else {
+            continue; // OEM records don't contribute to health
+        };
+
+        // ── Classify event → per-subsystem health ──
+        let health = classify_event_health(sys);
+        match &amp;health {
+            SubsystemHealth::Processor(h) =&gt; processor = processor.max(*h),
+            SubsystemHealth::Memory(h)    =&gt; memory = memory.max(*h),
+            SubsystemHealth::PowerSupply(h) =&gt; power = power.max(*h),
+            SubsystemHealth::Thermal(h)   =&gt; thermal = thermal.max(*h),
+            SubsystemHealth::Fan(h)       =&gt; fan = fan.max(*h),
+            SubsystemHealth::Storage(h)   =&gt; storage = storage.max(*h),
+            SubsystemHealth::Security(h)  =&gt; security = security.max(*h),
+        }
+
+        // ── Linearize threshold readings if SDR is available ──
+        if let TypedEvent::Threshold(t) = &amp;sys.event {
+            if let Some(sdr) = sdr_table.get(&amp;sys.sensor_number) {
+                threshold_readings.push(LinearizedThresholdEvent {
+                    sensor_type: sys.sensor_type,
+                    sensor_number: sys.sensor_number,
+                    crossing: t.crossing,
+                    trigger_reading: sdr.linearize(t.trigger_reading),
+                    threshold_value: sdr.linearize(t.threshold_value),
+                });
+            }
+        }
+    }
+
+    TypedSelSummary {
+        total_entries: count,
+        processor_health: processor,
+        memory_health: memory,
+        power_health: power,
+        thermal_health: thermal,
+        fan_health: fan,
+        storage_health: storage,
+        security_health: security,
+        threshold_readings,
+    }
+}</code></pre>
+<h4 id="step-4--the-full-pipeline-raw-bytes--redfish-health"><a class="header" href="#step-4--the-full-pipeline-raw-bytes--redfish-health">Step 4 — The Full Pipeline: Raw Bytes → Redfish Health</a></h4>
+<p>Here’s the complete consumer pipeline, showing every typed handoff from raw SEL
+bytes to Redfish-ready health values:</p>
+<pre class="mermaid">flowchart LR
+    RAW["Raw [u8; 16]&lt;br/&gt;SEL entries"]
+    PARSE["TryFrom:&lt;br/&gt;ValidSelRecord&lt;br/&gt;(enum tree)"]
+    CLASSIFY["classify_event_health&lt;br/&gt;(exhaustive match)"]
+    LINEARIZE["SDR linearize&lt;br/&gt;raw → Celsius/Rpm/Watts"]
+    SUMMARY["TypedSelSummary&lt;br/&gt;(per-subsystem health&lt;br/&gt;+ dimensional readings)"]
+    REDFISH["ch18: health rollup&lt;br/&gt;→ Status.Health JSON"]
+
+    RAW --&gt;|"ch07 §Parse"| PARSE
+    PARSE --&gt;|"typed events"| CLASSIFY
+    PARSE --&gt;|"threshold bytes"| LINEARIZE
+    CLASSIFY --&gt;|"SubsystemHealth"| SUMMARY
+    LINEARIZE --&gt;|"LinearizedReading"| SUMMARY
+    SUMMARY --&gt;|"TypedSelSummary"| REDFISH
+
+    style RAW fill:#fff3e0,color:#000
+    style PARSE fill:#e1f5fe,color:#000
+    style CLASSIFY fill:#f3e5f5,color:#000
+    style LINEARIZE fill:#e8f5e9,color:#000
+    style SUMMARY fill:#c8e6c9,color:#000
+    style REDFISH fill:#bbdefb,color:#000
+</pre>
+
+<pre><code class="language-rust ignore">use std::collections::HashMap;
+
+fn full_sel_pipeline() {
+    // ── Raw SEL data from BMC ──
+    let raw_entries: Vec&lt;[u8; 16]&gt; = vec![
+        // Memory correctable ECC on sensor #3
+        [0x01,0x00, 0x02, 0x00,0x00,0x00,0x00,
+         0x20,0x00, 0x04, 0x0C, 0x03, 0x6F, 0x00, 0x00,0x00],
+        // Temperature upper critical on sensor #1, reading=95, threshold=90
+        [0x02,0x00, 0x02, 0x00,0x00,0x00,0x00,
+         0x20,0x00, 0x04, 0x01, 0x01, 0x01, 0x09, 0x5F,0x5A],
+        // PSU failure on sensor #5
+        [0x03,0x00, 0x02, 0x00,0x00,0x00,0x00,
+         0x20,0x00, 0x04, 0x08, 0x05, 0x6F, 0x01, 0x00,0x00],
+    ];
+
+    // ── Step 0: Parse at the boundary (ch07 TryFrom) ──
+    let records: Vec&lt;ValidSelRecord&gt; = raw_entries.iter()
+        .filter_map(|raw| ValidSelRecord::try_from(RawSelRecord(*raw)).ok())
+        .collect();
+
+    // ── Step 1-3: Classify + linearize + aggregate ──
+    let mut sdr_table = HashMap::new();
+    sdr_table.insert(1u8, SdrLinearization {
+        sensor_type: SensorType::Temperature,
+        m: 1, b: 0, r_exp: 0, b_exp: 0,  // 1:1 mapping for this example
+    });
+
+    let summary = summarize_sel(&amp;records, &amp;sdr_table);
+
+    // ── Result: structured, typed, Redfish-ready ──
+    println!("SEL Summary:");
+    println!("  Total entries: {}", summary.total_entries);
+    println!("  Processor:  {:?}", summary.processor_health);  // OK
+    println!("  Memory:     {:?}", summary.memory_health);      // OK (correctable → OK)
+    println!("  Power:      {:?}", summary.power_health);       // Critical (PSU failure)
+    println!("  Thermal:    {:?}", summary.thermal_health);     // Critical (upper critical)
+    println!("  Fan:        {:?}", summary.fan_health);         // OK
+    println!("  Security:   {:?}", summary.security_health);    // OK
+
+    // Dimensional readings preserved from threshold events:
+    for r in &amp;summary.threshold_readings {
+        println!("  Threshold: sensor {:?} #{} — {:?} crossed {:?}",
+            r.sensor_type, r.sensor_number,
+            r.trigger_reading, r.crossing);
+        // trigger_reading is LinearizedReading::Temperature(Celsius(95.0))
+        // — not a raw byte, not an untyped f64
+    }
+
+    // ── This summary feeds directly into ch18's health rollup ──
+    // compute_system_health() can now use per-subsystem values
+    // instead of a single `has_critical_events: bool`
+}</code></pre>
+<p><strong>Expected output:</strong></p>
+<pre><code class="language-text">SEL Summary:
+  Total entries: 3
+  Processor:  OK
+  Memory:     OK
+  Power:      Critical
+  Thermal:    Critical
+  Fan:        OK
+  Security:   OK
+  Threshold: sensor Temperature #1 — Temperature(Celsius(95.0)) crossed UpperCriticalHigh
+</code></pre>
+<h4 id="what-the-consumer-pipeline-proves"><a class="header" href="#what-the-consumer-pipeline-proves">What the Consumer Pipeline Proves</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Stage</th><th>Pattern</th><th>What’s Enforced</th></tr>
+</thead>
+<tbody>
+<tr><td>Parse</td><td>Validated boundary (ch07)</td><td>Every consumer works with typed enums, never raw bytes</td></tr>
+<tr><td>Classify</td><td>Exhaustive matching</td><td>Every sensor type and event variant maps to a health value — can’t forget one</td></tr>
+<tr><td>Linearize</td><td>Dimensional analysis (ch06)</td><td>Raw byte 0x5F becomes <code>Celsius(95.0)</code>, not <code>f64</code> — can’t confuse with RPM</td></tr>
+<tr><td>Aggregate</td><td>Typed fold</td><td>Per-subsystem health uses <code>HealthValue::max()</code> — <code>Ord</code> guarantees correctness</td></tr>
+<tr><td>Handoff</td><td>Structured summary</td><td>ch18 receives <code>TypedSelSummary</code> with 7 subsystem health values, not a <code>bool</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Compare with the untyped C pipeline:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>C</th><th>Rust</th></tr>
+</thead>
+<tbody>
+<tr><td>Parse record type</td><td><code>switch</code> with possible fallthrough</td><td><code>match</code> on enum — exhaustive</td></tr>
+<tr><td>Classify severity</td><td>manual <code>if</code> chain, forgot PSU</td><td>exhaustive <code>match</code> — compiler error on missing variant</td></tr>
+<tr><td>Linearize reading</td><td><code>double</code> — no unit</td><td><code>Celsius</code> / <code>Rpm</code> / <code>Watts</code> — distinct types</td></tr>
+<tr><td>Aggregate health</td><td><code>bool has_critical</code></td><td>7 typed subsystem fields</td></tr>
+<tr><td>Handoff to Redfish</td><td>untyped <code>json_object_set("Health", "OK")</code></td><td><code>TypedSelSummary</code> → typed health rollup (ch18)</td></tr>
+</tbody>
+</table>
+</div>
+<p>The Rust pipeline doesn’t just prevent more bugs — it <strong>produces richer output</strong>.
+The C pipeline loses information at every stage (polymorphic → flat, dimensional →
+untyped, per-subsystem → single bool). The Rust pipeline preserves it all, because
+the type system makes it <strong>easier to keep the structure than to throw it away</strong>.</p>
+<h3 id="what-the-compiler-proves"><a class="header" href="#what-the-compiler-proves">What the Compiler Proves</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Bug in C</th><th>How Rust prevents it</th></tr>
+</thead>
+<tbody>
+<tr><td>Forgot to check record type</td><td><code>match</code> on <code>ValidSelRecord</code> — must handle all three variants</td></tr>
+<tr><td>Wrong byte index for trigger reading</td><td>Parsed once into <code>ThresholdEvent.trigger_reading</code> — consumers never touch raw bytes</td></tr>
+<tr><td>Missing <code>case</code> for a sensor type</td><td><code>SensorSpecificEvent</code> match is exhaustive — compiler error on missing variant</td></tr>
+<tr><td>Silently dropped OEM records</td><td>Enum variant exists — must be handled or explicitly <code>_ =&gt;</code> ignored</td></tr>
+<tr><td>Compared threshold reading (°C) with fan offset</td><td>After SDR linearization, <code>Celsius</code> ≠ <code>Rpm</code> (ch06)</td></tr>
+<tr><td>Added new sensor type, forgot alert logic</td><td><code>#[non_exhaustive]</code> + exhaustive match → compiler error in downstream crates</td></tr>
+<tr><td>Event data parsed differently in two code paths</td><td>Single <code>parse_system_event()</code> boundary — one source of truth</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-three-beat-pattern"><a class="header" href="#the-three-beat-pattern">The Three-Beat Pattern</a></h3>
+<p>Looking back at this chapter’s three case studies, notice the <strong>graduated arc</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Case Study</th><th>Input Shape</th><th>Parsing Complexity</th><th>Key Technique</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>FRU</strong> (bytes)</td><td>Flat, fixed layout</td><td>One <code>TryFrom</code>, check fields</td><td>Validated boundary type</td></tr>
+<tr><td><strong>Redfish</strong> (JSON)</td><td>Structured, known schema</td><td>One <code>TryFrom</code>, check fields + nesting</td><td>Same technique, different transport</td></tr>
+<tr><td><strong>SEL</strong> (polymorphic bytes)</td><td>Nested discriminated union</td><td>Dispatch chain: record type → event type → sensor type</td><td>Enum tree + exhaustive matching</td></tr>
+</tbody>
+</table>
+</div>
+<p>The principle is identical in all three: <strong>validate once at the boundary, carry
+the proof in the type, never re-check.</strong> The SEL case study shows this principle
+scales to arbitrarily complex polymorphic data — the type system handles nested
+dispatch just as naturally as flat field validation.</p>
+<h2 id="composing-validated-types"><a class="header" href="#composing-validated-types">Composing Validated Types</a></h2>
+<p>Validated types compose — a struct of validated fields is itself validated:</p>
+<pre><code class="language-rust ignore"><span class="boring">#[derive(Debug)]
+</span><span class="boring">pub struct ValidFru { format_version: u8 }
+</span><span class="boring">#[derive(Debug)]
+</span><span class="boring">pub struct ValidThermalResponse { }
+</span>
+/// A fully validated system snapshot.
+/// Each field was validated independently; the composite is also valid.
+#[derive(Debug)]
+pub struct ValidSystemSnapshot {
+    pub fru: ValidFru,
+    pub thermal: ValidThermalResponse,
+    // Each field carries its own validity guarantee.
+    // No need for a "validate_snapshot()" function.
+}
+
+/// Because ValidSystemSnapshot is composed of validated parts,
+/// any function that receives it can trust ALL the data.
+fn generate_health_report(snapshot: &amp;ValidSystemSnapshot) {
+    println!("FRU version: {}", snapshot.fru.format_version);
+    // No validation needed — the type guarantees everything
+}</code></pre>
+<h3 id="the-key-insight"><a class="header" href="#the-key-insight">The Key Insight</a></h3>
+<blockquote>
+<p><strong>Validate at the boundary. Carry the proof in the type. Never re-check.</strong></p>
+</blockquote>
+<p>This eliminates an entire class of bugs: “forgot to validate in this one function.”
+If a function takes <code>&amp;ValidFru</code>, the data IS valid. Period.</p>
+<h3 id="when-to-use-validated-boundary-types"><a class="header" href="#when-to-use-validated-boundary-types">When to Use Validated Boundary Types</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Data Source</th><th style="text-align: center">Use validated boundary type?</th></tr>
+</thead>
+<tbody>
+<tr><td>IPMI FRU data from BMC</td><td style="text-align: center">✅ Always — complex binary format</td></tr>
+<tr><td>Redfish JSON responses</td><td style="text-align: center">✅ Always — many required fields</td></tr>
+<tr><td>PCIe configuration space</td><td style="text-align: center">✅ Always — register layout is strict</td></tr>
+<tr><td>SMBIOS tables</td><td style="text-align: center">✅ Always — versioned format with checksums</td></tr>
+<tr><td>User-provided test parameters</td><td style="text-align: center">✅ Always — prevent injection</td></tr>
+<tr><td>Internal function calls</td><td style="text-align: center">❌ Usually not — types already constrain</td></tr>
+<tr><td>Log messages</td><td style="text-align: center">❌ No — best-effort, not safety-critical</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="validation-boundary-flow"><a class="header" href="#validation-boundary-flow">Validation Boundary Flow</a></h2>
+<pre class="mermaid">flowchart LR
+    RAW["Raw bytes / JSON"] --&gt;|"TryFrom / serde"| V{"Valid?"}
+    V --&gt;|Yes| VT["ValidFru / ValidRedfish"]
+    V --&gt;|No| E["Err(ParseError)"]
+    VT --&gt;|"&amp;ValidFru"| F1["fn process()"] &amp; F2["fn report()"] &amp; F3["fn store()"]
+    style RAW fill:#fff3e0,color:#000
+    style V fill:#e1f5fe,color:#000
+    style VT fill:#c8e6c9,color:#000
+    style E fill:#ffcdd2,color:#000
+    style F1 fill:#e8f5e9,color:#000
+    style F2 fill:#e8f5e9,color:#000
+    style F3 fill:#e8f5e9,color:#000
+</pre>
+
+<h2 id="exercise-validated-smbios-table"><a class="header" href="#exercise-validated-smbios-table">Exercise: Validated SMBIOS Table</a></h2>
+<p>Design a <code>ValidSmbiosType17</code> type for SMBIOS Type 17 (Memory Device) records:</p>
+<ul>
+<li>Raw input is <code>&amp;[u8]</code>; minimum length 21 bytes, byte 0 must be 0x11.</li>
+<li>Fields: <code>handle: u16</code>, <code>size_mb: u16</code>, <code>speed_mhz: u16</code>.</li>
+<li>Use <code>TryFrom&lt;&amp;[u8]&gt;</code> so that all downstream functions take <code>&amp;ValidSmbiosType17</code>.</li>
+</ul>
+<details>
+<summary>Solution</summary>
+<pre><code class="language-rust ignore">#[derive(Debug)]
+pub struct ValidSmbiosType17 {
+    pub handle: u16,
+    pub size_mb: u16,
+    pub speed_mhz: u16,
+}
+
+impl TryFrom&lt;&amp;[u8]&gt; for ValidSmbiosType17 {
+    type Error = String;
+    fn try_from(raw: &amp;[u8]) -&gt; Result&lt;Self, Self::Error&gt; {
+        if raw.len() &lt; 21 {
+            return Err(format!("too short: {} &lt; 21", raw.len()));
+        }
+        if raw[0] != 0x11 {
+            return Err(format!("wrong type: 0x{:02X} != 0x11", raw[0]));
+        }
+        Ok(ValidSmbiosType17 {
+            handle: u16::from_le_bytes([raw[1], raw[2]]),
+            size_mb: u16::from_le_bytes([raw[12], raw[13]]),
+            speed_mhz: u16::from_le_bytes([raw[19], raw[20]]),
+        })
+    }
+}
+
+// Downstream functions take the validated type — no re-checking
+pub fn report_dimm(dimm: &amp;ValidSmbiosType17) -&gt; String {
+    format!("DIMM handle 0x{:04X}: {}MB @ {}MHz",
+        dimm.handle, dimm.size_mb, dimm.speed_mhz)
+}</code></pre>
+</details>
+<h2 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h2>
+<ol>
+<li><strong>Parse once at the boundary</strong> — <code>TryFrom</code> validates raw data exactly once; all downstream code trusts the type.</li>
+<li><strong>Eliminate shotgun validation</strong> — if a function takes <code>&amp;ValidFru</code>, the data IS valid. Period.</li>
+<li><strong>The pattern scales from flat to polymorphic</strong> — FRU (flat bytes), Redfish (structured JSON), and SEL (nested discriminated union) all use the same technique at increasing complexity.</li>
+<li><strong>Exhaustive matching is validation</strong> — for polymorphic data like SEL, the compiler’s enum exhaustiveness check prevents the “forgot a sensor type” class of bugs with zero runtime cost.</li>
+<li><strong>The consumer pipeline preserves structure</strong> — parsing → classification → linearization → aggregation keeps per-subsystem health and dimensional readings intact, where C lossy-reduces to a single <code>bool</code>. The type system makes it easier to keep information than to throw it away.</li>
+<li><strong><code>serde</code> is a natural boundary</strong> — <code>#[derive(Deserialize)]</code> with <code>#[serde(try_from)]</code> validates JSON at parse time.</li>
+<li><strong>Compose validated types</strong> — a <code>ValidServerHealth</code> can require <code>ValidFru</code> + <code>ValidThermal</code> + <code>ValidPower</code>.</li>
+<li><strong>Pair with proptest (ch14)</strong> — fuzz the <code>TryFrom</code> boundary to ensure no valid input is rejected and no invalid input sneaks through.</li>
+<li><strong>These patterns compose into full Redfish workflows</strong> — ch17 applies validated boundaries on the client side (parsing JSON responses into typed structs), while ch18 inverts the pattern on the server side (builder type-state ensures every required field is present before serialization). The SEL consumer pipeline built here feeds directly into ch18’s <code>TypedSelSummary</code> health rollup.</li>
+</ol>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch06-dimensional-analysis-making-the-compiler.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch08-capability-mixins-compile-time-hardware-.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch06-dimensional-analysis-making-the-compiler.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch08-capability-mixins-compile-time-hardware-.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

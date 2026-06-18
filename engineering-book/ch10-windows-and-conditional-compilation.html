@@ -1,0 +1,689 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>10. Windows and Conditional Compilation - Rust Engineering Practices — Beyond cargo build</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-e156d75f.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-3f61fb6d.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Engineering Practices — Beyond cargo build</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="windows-and-conditional-compilation-"><a class="header" href="#windows-and-conditional-compilation-">Windows and Conditional Compilation 🟡</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong></p>
+<ul>
+<li>Windows support patterns: <code>windows-sys</code>/<code>windows</code> crates, <code>cargo-xwin</code></li>
+<li>Conditional compilation with <code>#[cfg]</code> — checked by the compiler, not the preprocessor</li>
+<li>Platform abstraction architecture: when <code>#[cfg]</code> blocks suffice vs when to use traits</li>
+<li>Cross-compiling for Windows from Linux</li>
+</ul>
+<p><strong>Cross-references:</strong> <a href="ch09-no-std-and-feature-verification.html"><code>no_std</code> &amp; Features</a> — <code>cargo-hack</code> and feature verification · <a href="ch02-cross-compilation-one-source-many-target.html">Cross-Compilation</a> — general cross-build setup · <a href="ch01-build-scripts-buildrs-in-depth.html">Build Scripts</a> — <code>cfg</code> flags emitted by <code>build.rs</code></p>
+</blockquote>
+<h3 id="windows-support--platform-abstractions"><a class="header" href="#windows-support--platform-abstractions">Windows Support — Platform Abstractions</a></h3>
+<p>Rust’s <code>#[cfg()]</code> attributes and Cargo features allow a single codebase to
+target both Linux and Windows cleanly. The project already
+demonstrates this pattern in <code>platform::run_command</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Real pattern from the project — platform-specific shell invocation
+pub fn exec_cmd(cmd: &amp;str, timeout_secs: Option&lt;u64&gt;) -&gt; Result&lt;CommandResult, CommandError&gt; {
+    #[cfg(windows)]
+    let mut child = Command::new("cmd")
+        .args(["/C", cmd])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+
+    #[cfg(not(windows))]
+    let mut child = Command::new("sh")
+        .args(["-c", cmd])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()?;
+
+    // ... rest is platform-independent ...
+}
+<span class="boring">}</span></code></pre>
+<p><strong>Available <code>cfg</code> predicates:</strong></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Operating system
+#[cfg(target_os = "linux")]         // Linux specifically
+#[cfg(target_os = "windows")]       // Windows
+#[cfg(target_os = "macos")]         // macOS
+#[cfg(unix)]                        // Linux, macOS, BSDs, etc.
+#[cfg(windows)]                     // Windows (shorthand)
+
+// Architecture
+#[cfg(target_arch = "x86_64")]      // x86 64-bit
+#[cfg(target_arch = "aarch64")]     // ARM 64-bit
+#[cfg(target_arch = "x86")]         // x86 32-bit
+
+// Pointer width (portable alternative to arch)
+#[cfg(target_pointer_width = "64")] // Any 64-bit platform
+#[cfg(target_pointer_width = "32")] // Any 32-bit platform
+
+// Environment / C library
+#[cfg(target_env = "gnu")]          // glibc
+#[cfg(target_env = "musl")]         // musl libc
+#[cfg(target_env = "msvc")]         // MSVC on Windows
+
+// Endianness
+#[cfg(target_endian = "little")]
+#[cfg(target_endian = "big")]
+
+// Combinations with any(), all(), not()
+#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+#[cfg(not(windows))]
+<span class="boring">}</span></code></pre>
+<h3 id="the-windows-sys-and-windows-crates"><a class="header" href="#the-windows-sys-and-windows-crates">The <code>windows-sys</code> and <code>windows</code> Crates</a></h3>
+<p>For calling Windows APIs directly:</p>
+<pre><code class="language-toml"># Cargo.toml — use windows-sys for raw FFI (lighter, no abstraction)
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_System_Services",
+    "Win32_System_Registry",
+    "Win32_System_Power",
+] }
+# NOTE: windows-sys uses semver-incompatible releases (0.48 → 0.52 → 0.59).
+# Pin to a single minor version — each release may remove or rename API bindings.
+# Check https://github.com/microsoft/windows-rs for the latest version
+# before starting a new project.
+
+# Or use the windows crate for safe wrappers (heavier, more ergonomic)
+# windows = { version = "0.59", features = [...] }
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/platform/windows.rs
+#[cfg(windows)]
+mod win {
+    use windows_sys::Win32::System::Power::{
+        GetSystemPowerStatus, SYSTEM_POWER_STATUS,
+    };
+
+    pub fn get_battery_status() -&gt; Option&lt;u8&gt; {
+        let mut status = SYSTEM_POWER_STATUS::default();
+        // SAFETY: GetSystemPowerStatus writes to the provided buffer.
+        // The buffer is correctly sized and aligned.
+        let ok = unsafe { GetSystemPowerStatus(&amp;mut status) };
+        if ok != 0 {
+            Some(status.BatteryLifePercent)
+        } else {
+            None
+        }
+    }
+}
+<span class="boring">}</span></code></pre>
+<p><strong><code>windows-sys</code> vs <code>windows</code> crate:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Aspect</th><th><code>windows-sys</code></th><th><code>windows</code></th></tr>
+</thead>
+<tbody>
+<tr><td>API style</td><td>Raw FFI (<code>unsafe</code> calls)</td><td>Safe Rust wrappers</td></tr>
+<tr><td>Binary size</td><td>Minimal (just extern declarations)</td><td>Larger (wrapper code)</td></tr>
+<tr><td>Compile time</td><td>Fast</td><td>Slower</td></tr>
+<tr><td>Ergonomics</td><td>C-style, manual safety</td><td>Rust-idiomatic</td></tr>
+<tr><td>Error handling</td><td>Raw <code>BOOL</code> / <code>HRESULT</code></td><td><code>Result&lt;T, windows::core::Error&gt;</code></td></tr>
+<tr><td>Use when</td><td>Performance-critical, thin wrapper</td><td>Application code, ease of use</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="cross-compiling-for-windows-from-linux"><a class="header" href="#cross-compiling-for-windows-from-linux">Cross-Compiling for Windows from Linux</a></h3>
+<pre><code class="language-bash"># Option 1: MinGW (GNU ABI)
+rustup target add x86_64-pc-windows-gnu
+sudo apt install gcc-mingw-w64-x86-64
+cargo build --target x86_64-pc-windows-gnu
+# Produces a .exe — runs on Windows, links against msvcrt
+
+# Option 2: MSVC ABI via xwin (for full MSVC compatibility)
+cargo install cargo-xwin
+cargo xwin build --target x86_64-pc-windows-msvc
+# Uses Microsoft's CRT and SDK headers downloaded automatically
+
+# Option 3: Zig-based cross-compilation
+cargo zigbuild --target x86_64-pc-windows-gnu
+</code></pre>
+<p><strong>GNU vs MSVC ABI on Windows:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Aspect</th><th><code>x86_64-pc-windows-gnu</code></th><th><code>x86_64-pc-windows-msvc</code></th></tr>
+</thead>
+<tbody>
+<tr><td>Linker</td><td>MinGW <code>ld</code></td><td>MSVC <code>link.exe</code> or <code>lld-link</code></td></tr>
+<tr><td>C runtime</td><td><code>msvcrt.dll</code> (universal)</td><td><code>ucrtbase.dll</code> (modern)</td></tr>
+<tr><td>C++ interop</td><td>GCC ABI</td><td>MSVC ABI</td></tr>
+<tr><td>Cross-compile from Linux</td><td>Easy (MinGW)</td><td>Possible (<code>cargo-xwin</code>)</td></tr>
+<tr><td>Windows API support</td><td>Full</td><td>Full</td></tr>
+<tr><td>Debug info format</td><td>DWARF</td><td>PDB</td></tr>
+<tr><td>Recommended for</td><td>Simple tools, CI builds</td><td>Full Windows integration</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="conditional-compilation-patterns"><a class="header" href="#conditional-compilation-patterns">Conditional Compilation Patterns</a></h3>
+<p><strong>Pattern 1: Platform module selection</strong></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/platform/mod.rs — compile different modules per OS
+#[cfg(target_os = "linux")]
+mod linux;
+#[cfg(target_os = "linux")]
+pub use linux::*;
+
+#[cfg(target_os = "windows")]
+mod windows;
+#[cfg(target_os = "windows")]
+pub use windows::*;
+
+// Both modules implement the same public API:
+// pub fn get_cpu_temperature() -&gt; Result&lt;f64, PlatformError&gt;
+// pub fn list_pci_devices() -&gt; Result&lt;Vec&lt;PciDevice&gt;, PlatformError&gt;
+<span class="boring">}</span></code></pre>
+<p><strong>Pattern 2: Feature-gated platform support</strong></p>
+<pre><code class="language-toml"># Cargo.toml
+[features]
+default = ["linux"]
+linux = []              # Linux-specific hardware access
+windows = ["dep:windows-sys"]  # Windows-specific APIs
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [...], optional = true }
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Compile error if someone tries to build for Windows without the feature:
+#[cfg(all(target_os = "windows", not(feature = "windows")))]
+compile_error!("Enable the 'windows' feature to build for Windows");
+<span class="boring">}</span></code></pre>
+<p><strong>Pattern 3: Trait-based platform abstraction</strong></p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Platform-independent interface for hardware access.
+pub trait HardwareAccess {
+    type Error: std::error::Error;
+
+    fn read_cpu_temperature(&amp;self) -&gt; Result&lt;f64, Self::Error&gt;;
+    fn read_gpu_temperature(&amp;self, gpu_index: u32) -&gt; Result&lt;f64, Self::Error&gt;;
+    fn list_pci_devices(&amp;self) -&gt; Result&lt;Vec&lt;PciDevice&gt;, Self::Error&gt;;
+    fn send_ipmi_command(&amp;self, cmd: &amp;IpmiCmd) -&gt; Result&lt;IpmiResponse, Self::Error&gt;;
+}
+
+#[cfg(target_os = "linux")]
+pub struct LinuxHardware;
+
+#[cfg(target_os = "linux")]
+impl HardwareAccess for LinuxHardware {
+    type Error = LinuxHwError;
+
+    fn read_cpu_temperature(&amp;self) -&gt; Result&lt;f64, Self::Error&gt; {
+        // Read from /sys/class/thermal/thermal_zone0/temp
+        let raw = std::fs::read_to_string("/sys/class/thermal/thermal_zone0/temp")?;
+        Ok(raw.trim().parse::&lt;f64&gt;()? / 1000.0)
+    }
+    // ...
+}
+
+#[cfg(target_os = "windows")]
+pub struct WindowsHardware;
+
+#[cfg(target_os = "windows")]
+impl HardwareAccess for WindowsHardware {
+    type Error = WindowsHwError;
+
+    fn read_cpu_temperature(&amp;self) -&gt; Result&lt;f64, Self::Error&gt; {
+        // Read via WMI (Win32_TemperatureProbe) or Open Hardware Monitor
+        todo!("WMI temperature query")
+    }
+    // ...
+}
+
+/// Create the platform-appropriate implementation
+pub fn create_hardware() -&gt; impl HardwareAccess {
+    #[cfg(target_os = "linux")]
+    { LinuxHardware }
+    #[cfg(target_os = "windows")]
+    { WindowsHardware }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="platform-abstraction-architecture"><a class="header" href="#platform-abstraction-architecture">Platform Abstraction Architecture</a></h3>
+<p>For a project that targets multiple platforms, organize code into three layers:</p>
+<pre><code class="language-text">┌──────────────────────────────────────────────────┐
+│ Application Logic (platform-independent)          │
+│  diag_tool, accel_diag, network_diag, event_log, etc.      │
+│  Uses only the platform abstraction trait          │
+├──────────────────────────────────────────────────┤
+│ Platform Abstraction Layer (trait definitions)    │
+│  trait HardwareAccess { ... }                     │
+│  trait CommandRunner { ... }                      │
+│  trait FileSystem { ... }                         │
+├──────────────────────────────────────────────────┤
+│ Platform Implementations (cfg-gated)              │
+│  ┌──────────────┐  ┌──────────────┐              │
+│  │ Linux impl   │  │ Windows impl │              │
+│  │ /sys, /proc  │  │ WMI, Registry│              │
+│  │ ipmitool     │  │ ipmiutil     │              │
+│  │ lspci        │  │ devcon       │              │
+│  └──────────────┘  └──────────────┘              │
+└──────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>Testing the abstraction</strong>: Mock the platform trait for unit tests:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct MockHardware {
+        cpu_temp: f64,
+        gpu_temps: Vec&lt;f64&gt;,
+    }
+
+    impl HardwareAccess for MockHardware {
+        type Error = std::io::Error;
+
+        fn read_cpu_temperature(&amp;self) -&gt; Result&lt;f64, Self::Error&gt; {
+            Ok(self.cpu_temp)
+        }
+
+        fn read_gpu_temperature(&amp;self, index: u32) -&gt; Result&lt;f64, Self::Error&gt; {
+            self.gpu_temps.get(index as usize)
+                .copied()
+                .ok_or_else(|| std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    format!("GPU {index} not found")
+                ))
+        }
+
+        fn list_pci_devices(&amp;self) -&gt; Result&lt;Vec&lt;PciDevice&gt;, Self::Error&gt; {
+            Ok(vec![]) // Mock returns empty
+        }
+
+        fn send_ipmi_command(&amp;self, _cmd: &amp;IpmiCmd) -&gt; Result&lt;IpmiResponse, Self::Error&gt; {
+            Ok(IpmiResponse::default())
+        }
+    }
+
+    #[test]
+    fn test_thermal_check_with_mock() {
+        let hw = MockHardware {
+            cpu_temp: 75.0,
+            gpu_temps: vec![82.0, 84.0],
+        };
+        let result = run_thermal_diagnostic(&amp;hw);
+        assert!(result.is_ok());
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="application-linux-first-windows-ready"><a class="header" href="#application-linux-first-windows-ready">Application: Linux-First, Windows-Ready</a></h3>
+<p>The project is already partially Windows-ready. Use
+<a href="ch09-no-std-and-feature-verification.html"><code>cargo-hack</code></a> to verify all feature
+combinations, and <a href="ch02-cross-compilation-one-source-many-target.html">cross-compile</a>
+to test on Windows from Linux:</p>
+<p><strong>Already done:</strong></p>
+<ul>
+<li><code>platform::run_command</code> uses <code>#[cfg(windows)]</code> for shell selection</li>
+<li>Tests use <code>#[cfg(windows)]</code> / <code>#[cfg(not(windows))]</code> for platform-appropriate
+test commands</li>
+</ul>
+<p><strong>Recommended evolution path for Windows support:</strong></p>
+<pre><code class="language-text">Phase 1: Extract platform abstraction trait (current → 2 weeks)
+  ├─ Define HardwareAccess trait in core_lib
+  ├─ Wrap current Linux code behind LinuxHardware impl
+  └─ All diagnostic modules depend on trait, not Linux specifics
+
+Phase 2: Add Windows stubs (2 weeks)
+  ├─ Implement WindowsHardware with TODO stubs
+  ├─ CI builds for x86_64-pc-windows-msvc (compile check only)
+  └─ Tests pass with MockHardware on all platforms
+
+Phase 3: Windows implementation (ongoing)
+  ├─ IPMI via ipmiutil.exe or OpenIPMI Windows driver
+  ├─ GPU via accel-mgmt (accel-api.dll) — same API as Linux
+  ├─ PCIe via Windows Setup API (SetupDiEnumDeviceInfo)
+  └─ NIC via WMI (Win32_NetworkAdapter)
+</code></pre>
+<p><strong>Cross-platform CI addition:</strong></p>
+<pre><code class="language-yaml"># Add to CI matrix
+- target: x86_64-pc-windows-msvc
+  os: windows-latest
+  name: windows-x86_64
+</code></pre>
+<p>This ensures the codebase compiles on Windows even before full Windows
+implementation is complete — catching <code>cfg</code> mistakes early.</p>
+<blockquote>
+<p><strong>Key insight</strong>: The abstraction doesn’t need to be perfect on day one.
+Start with <code>#[cfg]</code> blocks in leaf functions (like <code>exec_cmd</code> already does),
+then refactor to traits when you have two or more platform implementations.
+Premature abstraction is worse than <code>#[cfg]</code> blocks.</p>
+</blockquote>
+<h3 id="conditional-compilation-decision-tree"><a class="header" href="#conditional-compilation-decision-tree">Conditional Compilation Decision Tree</a></h3>
+<pre class="mermaid">flowchart TD
+    START["Platform-specific code?"] --&gt; HOW_MANY{"How many platforms?"}
+    
+    HOW_MANY --&gt;|"2 (Linux + Windows)"| CFG_BLOCKS["#[cfg] blocks&lt;br/&gt;in leaf functions"]
+    HOW_MANY --&gt;|"3+"| TRAIT_APPROACH["Platform trait&lt;br/&gt;+ per-platform impl"]
+    
+    CFG_BLOCKS --&gt; WINAPI{"Need Windows APIs?"}
+    WINAPI --&gt;|"Minimal"| WIN_SYS["windows-sys&lt;br/&gt;Raw FFI bindings"]
+    WINAPI --&gt;|"Rich (COM, etc)"| WIN_RS["windows crate&lt;br/&gt;Safe idiomatic wrappers"]
+    WINAPI --&gt;|"None&lt;br/&gt;(just #[cfg])"| NATIVE["cfg(windows)&lt;br/&gt;cfg(unix)"]
+    
+    TRAIT_APPROACH --&gt; CI_CHECK["cargo-hack&lt;br/&gt;--each-feature"]
+    CFG_BLOCKS --&gt; CI_CHECK
+    CI_CHECK --&gt; XCOMPILE["Cross-compile in CI&lt;br/&gt;cargo-xwin or&lt;br/&gt;native runners"]
+    
+    style CFG_BLOCKS fill:#91e5a3,color:#000
+    style TRAIT_APPROACH fill:#ffd43b,color:#000
+    style WIN_SYS fill:#e3f2fd,color:#000
+    style WIN_RS fill:#e3f2fd,color:#000
+</pre>
+
+<h3 id="-exercises"><a class="header" href="#-exercises">🏋️ Exercises</a></h3>
+<h4 id="-exercise-1-platform-conditional-module"><a class="header" href="#-exercise-1-platform-conditional-module">🟢 Exercise 1: Platform-Conditional Module</a></h4>
+<p>Create a module with <code>#[cfg(unix)]</code> and <code>#[cfg(windows)]</code> implementations of a <code>get_hostname()</code> function. Verify both compile with <code>cargo check</code> and <code>cargo check --target x86_64-pc-windows-msvc</code>.</p>
+<details>
+<summary>Solution</summary>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/hostname.rs
+#[cfg(unix)]
+pub fn get_hostname() -&gt; String {
+    use std::fs;
+    fs::read_to_string("/etc/hostname")
+        .unwrap_or_else(|_| "unknown".to_string())
+        .trim()
+        .to_string()
+}
+
+#[cfg(windows)]
+pub fn get_hostname() -&gt; String {
+    use std::env;
+    env::var("COMPUTERNAME").unwrap_or_else(|_| "unknown".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn hostname_is_not_empty() {
+        let name = get_hostname();
+        assert!(!name.is_empty());
+    }
+}
+<span class="boring">}</span></code></pre>
+<pre><code class="language-bash"># Verify Linux compilation
+cargo check
+
+# Verify Windows compilation (cross-check)
+rustup target add x86_64-pc-windows-msvc
+cargo check --target x86_64-pc-windows-msvc
+</code></pre>
+</details>
+<h4 id="-exercise-2-cross-compile-for-windows-with-cargo-xwin"><a class="header" href="#-exercise-2-cross-compile-for-windows-with-cargo-xwin">🟡 Exercise 2: Cross-Compile for Windows with cargo-xwin</a></h4>
+<p>Install <code>cargo-xwin</code> and build a simple binary for <code>x86_64-pc-windows-msvc</code> from Linux. Verify the output is a <code>.exe</code>.</p>
+<details>
+<summary>Solution</summary>
+<pre><code class="language-bash">cargo install cargo-xwin
+rustup target add x86_64-pc-windows-msvc
+
+cargo xwin build --release --target x86_64-pc-windows-msvc
+# Downloads Windows SDK headers/libs automatically
+
+file target/x86_64-pc-windows-msvc/release/my-binary.exe
+# Output: PE32+ executable (console) x86-64, for MS Windows
+
+# You can also test with Wine:
+wine target/x86_64-pc-windows-msvc/release/my-binary.exe
+</code></pre>
+</details>
+<h3 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h3>
+<ul>
+<li>Start with <code>#[cfg]</code> blocks in leaf functions; refactor to traits only when three or more platforms diverge</li>
+<li><code>windows-sys</code> is for raw FFI; the <code>windows</code> crate provides safe, idiomatic wrappers</li>
+<li><code>cargo-xwin</code> cross-compiles to Windows MSVC ABI from Linux — no Windows machine needed</li>
+<li>Always check <code>--target x86_64-pc-windows-msvc</code> in CI even if you only ship on Linux</li>
+<li>Combine <code>#[cfg]</code> with Cargo features for optional platform support (e.g., <code>feature = "windows"</code>)</li>
+</ul>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch09-no-std-and-feature-verification.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch11-putting-it-all-together-a-production-cic.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch09-no-std-and-feature-verification.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch11-putting-it-all-together-a-production-cic.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

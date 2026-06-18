@@ -1,0 +1,641 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>8. Crates and Modules - Rust for C# Programmers</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-37ee69cf.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-6cd9c3d0.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust for C# Programmers</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h2 id="modules-and-crates-code-organization"><a class="header" href="#modules-and-crates-code-organization">Modules and Crates: Code Organization</a></h2>
+<blockquote>
+<p><strong>What you’ll learn:</strong> Rust’s module system vs C# namespaces and assemblies, <code>pub</code>/<code>pub(crate)</code>/<code>pub(super)</code> visibility,
+file-based module organization, and how crates map to .NET assemblies.</p>
+<p><strong>Difficulty:</strong> 🟢 Beginner</p>
+</blockquote>
+<p>Understanding Rust’s module system is essential for organizing code and managing dependencies. For C# developers, this is analogous to understanding namespaces, assemblies, and NuGet packages.</p>
+<h3 id="rust-modules-vs-c-namespaces"><a class="header" href="#rust-modules-vs-c-namespaces">Rust Modules vs C# Namespaces</a></h3>
+<h4 id="c-namespace-organization"><a class="header" href="#c-namespace-organization">C# Namespace Organization</a></h4>
+<pre><code class="language-csharp">// File: Models/User.cs
+namespace MyApp.Models
+{
+    public class User
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
+    }
+}
+
+// File: Services/UserService.cs
+using MyApp.Models;
+
+namespace MyApp.Services
+{
+    public class UserService
+    {
+        public User CreateUser(string name, int age)
+        {
+            return new User { Name = name, Age = age };
+        }
+    }
+}
+
+// File: Program.cs
+using MyApp.Models;
+using MyApp.Services;
+
+namespace MyApp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            var service = new UserService();
+            var user = service.CreateUser("Alice", 30);
+        }
+    }
+}
+</code></pre>
+<h4 id="rust-module-organization"><a class="header" href="#rust-module-organization">Rust Module Organization</a></h4>
+<pre class="playground"><code class="language-rust">// File: src/models.rs
+pub struct User {
+    pub name: String,
+    pub age: u32,
+}
+
+impl User {
+    pub fn new(name: String, age: u32) -&gt; User {
+        User { name, age }
+    }
+}
+
+// File: src/services.rs
+use crate::models::User;
+
+pub struct UserService;
+
+impl UserService {
+    pub fn create_user(name: String, age: u32) -&gt; User {
+        User::new(name, age)
+    }
+}
+
+// File: src/lib.rs (or main.rs)
+pub mod models;
+pub mod services;
+
+use models::User;
+use services::UserService;
+
+fn main() {
+    let service = UserService;
+    let user = UserService::create_user("Alice".to_string(), 30);
+}</code></pre>
+<h3 id="module-hierarchy-and-visibility"><a class="header" href="#module-hierarchy-and-visibility">Module Hierarchy and Visibility</a></h3>
+<pre class="mermaid">graph TD
+    Crate["crate (root)"] --&gt; ModA["mod data"]
+    Crate --&gt; ModB["mod api"]
+    ModA --&gt; SubA1["pub struct Repo"]
+    ModA --&gt; SubA2["fn helper  (private)"]
+    ModB --&gt; SubB1["pub fn handle()"]
+    ModB --&gt; SubB2["pub(crate) fn internal()"]
+    ModB --&gt; SubB3["pub(super) fn parent_only()"]
+
+    style SubA1 fill:#c8e6c9,color:#000
+    style SubA2 fill:#ffcdd2,color:#000
+    style SubB1 fill:#c8e6c9,color:#000
+    style SubB2 fill:#fff9c4,color:#000
+    style SubB3 fill:#fff9c4,color:#000
+</pre>
+
+<blockquote>
+<p>🟢 Green = public everywhere  |  🟡 Yellow = restricted visibility  |  🔴 Red = private</p>
+</blockquote>
+<h4 id="c-visibility-modifiers"><a class="header" href="#c-visibility-modifiers">C# Visibility Modifiers</a></h4>
+<pre><code class="language-csharp">namespace MyApp.Data
+{
+    // public - accessible from anywhere
+    public class Repository
+    {
+        // private - only within this class
+        private string connectionString;
+        
+        // internal - within this assembly
+        internal void Connect() { }
+        
+        // protected - this class and subclasses
+        protected virtual void Initialize() { }
+        
+        // public - accessible from anywhere
+        public void Save(object data) { }
+    }
+}
+</code></pre>
+<h4 id="rust-visibility-rules"><a class="header" href="#rust-visibility-rules">Rust Visibility Rules</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Everything is private by default in Rust
+mod data {
+    struct Repository {  // Private struct
+        connection_string: String,  // Private field
+    }
+    
+    impl Repository {
+        fn new() -&gt; Repository {  // Private function
+            Repository {
+                connection_string: "localhost".to_string(),
+            }
+        }
+        
+        pub fn connect(&amp;self) {  // Public method
+            // Only accessible within this module and its children
+        }
+        
+        pub(crate) fn initialize(&amp;self) {  // Crate-level public
+            // Accessible anywhere in this crate
+        }
+        
+        pub(super) fn internal_method(&amp;self) {  // Parent module public
+            // Accessible in parent module
+        }
+    }
+    
+    // Public struct - accessible from outside the module
+    pub struct PublicRepository {
+        pub data: String,  // Public field
+        private_data: String,  // Private field (no pub)
+    }
+}
+
+pub use data::PublicRepository;  // Re-export for external use
+<span class="boring">}</span></code></pre>
+<h3 id="module-file-organization"><a class="header" href="#module-file-organization">Module File Organization</a></h3>
+<h4 id="c-project-structure"><a class="header" href="#c-project-structure">C# Project Structure</a></h4>
+<pre><code class="language-text">MyApp/
+├── MyApp.csproj
+├── Models/
+│   ├── User.cs
+│   └── Product.cs
+├── Services/
+│   ├── UserService.cs
+│   └── ProductService.cs
+├── Controllers/
+│   └── ApiController.cs
+└── Program.cs
+</code></pre>
+<h4 id="rust-module-file-structure"><a class="header" href="#rust-module-file-structure">Rust Module File Structure</a></h4>
+<pre><code class="language-text">my_app/
+├── Cargo.toml
+└── src/
+    ├── main.rs (or lib.rs)
+    ├── models/
+    │   ├── mod.rs        // Module declaration
+    │   ├── user.rs
+    │   └── product.rs
+    ├── services/
+    │   ├── mod.rs        // Module declaration
+    │   ├── user_service.rs
+    │   └── product_service.rs
+    └── controllers/
+        ├── mod.rs
+        └── api_controller.rs
+</code></pre>
+<h4 id="module-declaration-patterns"><a class="header" href="#module-declaration-patterns">Module Declaration Patterns</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/models/mod.rs
+pub mod user;      // Declares user.rs as a submodule
+pub mod product;   // Declares product.rs as a submodule
+
+// Re-export commonly used types
+pub use user::User;
+pub use product::Product;
+
+// src/main.rs
+mod models;     // Declares models/ as a module
+mod services;   // Declares services/ as a module
+
+// Import specific items
+use models::{User, Product};
+use services::UserService;
+
+// Or import the entire module
+use models::user::*;  // Import all public items from user module
+<span class="boring">}</span></code></pre>
+<hr>
+<h2 id="crates-vs-net-assemblies"><a class="header" href="#crates-vs-net-assemblies">Crates vs .NET Assemblies</a></h2>
+<h3 id="understanding-crates"><a class="header" href="#understanding-crates">Understanding Crates</a></h3>
+<p>In Rust, a <strong>crate</strong> is the fundamental unit of compilation and code distribution, similar to how an <strong>assembly</strong> works in .NET.</p>
+<h4 id="c-assembly-model"><a class="header" href="#c-assembly-model">C# Assembly Model</a></h4>
+<pre><code class="language-csharp">// MyLibrary.dll - Compiled assembly
+namespace MyLibrary
+{
+    public class Calculator
+    {
+        public int Add(int a, int b) =&gt; a + b;
+    }
+}
+
+// MyApp.exe - Executable assembly that references MyLibrary.dll
+using MyLibrary;
+
+class Program
+{
+    static void Main()
+    {
+        var calc = new Calculator();
+        Console.WriteLine(calc.Add(2, 3));
+    }
+}
+</code></pre>
+<h4 id="rust-crate-model"><a class="header" href="#rust-crate-model">Rust Crate Model</a></h4>
+<pre><code class="language-toml"># Cargo.toml for library crate
+[package]
+name = "my_calculator"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "my_calculator"
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/lib.rs - Library crate
+pub struct Calculator;
+
+impl Calculator {
+    pub fn add(&amp;self, a: i32, b: i32) -&gt; i32 {
+        a + b
+    }
+}
+<span class="boring">}</span></code></pre>
+<pre><code class="language-toml"># Cargo.toml for binary crate that uses the library
+[package]
+name = "my_app"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+my_calculator = { path = "../my_calculator" }
+</code></pre>
+<pre class="playground"><code class="language-rust">// src/main.rs - Binary crate
+use my_calculator::Calculator;
+
+fn main() {
+    let calc = Calculator;
+    println!("{}", calc.add(2, 3));
+}</code></pre>
+<h3 id="crate-types-comparison"><a class="header" href="#crate-types-comparison">Crate Types Comparison</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>C# Concept</th><th>Rust Equivalent</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td>Class Library (.dll)</td><td>Library crate</td><td>Reusable code</td></tr>
+<tr><td>Console App (.exe)</td><td>Binary crate</td><td>Executable program</td></tr>
+<tr><td>NuGet Package</td><td>Published crate</td><td>Distribution unit</td></tr>
+<tr><td>Assembly (.dll/.exe)</td><td>Compiled crate</td><td>Compilation unit</td></tr>
+<tr><td>Solution (.sln)</td><td>Workspace</td><td>Multi-project organization</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="workspace-vs-solution"><a class="header" href="#workspace-vs-solution">Workspace vs Solution</a></h3>
+<h4 id="c-solution-structure"><a class="header" href="#c-solution-structure">C# Solution Structure</a></h4>
+<pre><code class="language-xml">&lt;!-- MySolution.sln structure --&gt;
+&lt;Solution&gt;
+    &lt;Project Include="WebApi/WebApi.csproj" /&gt;
+    &lt;Project Include="Business/Business.csproj" /&gt;
+    &lt;Project Include="DataAccess/DataAccess.csproj" /&gt;
+    &lt;Project Include="Tests/Tests.csproj" /&gt;
+&lt;/Solution&gt;
+</code></pre>
+<h4 id="rust-workspace-structure"><a class="header" href="#rust-workspace-structure">Rust Workspace Structure</a></h4>
+<pre><code class="language-toml"># Cargo.toml at workspace root
+[workspace]
+members = [
+    "web_api",
+    "business",
+    "data_access",
+    "tests"
+]
+
+[workspace.dependencies]
+serde = "1.0"           # Shared dependency versions
+tokio = "1.0"
+</code></pre>
+<pre><code class="language-toml"># web_api/Cargo.toml
+[package]
+name = "web_api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+business = { path = "../business" }
+serde = { workspace = true }    # Use workspace version
+tokio = { workspace = true }
+</code></pre>
+<hr>
+<h2 id="exercises"><a class="header" href="#exercises">Exercises</a></h2>
+<details>
+<summary><strong>🏋️ Exercise: Design a Module Tree</strong> (click to expand)</summary>
+<p>Given this C# project layout, design the equivalent Rust module tree:</p>
+<pre><code class="language-csharp">// C#
+namespace MyApp.Services { public class AuthService { } }
+namespace MyApp.Services { internal class TokenStore { } }
+namespace MyApp.Models { public class User { } }
+namespace MyApp.Models { public class Session { } }
+</code></pre>
+<p>Requirements:</p>
+<ol>
+<li><code>AuthService</code> and both models must be public</li>
+<li><code>TokenStore</code> must be private to the <code>services</code> module</li>
+<li>Provide the file layout <strong>and</strong> the <code>mod</code> / <code>pub</code> declarations in <code>lib.rs</code></li>
+</ol>
+<details>
+<summary>🔑 Solution</summary>
+<p>File layout:</p>
+<pre><code>src/
+├── lib.rs
+├── services/
+│   ├── mod.rs
+│   ├── auth_service.rs
+│   └── token_store.rs
+└── models/
+    ├── mod.rs
+    ├── user.rs
+    └── session.rs
+</code></pre>
+<pre><code class="language-rust ignore">// src/lib.rs
+pub mod services;
+pub mod models;
+
+// src/services/mod.rs
+mod token_store;          // private — like C# internal
+pub mod auth_service;     // public
+
+// src/services/auth_service.rs
+use super::token_store::TokenStore; // visible within the module
+
+pub struct AuthService;
+
+impl AuthService {
+    pub fn login(&amp;self) { /* uses TokenStore internally */ }
+}
+
+// src/services/token_store.rs
+pub(super) struct TokenStore; // visible to parent (services) only
+
+// src/models/mod.rs
+pub mod user;
+pub mod session;
+
+// src/models/user.rs
+pub struct User {
+    pub name: String,
+}
+
+// src/models/session.rs
+pub struct Session {
+    pub user_id: u64,
+}</code></pre>
+</details>
+</details>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch07-3-smart-pointers-beyond-single-ownership.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch08-1-package-management-cargo-vs-nuget.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch07-3-smart-pointers-beyond-single-ownership.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch08-1-package-management-cargo-vs-nuget.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

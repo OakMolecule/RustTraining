@@ -1,0 +1,1184 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>15. Crate Architecture and API Design - Rust Patterns &amp; Engineering How-Tos</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-64960533.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-51b340c9.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Patterns &amp; Engineering How-Tos</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="15-crate-architecture-and-api-design-"><a class="header" href="#15-crate-architecture-and-api-design-">15. Crate Architecture and API Design 🟡</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong></p>
+<ul>
+<li>Module layout conventions and re-export strategies</li>
+<li>The public API design checklist for polished crates</li>
+<li>Ergonomic parameter patterns: <code>impl Into</code>, <code>AsRef</code>, <code>Cow</code></li>
+<li>“Parse, don’t validate” with <code>TryFrom</code> and validated types</li>
+<li>Feature flags, conditional compilation, and workspace organization</li>
+</ul>
+</blockquote>
+<h2 id="module-layout-conventions"><a class="header" href="#module-layout-conventions">Module Layout Conventions</a></h2>
+<pre><code class="language-text">my_crate/
+├── Cargo.toml
+├── src/
+│   ├── lib.rs          # Crate root — re-exports and public API
+│   ├── config.rs       # Feature module
+│   ├── parser/         # Complex module with sub-modules
+│   │   ├── mod.rs      # or parser.rs at parent level (Rust 2018+)
+│   │   ├── lexer.rs
+│   │   └── ast.rs
+│   ├── error.rs        # Error types
+│   └── utils.rs        # Internal helpers (pub(crate))
+├── tests/
+│   └── integration.rs  # Integration tests
+├── benches/
+│   └── perf.rs         # Benchmarks
+└── examples/
+    └── basic.rs        # cargo run --example basic
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// lib.rs — curate your public API with re-exports:
+mod config;
+mod error;
+mod parser;
+mod utils;
+
+// Re-export what users need:
+pub use config::Config;
+pub use error::Error;
+pub use parser::Parser;
+
+// Public types are at the crate root — users write:
+// use my_crate::Config;
+// NOT: use my_crate::config::Config;
+<span class="boring">}</span></code></pre>
+<p><strong>Visibility modifiers</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Modifier</th><th>Visible To</th></tr>
+</thead>
+<tbody>
+<tr><td><code>pub</code></td><td>Everyone</td></tr>
+<tr><td><code>pub(crate)</code></td><td>This crate only</td></tr>
+<tr><td><code>pub(super)</code></td><td>Parent module</td></tr>
+<tr><td><code>pub(in path)</code></td><td>Specific ancestor module</td></tr>
+<tr><td>(none)</td><td>Current module and its children</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="public-api-design-checklist"><a class="header" href="#public-api-design-checklist">Public API Design Checklist</a></h3>
+<ol>
+<li><strong>Accept references, return owned</strong> — <code>fn process(input: &amp;str) -&gt; String</code></li>
+<li><strong>Use <code>impl Trait</code> for parameters</strong> — <code>fn read(r: impl Read)</code> instead of <code>fn read&lt;R: Read&gt;(r: R)</code> for cleaner signatures</li>
+<li><strong>Return <code>Result</code>, not <code>panic!</code></strong> — let callers decide how to handle errors</li>
+<li><strong>Implement standard traits</strong> — <code>Debug</code>, <code>Display</code>, <code>Clone</code>, <code>Default</code>, <code>From</code>/<code>Into</code></li>
+<li><strong>Make invalid states unrepresentable</strong> — use type states and newtypes</li>
+<li><strong>Follow the builder pattern for complex configuration</strong> — with type-state if fields are required</li>
+<li><strong>Seal traits you don’t want users to implement</strong> — <code>pub trait Sealed: private::Sealed {}</code></li>
+<li><strong>Mark types and functions <code>#[must_use]</code></strong> — prevents silent discard of important <code>Result</code>s, guards, or values. Apply to any type where ignoring the return value is almost certainly a bug:
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[must_use = "dropping the guard immediately releases the lock"]
+pub struct LockGuard&lt;'a, T&gt; { /* ... */ }
+
+#[must_use]
+pub fn validate(input: &amp;str) -&gt; Result&lt;ValidInput, ValidationError&gt; { /* ... */ }
+<span class="boring">}</span></code></pre>
+</li>
+</ol>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Sealed trait pattern — users can use but not implement:
+mod private {
+    pub trait Sealed {}
+}
+
+pub trait DatabaseDriver: private::Sealed {
+    fn connect(&amp;self, url: &amp;str) -&gt; Connection;
+}
+
+// Only types in THIS crate can implement Sealed → only we can implement DatabaseDriver
+pub struct PostgresDriver;
+impl private::Sealed for PostgresDriver {}
+impl DatabaseDriver for PostgresDriver {
+    fn connect(&amp;self, url: &amp;str) -&gt; Connection { /* ... */ }
+}
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong><code>#[non_exhaustive]</code></strong> — mark public enums and structs so that adding variants
+or fields is not a breaking change. Downstream crates must use a wildcard arm
+(<code>_ =&gt;</code>) in match statements, and cannot construct the type with struct literal
+syntax:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[non_exhaustive]
+pub enum DiagError {
+    Timeout,
+    HardwareFault,
+    // Adding a new variant in a future release is NOT a semver break.
+}
+<span class="boring">}</span></code></pre>
+</blockquote>
+<h3 id="ergonomic-parameter-patterns--impl-into-asref-cow"><a class="header" href="#ergonomic-parameter-patterns--impl-into-asref-cow">Ergonomic Parameter Patterns — <code>impl Into</code>, <code>AsRef</code>, <code>Cow</code></a></h3>
+<p>One of Rust’s most impactful API patterns is accepting the <strong>most general type</strong> in
+function parameters, so callers don’t need repetitive <code>.to_string()</code>, <code>&amp;*s</code>, or <code>.as_ref()</code>
+at every call site. This is the Rust-specific version of “be liberal in what you accept.”</p>
+<h4 id="impl-intot--accept-anything-convertible"><a class="header" href="#impl-intot--accept-anything-convertible"><code>impl Into&lt;T&gt;</code> — Accept Anything Convertible</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// ❌ Friction: callers must convert manually
+fn connect(host: String, port: u16) -&gt; Connection {
+    // ...
+}
+connect("localhost".to_string(), 5432);  // Annoying .to_string()
+connect(hostname.clone(), 5432);          // Unnecessary clone if we already have String
+
+// ✅ Ergonomic: accept anything that converts to String
+fn connect(host: impl Into&lt;String&gt;, port: u16) -&gt; Connection {
+    let host = host.into();  // Convert once, inside the function
+    // ...
+}
+connect("localhost", 5432);     // &amp;str — zero friction
+connect(hostname, 5432);        // String — moved, no clone
+<span class="boring">}</span></code></pre>
+<p>This works because Rust’s <code>From</code>/<code>Into</code> trait pair provides blanket conversions.
+When you accept <code>impl Into&lt;T&gt;</code>, you’re saying: “give me anything that knows how to
+become a <code>T</code>.”</p>
+<h4 id="asreft--borrow-as-a-reference"><a class="header" href="#asreft--borrow-as-a-reference"><code>AsRef&lt;T&gt;</code> — Borrow as a Reference</a></h4>
+<p><code>AsRef&lt;T&gt;</code> is the borrowing counterpart to <code>Into&lt;T&gt;</code>. Use it when you only need
+to <em>read</em> the data, not take ownership:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::path::Path;
+
+// ❌ Forces callers to convert to &amp;Path
+fn file_exists(path: &amp;Path) -&gt; bool {
+    path.exists()
+}
+file_exists(Path::new("/tmp/test.txt"));  // Awkward
+
+// ✅ Accept anything that can behave as a &amp;Path
+fn file_exists(path: impl AsRef&lt;Path&gt;) -&gt; bool {
+    path.as_ref().exists()
+}
+file_exists("/tmp/test.txt");                    // &amp;str ✅
+file_exists(String::from("/tmp/test.txt"));      // String ✅
+file_exists(Path::new("/tmp/test.txt"));         // &amp;Path ✅
+file_exists(PathBuf::from("/tmp/test.txt"));     // PathBuf ✅
+
+// Same pattern for string-like parameters:
+fn log_message(msg: impl AsRef&lt;str&gt;) {
+    println!("[LOG] {}", msg.as_ref());
+}
+log_message("hello");                    // &amp;str ✅
+log_message(String::from("hello"));      // String ✅
+<span class="boring">}</span></code></pre>
+<h4 id="cowt--clone-on-write"><a class="header" href="#cowt--clone-on-write"><code>Cow&lt;T&gt;</code> — Clone on Write</a></h4>
+<p><code>Cow&lt;'a, T&gt;</code> (Clone on Write) delays allocation until mutation is needed.
+It holds either a borrowed <code>&amp;T</code> or an owned <code>T::Owned</code>. This is perfect when
+most calls don’t need to modify the data:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::borrow::Cow;
+
+/// Normalizes a diagnostic message — only allocates if changes are needed.
+fn normalize_message(msg: &amp;str) -&gt; Cow&lt;'_, str&gt; {
+    if msg.contains('\t') || msg.contains('\r') {
+        // Must allocate — we need to modify the content
+        Cow::Owned(msg.replace('\t', "    ").replace('\r', ""))
+    } else {
+        // No allocation — just borrow the original
+        Cow::Borrowed(msg)
+    }
+}
+
+// Most messages pass through without allocation:
+let clean = normalize_message("All tests passed");          // Borrowed — free
+let fixed = normalize_message("Error:\tfailed\r\n");        // Owned — allocated
+
+// Cow&lt;str&gt; implements Deref&lt;Target=str&gt;, so it works like &amp;str:
+println!("{}", clean);
+println!("{}", fixed.to_uppercase());
+<span class="boring">}</span></code></pre>
+<h4 id="quick-reference-which-to-use"><a class="header" href="#quick-reference-which-to-use">Quick Reference: Which to Use</a></h4>
+<pre><code class="language-text">Do you need ownership of the data inside the function?
+├── YES → impl Into&lt;T&gt;
+│         "Give me anything that can become a T"
+└── NO  → Do you only need to read it?
+     ├── YES → impl AsRef&lt;T&gt; or &amp;T
+     │         "Give me anything I can borrow as a &amp;T"
+     └── MAYBE (might need to modify sometimes?)
+          └── Cow&lt;'_, T&gt;
+              "Borrow if possible, clone only when you must"
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Pattern</th><th>Ownership</th><th>Allocation</th><th>When to use</th></tr>
+</thead>
+<tbody>
+<tr><td><code>&amp;str</code></td><td>Borrowed</td><td>Never</td><td>Simple string params</td></tr>
+<tr><td><code>impl AsRef&lt;str&gt;</code></td><td>Borrowed</td><td>Never</td><td>Accept String, &amp;str, etc. — read only</td></tr>
+<tr><td><code>impl Into&lt;String&gt;</code></td><td>Owned</td><td>On conversion</td><td>Accept &amp;str, String — will store/own</td></tr>
+<tr><td><code>Cow&lt;'_, str&gt;</code></td><td>Either</td><td>Only if modified</td><td>Processing that usually doesn’t modify</td></tr>
+<tr><td><code>&amp;[u8]</code> / <code>impl AsRef&lt;[u8]&gt;</code></td><td>Borrowed</td><td>Never</td><td>Byte-oriented APIs</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong><code>Borrow&lt;T&gt;</code> vs <code>AsRef&lt;T&gt;</code></strong>: Both provide <code>&amp;T</code>, but <code>Borrow&lt;T&gt;</code> additionally
+guarantees that <code>Eq</code>, <code>Ord</code>, and <code>Hash</code> are <strong>consistent</strong> between the original
+and borrowed form. This is why <code>HashMap&lt;String, V&gt;::get()</code> accepts <code>&amp;Q where String: Borrow&lt;Q&gt;</code> — not <code>AsRef</code>. Use <code>Borrow</code> when the borrowed form is used
+as a lookup key; use <code>AsRef</code> for general “give me a reference” parameters.</p>
+</blockquote>
+<h4 id="composing-conversions-in-apis"><a class="header" href="#composing-conversions-in-apis">Composing Conversions in APIs</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// A well-designed diagnostic API using ergonomic parameters:
+pub struct DiagRunner {
+    name: String,
+    config_path: PathBuf,
+    results: HashMap&lt;String, TestResult&gt;,
+}
+
+impl DiagRunner {
+    /// Accept any string-like type for name, any path-like type for config.
+    pub fn new(
+        name: impl Into&lt;String&gt;,
+        config_path: impl Into&lt;PathBuf&gt;,
+    ) -&gt; Self {
+        DiagRunner {
+            name: name.into(),
+            config_path: config_path.into(),
+        }
+    }
+
+    /// Accept any AsRef&lt;str&gt; for read-only lookup.
+    pub fn get_result(&amp;self, test_name: impl AsRef&lt;str&gt;) -&gt; Option&lt;&amp;TestResult&gt; {
+        self.results.get(test_name.as_ref())
+    }
+}
+
+// All of these work with zero caller friction:
+let runner = DiagRunner::new("GPU Diag", "/etc/diag_tool/config.json");
+let runner = DiagRunner::new(format!("Diag-{}", node_id), config_path);
+let runner = DiagRunner::new(name_string, path_buf);
+<span class="boring">}</span></code></pre>
+<hr>
+<h2 id="case-study-designing-a-public-crate-api--before--after"><a class="header" href="#case-study-designing-a-public-crate-api--before--after">Case Study: Designing a Public Crate API — Before &amp; After</a></h2>
+<p>A real-world example of evolving a stringly-typed internal API into an ergonomic, type-safe public API. Consider a configuration parser crate:</p>
+<p><strong>Before</strong> (stringly-typed, easy to misuse):</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// ❌ All parameters are strings — no compile-time validation
+pub fn parse_config(path: &amp;str, format: &amp;str, strict: bool) -&gt; Result&lt;Config, String&gt; {
+    // What formats are valid? "json"? "JSON"? "Json"?
+    // Is path a file path or URL?
+    // What does "strict" even mean?
+    todo!()
+}
+<span class="boring">}</span></code></pre>
+<p><strong>After</strong> (type-safe, self-documenting):</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::path::Path;
+
+/// Supported configuration formats.
+#[derive(Debug, Clone, Copy)]
+#[non_exhaustive]  // Adding formats won't break downstream
+pub enum Format {
+    Json,
+    Toml,
+    Yaml,
+}
+
+/// Controls parsing strictness.
+#[derive(Debug, Clone, Copy, Default)]
+pub enum Strictness {
+    /// Reject unknown fields (default for libraries)
+    #[default]
+    Strict,
+    /// Ignore unknown fields (useful for forward-compatible configs)
+    Lenient,
+}
+
+pub fn parse_config(
+    path: &amp;Path,          // Type-enforced: must be a filesystem path
+    format: Format,       // Enum: impossible to pass invalid format
+    strictness: Strictness,  // Named alternatives, not a bare bool
+) -&gt; Result&lt;Config, ConfigError&gt; {
+    todo!()
+}
+<span class="boring">}</span></code></pre>
+<p><strong>What improved</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Aspect</th><th>Before</th><th>After</th></tr>
+</thead>
+<tbody>
+<tr><td>Format validation</td><td>Runtime string comparison</td><td>Compile-time enum</td></tr>
+<tr><td>Path type</td><td>Raw <code>&amp;str</code> (could be anything)</td><td><code>&amp;Path</code> (filesystem-specific)</td></tr>
+<tr><td>Strictness</td><td>Mystery <code>bool</code></td><td>Self-documenting enum</td></tr>
+<tr><td>Error type</td><td><code>String</code> (opaque)</td><td><code>ConfigError</code> (structured)</td></tr>
+<tr><td>Extensibility</td><td>Breaking changes</td><td><code>#[non_exhaustive]</code></td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>Rule of thumb</strong>: If you find yourself writing a <code>match</code> on string values,
+consider replacing the parameter with an enum. If a parameter is a boolean
+that isn’t obvious from context, use a two-variant enum instead.</p>
+</blockquote>
+<hr>
+<h3 id="parse-dont-validate--tryfrom-and-validated-types"><a class="header" href="#parse-dont-validate--tryfrom-and-validated-types">Parse Don’t Validate — <code>TryFrom</code> and Validated Types</a></h3>
+<p>“Parse, don’t validate” is a principle that says: <strong>don’t check data and then pass
+around the raw unchecked form — instead, parse it into a type that can only exist
+if the data is valid.</strong> Rust’s <code>TryFrom</code> trait is the standard tool for this.</p>
+<h4 id="the-problem-validation-without-enforcement"><a class="header" href="#the-problem-validation-without-enforcement">The Problem: Validation Without Enforcement</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// ❌ Validate-then-use: nothing prevents using an invalid value after the check
+fn process_port(port: u16) {
+    if port == 0 || port &gt; 65535 {
+        panic!("Invalid port");           // We checked, but...
+    }
+    start_server(port);                    // What if someone calls start_server(0) directly?
+}
+
+// ❌ Stringly-typed: an email is just a String — any garbage gets through
+fn send_email(to: String, body: String) {
+    // Is `to` actually a valid email? We don't know.
+    // Someone could pass "not-an-email" and we only find out at the SMTP server.
+}
+<span class="boring">}</span></code></pre>
+<h4 id="the-solution-parse-into-validated-newtypes-with-tryfrom"><a class="header" href="#the-solution-parse-into-validated-newtypes-with-tryfrom">The Solution: Parse Into Validated Newtypes with <code>TryFrom</code></a></h4>
+<pre class="playground"><code class="language-rust">use std::convert::TryFrom;
+use std::fmt;
+
+/// A validated TCP port number (1–65535).
+/// If you have a `Port`, it is guaranteed valid.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Port(u16);
+
+impl TryFrom&lt;u16&gt; for Port {
+    type Error = PortError;
+
+    fn try_from(value: u16) -&gt; Result&lt;Self, Self::Error&gt; {
+        if value == 0 {
+            Err(PortError::Zero)
+        } else {
+            Ok(Port(value))
+        }
+    }
+}
+
+impl Port {
+    pub fn get(&amp;self) -&gt; u16 { self.0 }
+}
+
+#[derive(Debug)]
+pub enum PortError {
+    Zero,
+    InvalidFormat,
+}
+
+impl fmt::Display for PortError {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
+        match self {
+            PortError::Zero =&gt; write!(f, "port must be non-zero"),
+            PortError::InvalidFormat =&gt; write!(f, "invalid port format"),
+        }
+    }
+}
+
+impl std::error::Error for PortError {}
+
+// Now the type system enforces validity:
+fn start_server(port: Port) {
+    // No validation needed — Port can only be constructed via TryFrom,
+    // which already verified it's valid.
+    println!("Listening on port {}", port.get());
+}
+
+// Usage:
+fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    let port = Port::try_from(8080)?;   // ✅ Validated once at the boundary
+    start_server(port);                  // No re-validation anywhere downstream
+
+    let bad = Port::try_from(0);         // ❌ Err(PortError::Zero)
+    Ok(())
+}</code></pre>
+<h4 id="real-world-example-validated-ipmi-address"><a class="header" href="#real-world-example-validated-ipmi-address">Real-World Example: Validated IPMI Address</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// A validated IPMI slave address (0x20–0xFE, even only).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct IpmiAddr(u8);
+
+#[derive(Debug)]
+pub enum IpmiAddrError {
+    Odd(u8),
+    OutOfRange(u8),
+}
+
+impl fmt::Display for IpmiAddrError {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
+        match self {
+            IpmiAddrError::Odd(v) =&gt; write!(f, "IPMI address 0x{v:02X} must be even"),
+            IpmiAddrError::OutOfRange(v) =&gt; {
+                write!(f, "IPMI address 0x{v:02X} out of range (0x20..=0xFE)")
+            }
+        }
+    }
+}
+
+impl TryFrom&lt;u8&gt; for IpmiAddr {
+    type Error = IpmiAddrError;
+
+    fn try_from(value: u8) -&gt; Result&lt;Self, Self::Error&gt; {
+        if value % 2 != 0 {
+            Err(IpmiAddrError::Odd(value))
+        } else if value &lt; 0x20 || value &gt; 0xFE {
+            Err(IpmiAddrError::OutOfRange(value))
+        } else {
+            Ok(IpmiAddr(value))
+        }
+    }
+}
+
+impl IpmiAddr {
+    pub fn get(&amp;self) -&gt; u8 { self.0 }
+}
+
+// Downstream code never needs to re-check:
+fn send_ipmi_command(addr: IpmiAddr, cmd: u8, data: &amp;[u8]) -&gt; Result&lt;Vec&lt;u8&gt;, IpmiError&gt; {
+    // addr.get() is guaranteed to be a valid, even IPMI address
+    raw_ipmi_send(addr.get(), cmd, data)
+}
+<span class="boring">}</span></code></pre>
+<h4 id="parsing-strings-with-fromstr"><a class="header" href="#parsing-strings-with-fromstr">Parsing Strings with <code>FromStr</code></a></h4>
+<p>For types that are commonly parsed from text (CLI args, config files), implement <code>FromStr</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use std::str::FromStr;
+
+impl FromStr for Port {
+    type Err = PortError;
+
+    fn from_str(s: &amp;str) -&gt; Result&lt;Self, Self::Err&gt; {
+        let n: u16 = s.parse().map_err(|_| PortError::InvalidFormat)?;
+        Port::try_from(n)
+    }
+}
+
+// Now works with .parse():
+let port: Port = "8080".parse()?;   // Validates in one step
+
+// And with clap CLI parsing:
+// #[derive(Parser)]
+// struct Args {
+//     #[arg(short, long)]
+//     port: Port,   // clap calls FromStr automatically
+// }
+<span class="boring">}</span></code></pre>
+<h4 id="tryfrom-chain-for-complex-validation"><a class="header" href="#tryfrom-chain-for-complex-validation"><code>TryFrom</code> Chain for Complex Validation</a></h4>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Stub types for this example — in production these would be in
+// separate modules with their own TryFrom implementations.
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">struct Hostname(String);
+</span><span class="boring">impl TryFrom&lt;String&gt; for Hostname {
+</span><span class="boring">    type Error = String;
+</span><span class="boring">    fn try_from(s: String) -&gt; Result&lt;Self, String&gt; { Ok(Hostname(s)) }
+</span><span class="boring">}
+</span><span class="boring">struct Timeout(u64);
+</span><span class="boring">impl TryFrom&lt;u64&gt; for Timeout {
+</span><span class="boring">    type Error = String;
+</span><span class="boring">    fn try_from(ms: u64) -&gt; Result&lt;Self, String&gt; {
+</span><span class="boring">        if ms == 0 { Err("timeout must be &gt; 0".into()) } else { Ok(Timeout(ms)) }
+</span><span class="boring">    }
+</span><span class="boring">}
+</span><span class="boring">struct RawConfig { host: String, port: u16, timeout_ms: u64 }
+</span><span class="boring">#[derive(Debug)]
+</span><span class="boring">enum ConfigError {
+</span><span class="boring">    InvalidHost(String),
+</span><span class="boring">    InvalidPort(PortError),
+</span><span class="boring">    InvalidTimeout(String),
+</span><span class="boring">}
+</span><span class="boring">impl From&lt;std::io::Error&gt; for ConfigError {
+</span><span class="boring">    fn from(e: std::io::Error) -&gt; Self { ConfigError::InvalidHost(e.to_string()) }
+</span><span class="boring">}
+</span><span class="boring">impl From&lt;serde_json::Error&gt; for ConfigError {
+</span><span class="boring">    fn from(e: serde_json::Error) -&gt; Self { ConfigError::InvalidHost(e.to_string()) }
+</span><span class="boring">}
+</span>/// A validated configuration that can only exist if all fields are valid.
+pub struct ValidConfig {
+    pub host: Hostname,
+    pub port: Port,
+    pub timeout_ms: Timeout,
+}
+
+impl TryFrom&lt;RawConfig&gt; for ValidConfig {
+    type Error = ConfigError;
+
+    fn try_from(raw: RawConfig) -&gt; Result&lt;Self, Self::Error&gt; {
+        Ok(ValidConfig {
+            host: Hostname::try_from(raw.host)
+                .map_err(ConfigError::InvalidHost)?,
+            port: Port::try_from(raw.port)
+                .map_err(ConfigError::InvalidPort)?,
+            timeout_ms: Timeout::try_from(raw.timeout_ms)
+                .map_err(ConfigError::InvalidTimeout)?,
+        })
+    }
+}
+
+// Parse once at the boundary, use the validated type everywhere:
+fn load_config(path: &amp;str) -&gt; Result&lt;ValidConfig, ConfigError&gt; {
+    let raw: RawConfig = serde_json::from_str(&amp;std::fs::read_to_string(path)?)?;
+    ValidConfig::try_from(raw)  // All validation happens here
+}
+<span class="boring">}</span></code></pre>
+<h4 id="summary-validate-vs-parse"><a class="header" href="#summary-validate-vs-parse">Summary: Validate vs Parse</a></h4>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Approach</th><th style="text-align: center">Data checked?</th><th style="text-align: center">Compiler enforces validity?</th><th style="text-align: center">Re-validation needed?</th></tr>
+</thead>
+<tbody>
+<tr><td>Runtime checks (if/assert)</td><td style="text-align: center">✅</td><td style="text-align: center">❌</td><td style="text-align: center">Every function boundary</td></tr>
+<tr><td>Validated newtype + <code>TryFrom</code></td><td style="text-align: center">✅</td><td style="text-align: center">✅</td><td style="text-align: center">Never — type is proof</td></tr>
+</tbody>
+</table>
+</div>
+<p>The rule: <strong>parse at the boundary, use validated types everywhere inside.</strong>
+Raw strings, integers, and byte slices enter your system, get parsed into
+validated types via <code>TryFrom</code>/<code>FromStr</code>, and from that point forward the type
+system guarantees they’re valid.</p>
+<h3 id="feature-flags-and-conditional-compilation"><a class="header" href="#feature-flags-and-conditional-compilation">Feature Flags and Conditional Compilation</a></h3>
+<pre><code class="language-toml"># Cargo.toml
+[features]
+default = ["json"]          # Enabled by default
+json = ["dep:serde_json"]   # Enables JSON support
+xml = ["dep:quick-xml"]     # Enables XML support
+full = ["json", "xml"]      # Meta-feature: enables all
+
+[dependencies]
+serde = "1"
+serde_json = { version = "1", optional = true }
+quick-xml = { version = "0.31", optional = true }
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Conditional compilation based on features:
+#[cfg(feature = "json")]
+pub fn to_json&lt;T: serde::Serialize&gt;(value: &amp;T) -&gt; String {
+    serde_json::to_string(value).unwrap()
+}
+
+#[cfg(feature = "xml")]
+pub fn to_xml&lt;T: serde::Serialize&gt;(value: &amp;T) -&gt; String {
+    quick_xml::se::to_string(value).unwrap()
+}
+
+// Compile error if a required feature isn't enabled:
+#[cfg(not(any(feature = "json", feature = "xml")))]
+compile_error!("At least one format feature (json, xml) must be enabled");
+<span class="boring">}</span></code></pre>
+<p><strong>Best practices</strong>:</p>
+<ul>
+<li>Keep <code>default</code> features minimal — users can opt in</li>
+<li>Use <code>dep:</code> syntax (Rust 1.60+) for optional dependencies to avoid creating implicit features</li>
+<li>Document features in your README and crate-level docs</li>
+</ul>
+<h3 id="workspace-organization"><a class="header" href="#workspace-organization">Workspace Organization</a></h3>
+<p>For large projects, use a Cargo workspace to share dependencies and build artifacts:</p>
+<pre><code class="language-toml"># Root Cargo.toml
+[workspace]
+members = [
+    "core",         # Shared types and traits
+    "parser",       # Parsing library
+    "server",       # Binary — the main application
+    "client",       # Client library
+    "cli",          # CLI binary
+]
+
+# Shared dependency versions:
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+
+# In each member's Cargo.toml:
+# [dependencies]
+# serde = { workspace = true }
+</code></pre>
+<p><strong>Benefits</strong>:</p>
+<ul>
+<li>Single <code>Cargo.lock</code> — all crates use the same dependency versions</li>
+<li><code>cargo test --workspace</code> runs all tests</li>
+<li>Shared build cache — compiling one crate benefits all</li>
+<li>Clean dependency boundaries between components</li>
+</ul>
+<h3 id="cargoconfigtoml-project-level-configuration"><a class="header" href="#cargoconfigtoml-project-level-configuration"><code>.cargo/config.toml</code>: Project-Level Configuration</a></h3>
+<p>The <code>.cargo/config.toml</code> file (at the workspace root or in <code>$HOME/.cargo/</code>)
+customizes Cargo behavior without modifying <code>Cargo.toml</code>:</p>
+<pre><code class="language-toml"># .cargo/config.toml
+
+# Default target for this workspace
+[build]
+target = "x86_64-unknown-linux-gnu"
+
+# Custom runner — e.g., run via QEMU for cross-compiled binaries
+[target.aarch64-unknown-linux-gnu]
+runner = "qemu-aarch64-static"
+linker = "aarch64-linux-gnu-gcc"
+
+# Cargo aliases — custom shortcut commands
+[alias]
+xt = "test --workspace --release"        # cargo xt = run all tests in release
+ci = "clippy --workspace -- -D warnings" # cargo ci = lint with errors on warnings
+cov = "llvm-cov --workspace"             # cargo cov = coverage (requires cargo-llvm-cov)
+
+# Environment variables for build scripts
+[env]
+IPMI_LIB_PATH = "/usr/lib/bmc"
+
+# Use a custom registry (for internal packages)
+# [registries.internal]
+# index = "https://gitlab.internal/crates/index"
+</code></pre>
+<p>Common configuration patterns:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Setting</th><th>Purpose</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr><td><code>[build] target</code></td><td>Default compilation target</td><td><code>x86_64-unknown-linux-musl</code> for static builds</td></tr>
+<tr><td><code>[target.X] runner</code></td><td>How to run the binary</td><td><code>"qemu-aarch64-static"</code> for cross-compiled</td></tr>
+<tr><td><code>[target.X] linker</code></td><td>Which linker to use</td><td><code>"aarch64-linux-gnu-gcc"</code></td></tr>
+<tr><td><code>[alias]</code></td><td>Custom <code>cargo</code> subcommands</td><td><code>xt = "test --workspace"</code></td></tr>
+<tr><td><code>[env]</code></td><td>Build-time environment variables</td><td>Library paths, feature toggles</td></tr>
+<tr><td><code>[net] offline</code></td><td>Prevent network access</td><td><code>true</code> for air-gapped builds</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="compile-time-environment-variables-env-and-option_env"><a class="header" href="#compile-time-environment-variables-env-and-option_env">Compile-Time Environment Variables: <code>env!()</code> and <code>option_env!()</code></a></h3>
+<p>Rust can embed environment variables into the binary at compile time — useful for
+version strings, build metadata, and configuration:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// env!() — panics at compile time if the variable is missing
+const VERSION: &amp;str = env!("CARGO_PKG_VERSION"); // "0.1.0" from Cargo.toml
+const PKG_NAME: &amp;str = env!("CARGO_PKG_NAME");   // Crate name from Cargo.toml
+
+// option_env!() — returns Option&lt;&amp;str&gt;, doesn't panic if missing
+const BUILD_SHA: Option&lt;&amp;str&gt; = option_env!("GIT_SHA");
+const BUILD_TIME: Option&lt;&amp;str&gt; = option_env!("BUILD_TIMESTAMP");
+
+fn print_version() {
+    println!("{PKG_NAME} v{VERSION}");
+    if let Some(sha) = BUILD_SHA {
+        println!("  commit: {sha}");
+    }
+    if let Some(time) = BUILD_TIME {
+        println!("  built:  {time}");
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>Cargo automatically sets many useful environment variables:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Variable</th><th>Value</th><th>Use case</th></tr>
+</thead>
+<tbody>
+<tr><td><code>CARGO_PKG_VERSION</code></td><td><code>"1.2.3"</code></td><td>Version reporting</td></tr>
+<tr><td><code>CARGO_PKG_NAME</code></td><td><code>"diag_tool"</code></td><td>Binary identification</td></tr>
+<tr><td><code>CARGO_PKG_AUTHORS</code></td><td>From <code>Cargo.toml</code></td><td>About/help text</td></tr>
+<tr><td><code>CARGO_MANIFEST_DIR</code></td><td>Absolute path to <code>Cargo.toml</code></td><td>Locating test data files</td></tr>
+<tr><td><code>OUT_DIR</code></td><td>Build output directory</td><td><code>build.rs</code> code generation target</td></tr>
+<tr><td><code>TARGET</code></td><td>Target triple</td><td>Platform-specific logic in <code>build.rs</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>You can set custom env vars from <code>build.rs</code>:</p>
+<pre class="playground"><code class="language-rust">// build.rs
+fn main() {
+    println!("cargo::rustc-env=GIT_SHA={}", git_sha());
+    println!("cargo::rustc-env=BUILD_TIMESTAMP={}", timestamp());
+}</code></pre>
+<h3 id="cfg_attr-conditional-attributes"><a class="header" href="#cfg_attr-conditional-attributes"><code>cfg_attr</code>: Conditional Attributes</a></h3>
+<p><code>cfg_attr</code> applies an attribute <strong>only when</strong> a condition is true. This is more
+targeted than <code>#[cfg()]</code>, which includes/excludes entire items:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Derive Serialize only when the "serde" feature is enabled:
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone)]
+pub struct DiagResult {
+    pub fc: u32,
+    pub passed: bool,
+    pub message: String,
+}
+// Without "serde" feature: no serde dependency needed at all
+// With "serde" feature: DiagResult is serializable
+
+// Conditional attribute for testing:
+#[cfg_attr(test, derive(PartialEq))]  // Only derive PartialEq in test builds
+pub struct LargeStruct { /* ... */ }
+
+// Platform-specific function attributes:
+#[cfg_attr(target_os = "linux", link_name = "ioctl")]
+#[cfg_attr(target_os = "freebsd", link_name = "__ioctl")]
+extern "C" fn platform_ioctl(fd: i32, request: u64) -&gt; i32;
+<span class="boring">}</span></code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Pattern</th><th>What it does</th></tr>
+</thead>
+<tbody>
+<tr><td><code>#[cfg(feature = "x")]</code></td><td>Include/exclude the entire item</td></tr>
+<tr><td><code>#[cfg_attr(feature = "x", derive(Foo))]</code></td><td>Add <code>derive(Foo)</code> only when feature “x” is on</td></tr>
+<tr><td><code>#[cfg_attr(test, allow(unused))]</code></td><td>Suppress warnings only in test builds</td></tr>
+<tr><td><code>#[cfg_attr(doc, doc = "...")]</code></td><td>Documentation visible only in <code>cargo doc</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="cargo-deny-and-cargo-audit-supply-chain-security"><a class="header" href="#cargo-deny-and-cargo-audit-supply-chain-security"><code>cargo deny</code> and <code>cargo audit</code>: Supply-Chain Security</a></h3>
+<pre><code class="language-bash"># Install security audit tools
+cargo install cargo-deny
+cargo install cargo-audit
+
+# Check for known vulnerabilities in dependencies
+cargo audit
+
+# Comprehensive checks: licenses, bans, advisories, sources
+cargo deny check
+</code></pre>
+<p>Configure <code>cargo deny</code> with a <code>deny.toml</code> at the workspace root:</p>
+<pre><code class="language-toml"># deny.toml
+[advisories]
+vulnerability = "deny"      # Fail on known vulnerabilities
+unmaintained = "warn"        # Warn on unmaintained crates
+
+[licenses]
+allow = ["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause"]
+deny = ["GPL-3.0"]          # Reject copyleft licenses
+
+[bans]
+multiple-versions = "warn"  # Warn if multiple versions of same crate
+deny = [
+    { name = "openssl" },   # Force use of rustls instead
+]
+
+[sources]
+allow-git = []              # No git dependencies in production
+</code></pre>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Tool</th><th>Purpose</th><th>When to run</th></tr>
+</thead>
+<tbody>
+<tr><td><code>cargo audit</code></td><td>Check for known CVEs in dependencies</td><td>CI pipeline, pre-release</td></tr>
+<tr><td><code>cargo deny check</code></td><td>Licenses, bans, advisories, sources</td><td>CI pipeline</td></tr>
+<tr><td><code>cargo deny check licenses</code></td><td>License compliance only</td><td>Before open-sourcing</td></tr>
+<tr><td><code>cargo deny check bans</code></td><td>Prevent specific crates</td><td>Enforce architecture decisions</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="doc-tests-tests-inside-documentation"><a class="header" href="#doc-tests-tests-inside-documentation">Doc Tests: Tests Inside Documentation</a></h3>
+<p>Rust doc comments (<code>///</code>) can contain code blocks that are <strong>compiled and run as tests</strong>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Parses a diagnostic fault code from a string.
+///
+/// # Examples
+///
+/// ```
+/// use my_crate::parse_fc;
+///
+/// let fc = parse_fc("FC:12345").unwrap();
+/// assert_eq!(fc, 12345);
+/// ```
+///
+/// Invalid input returns an error:
+///
+/// ```
+/// use my_crate::parse_fc;
+///
+/// assert!(parse_fc("not-a-fc").is_err());
+/// ```
+pub fn parse_fc(input: &amp;str) -&gt; Result&lt;u32, ParseError&gt; {
+    input.strip_prefix("FC:")
+        .ok_or(ParseError::MissingPrefix)?
+        .parse()
+        .map_err(ParseError::InvalidNumber)
+}
+<span class="boring">}</span></code></pre>
+<pre><code class="language-bash">cargo test --doc  # Run only doc tests
+cargo test        # Runs unit + integration + doc tests
+</code></pre>
+<p><strong>Module-level documentation</strong> uses <code>//!</code> at the top of a file:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>//! # Diagnostic Framework
+//!
+//! This crate provides the core diagnostic execution engine.
+//! It supports running diagnostic tests, collecting results,
+//! and reporting to the BMC via IPMI.
+//!
+//! ## Quick Start
+//!
+//! ```no_run
+//! use diag_framework::Framework;
+//!
+//! let mut fw = Framework::new("config.json")?;
+//! fw.run_all_tests()?;
+//! ```
+<span class="boring">}</span></code></pre>
+<h3 id="benchmarking-with-criterion"><a class="header" href="#benchmarking-with-criterion">Benchmarking with Criterion</a></h3>
+<blockquote>
+<p><strong>Full coverage</strong>: See the <a href="ch14-testing-and-benchmarking-patterns.html#benchmarking-with-criterion">Benchmarking with criterion</a>
+section in Chapter 13 (Testing and Benchmarking Patterns) for complete
+<code>criterion</code> setup, API examples, and a comparison table vs <code>cargo bench</code>.
+Below is a quick-reference for architecture-specific usage.</p>
+</blockquote>
+<p>When benchmarking your crate’s public API, place benchmarks in <code>benches/</code> and
+keep them focused on the hot path — typically parsers, serializers, or
+validation boundaries:</p>
+<pre><code class="language-bash">cargo bench                  # Run all benchmarks
+cargo bench -- parse_config  # Run specific benchmark
+# Results in target/criterion/ with HTML reports
+</code></pre>
+<blockquote>
+<p><strong>Key Takeaways — Architecture &amp; API Design</strong></p>
+<ul>
+<li>Accept the most general type (<code>impl Into</code>, <code>impl AsRef</code>, <code>Cow</code>); return the most specific</li>
+<li>Parse Don’t Validate: use <code>TryFrom</code> to create types that are valid by construction</li>
+<li><code>#[non_exhaustive]</code> on public enums prevents breaking changes when adding variants</li>
+<li><code>#[must_use]</code> catches silent discards of important values</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>See also:</strong> <a href="ch10-error-handling-patterns.html">Ch 9 — Error Handling</a> for error type design in public APIs. <a href="ch14-testing-and-benchmarking-patterns.html">Ch 13 — Testing</a> for testing your crate’s public API.</p>
+</blockquote>
+<hr>
+<h3 id="exercise-crate-api-refactoring--30-min"><a class="header" href="#exercise-crate-api-refactoring--30-min">Exercise: Crate API Refactoring ★★ (~30 min)</a></h3>
+<p>Refactor the following “stringly-typed” API into one that uses <code>TryFrom</code>, newtypes, and builder pattern:</p>
+<pre><code class="language-rust ignore">// BEFORE: Easy to misuse
+fn create_server(host: &amp;str, port: &amp;str, max_conn: &amp;str) -&gt; Server { ... }</code></pre>
+<p>Design a <code>ServerConfig</code> with validated types <code>Host</code>, <code>Port</code> (1–65535), and <code>MaxConnections</code> (1–10000) that reject invalid values at parse time.</p>
+<details>
+<summary>🔑 Solution</summary>
+<pre class="playground"><code class="language-rust">#[derive(Debug, Clone)]
+struct Host(String);
+
+impl TryFrom&lt;&amp;str&gt; for Host {
+    type Error = String;
+    fn try_from(s: &amp;str) -&gt; Result&lt;Self, String&gt; {
+        if s.is_empty() { return Err("host cannot be empty".into()); }
+        if s.contains(' ') { return Err("host cannot contain spaces".into()); }
+        Ok(Host(s.to_string()))
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct Port(u16);
+
+impl TryFrom&lt;u16&gt; for Port {
+    type Error = String;
+    fn try_from(p: u16) -&gt; Result&lt;Self, String&gt; {
+        if p == 0 { return Err("port must be &gt;= 1".into()); }
+        Ok(Port(p))
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct MaxConnections(u32);
+
+impl TryFrom&lt;u32&gt; for MaxConnections {
+    type Error = String;
+    fn try_from(n: u32) -&gt; Result&lt;Self, String&gt; {
+        if n == 0 || n &gt; 10_000 {
+            return Err(format!("max_connections must be 1–10000, got {n}"));
+        }
+        Ok(MaxConnections(n))
+    }
+}
+
+#[derive(Debug)]
+struct ServerConfig {
+    host: Host,
+    port: Port,
+    max_connections: MaxConnections,
+}
+
+impl ServerConfig {
+    fn new(host: Host, port: Port, max_connections: MaxConnections) -&gt; Self {
+        ServerConfig { host, port, max_connections }
+    }
+}
+
+fn main() {
+    let config = ServerConfig::new(
+        Host::try_from("localhost").unwrap(),
+        Port::try_from(8080).unwrap(),
+        MaxConnections::try_from(100).unwrap(),
+    );
+    println!("{config:?}");
+
+    // Invalid values caught at parse time:
+    assert!(Host::try_from("").is_err());
+    assert!(Port::try_from(0).is_err());
+    assert!(MaxConnections::try_from(99999).is_err());
+}</code></pre>
+</details>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch14-testing-and-benchmarking-patterns.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch16-asyncawait-essentials.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch14-testing-and-benchmarking-patterns.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch16-asyncawait-essentials.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

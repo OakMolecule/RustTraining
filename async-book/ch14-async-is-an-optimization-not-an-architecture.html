@@ -1,0 +1,727 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>14. Async Is an Optimization, Not an Architecture - Async Rust: From Futures to Production</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-98424bd5.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-fddf10a8.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Async Rust: From Futures to Production</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="14-async-is-an-optimization-not-an-architecture-"><a class="header" href="#14-async-is-an-optimization-not-an-architecture-">14. Async Is an Optimization, Not an Architecture 🔴</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong></p>
+<ul>
+<li>Why async tends to contaminate entire codebases — and why that’s a design flaw, not a feature</li>
+<li>The “sync core, async shell” pattern for keeping most code testable and debuggable</li>
+<li>How to handle the hard case: logic that <em>also</em> needs I/O</li>
+<li>When <code>spawn_blocking</code> is a fix vs. a symptom</li>
+<li>When async genuinely belongs in your core logic</li>
+<li>Why sync-first libraries are more composable than async-first ones</li>
+</ul>
+</blockquote>
+<p>You’ve now spent 13 chapters learning async Rust. Here’s the most important thing the book hasn’t told you: <strong>most of your code shouldn’t be async.</strong></p>
+<h2 id="the-function-coloring-problem"><a class="header" href="#the-function-coloring-problem">The Function Coloring Problem</a></h2>
+<p>Bob Nystrom’s <a href="https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/">“What Color is Your Function?”</a> identifies the core issue: async functions can call sync functions, but sync functions cannot call async functions. Once one function goes async, everything above it in the call chain must follow.</p>
+<p>In Rust this is <strong>worse</strong> than in C# or JavaScript, because async doesn’t just infect function signatures — it infects types:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Sync code</th><th>Async equivalent</th><th>Why it’s different</th></tr>
+</thead>
+<tbody>
+<tr><td><code>fn process(&amp;self)</code></td><td><code>async fn process(&amp;self)</code></td><td>Callers must be async too</td></tr>
+<tr><td><code>&amp;mut T</code></td><td><code>Arc&lt;Mutex&lt;T&gt;&gt;</code></td><td>Spawned tasks need <code>'static + Send</code></td></tr>
+<tr><td><code>std::sync::Mutex</code></td><td><code>tokio::sync::Mutex</code></td><td>Different type if held across <code>.await</code></td></tr>
+<tr><td><code>impl Trait</code> return</td><td><code>impl Future&lt;Output = T&gt; + Send</code></td><td>Simpler since RPITIT (Rust 1.75, ch10), but still colored</td></tr>
+<tr><td><code>#[test]</code></td><td><code>#[tokio::test]</code></td><td>Tests need a runtime</td></tr>
+<tr><td>Stack trace: 5 frames</td><td>Stack trace: 25 frames</td><td>Half are runtime internals</td></tr>
+</tbody>
+</table>
+</div>
+<p>Every row is a decision someone must make, get right, and maintain — and none of it is about business logic. The industry is moving <em>away</em> from this: Java’s Project Loom (virtual threads) and Go’s goroutines both let you write synchronous-looking code that the runtime multiplexes cheaply. Rust chose explicit async for zero-cost control, but that control has a complexity cost that should be paid consciously, not by default.</p>
+<h2 id="but-threads-are-expensive"><a class="header" href="#but-threads-are-expensive">“But Threads Are Expensive”</a></h2>
+<p>The reflexive counter: “we need async because threads are expensive.” Mostly wrong at the scale where most teams operate.</p>
+<ul>
+<li><strong>Stack memory:</strong> Each OS thread reserves 8MB of virtual address space (Linux default), but the OS only commits pages as touched — a mostly-idle thread uses 20-80KB of physical memory.</li>
+<li><strong>Context switches:</strong> ~1-5µs on modern hardware. At 50 concurrent requests, this is noise. At 100K switches/second, it’s measurable.</li>
+<li><strong>Creation cost:</strong> ~10-30µs per thread on Linux. A thread pool (rayon, <code>std::thread::scope</code>) amortizes this to zero.</li>
+</ul>
+<p>The honest threshold where async earns its complexity is roughly <strong>1K-10K concurrent mostly-idle connections</strong> — the epoll/io_uring sweet spot where per-connection stacks become a real cost. Below that, a thread pool is simpler, faster to debug, and fast enough. Above that, async wins. Most services are below that.</p>
+<h2 id="the-hard-example-logic-that-also-needs-io"><a class="header" href="#the-hard-example-logic-that-also-needs-io">The Hard Example: Logic That Also Needs I/O</a></h2>
+<p>A trivial pure function — <code>fn add(a: i32, b: i32) -&gt; i32</code> — obviously doesn’t need async. That’s not an interesting lesson. The interesting case is when business logic <em>seems</em> to need I/O in the middle: validation that checks inventory, pricing that queries an exchange rate, an order pipeline that looks up a customer.</p>
+<p>Consider an order processing service. The async-everywhere version looks natural:</p>
+<h3 id="version-a-async-through-the-core"><a class="header" href="#version-a-async-through-the-core">Version A: Async Through the Core</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// orders.rs — async all the way down
+
+pub async fn process_order(order: Order) -&gt; Result&lt;Receipt, OrderError&gt; {
+    // Step 1: Validate — pure business rules, no I/O
+    validate_items(&amp;order)?;
+    validate_quantities(&amp;order)?;
+
+    // Step 2: Check inventory — needs a database call
+    let stock = inventory_client.check(&amp;order.items).await?;
+    if !stock.all_available() {
+        return Err(OrderError::OutOfStock(stock.missing()));
+    }
+
+    // Step 3: Calculate pricing — pure math, but async because we're already here
+    let pricing = calculate_pricing(&amp;order, &amp;stock);
+
+    // Step 4: Apply discount — needs an external service call
+    let discount = discount_service.lookup(order.customer_id).await?;
+    let final_price = pricing.apply_discount(discount);
+
+    // Step 5: Format receipt — pure
+    Ok(Receipt::new(order, final_price))
+}
+<span class="boring">}</span></code></pre>
+<p>This is <em>reasonable</em> async code. No <code>Arc&lt;Mutex&gt;</code> abuse — just sequential awaits. Most developers would write it this way and move on. But look at what happened: <code>validate_items</code>, <code>validate_quantities</code>, <code>calculate_pricing</code>, and <code>Receipt::new</code> are all pure functions that got dragged into an async context because steps 2 and 4 need I/O. The entire function must be async, its tests need a runtime, and every caller up the chain is now colored.</p>
+<h3 id="version-b-sync-core-async-shell"><a class="header" href="#version-b-sync-core-async-shell">Version B: Sync Core, Async Shell</a></h3>
+<p>The alternative: separate <em>what to decide</em> from <em>how to fetch</em>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// core.rs — pure business logic, zero async, zero tokio dependency
+
+pub fn validate_order(order: &amp;Order) -&gt; Result&lt;ValidatedOrder, OrderError&gt; {
+    validate_items(order)?;
+    validate_quantities(order)?;
+    Ok(ValidatedOrder::from(order))
+}
+
+pub fn check_stock(
+    order: &amp;ValidatedOrder,
+    stock: &amp;StockResult,
+) -&gt; Result&lt;StockedOrder, OrderError&gt; {
+    if !stock.all_available() {
+        return Err(OrderError::OutOfStock(stock.missing()));
+    }
+    Ok(StockedOrder::from(order, stock))
+}
+
+pub fn finalize(
+    order: &amp;StockedOrder,
+    discount: Discount,
+) -&gt; Receipt {
+    let pricing = calculate_pricing(order);
+    let final_price = pricing.apply_discount(discount);
+    Receipt::new(order, final_price)
+}
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// shell.rs — thin async orchestrator
+//
+// Note: the `?` on network calls requires `impl From&lt;reqwest::Error&gt; for OrderError`
+// (or a unified error enum). See ch12 for async error handling patterns.
+
+use crate::core;
+
+pub async fn process_order(order: Order) -&gt; Result&lt;Receipt, OrderError&gt; {
+    // Sync: validate
+    let validated = core::validate_order(&amp;order)?;
+
+    // Async: fetch inventory (this is the shell's job)
+    let stock = inventory_client.check(&amp;validated.items).await?;
+
+    // Sync: apply business rule to fetched data
+    let stocked = core::check_stock(&amp;validated, &amp;stock)?;
+
+    // Async: fetch discount
+    let discount = discount_service.lookup(order.customer_id).await?;
+
+    // Sync: finalize
+    Ok(core::finalize(&amp;stocked, discount))
+}
+<span class="boring">}</span></code></pre>
+<p>The async shell is a <strong>pipeline of fetch → decide → fetch → decide</strong>. Each “decide” step is a sync function that takes the I/O result as input instead of reaching out for it.</p>
+<h3 id="testing-the-difference"><a class="header" href="#testing-the-difference">Testing the Difference</a></h3>
+<p>The sync core tests every business rule without a runtime or mocks:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[test]
+fn out_of_stock_rejects_order() {
+    let order = validated_order(vec![item("widget", 10)]);
+    let stock = stock_result(vec![("widget", 3)]); // only 3 available
+
+    let result = core::check_stock(&amp;order, &amp;stock);
+    assert_eq!(result.unwrap_err(), OrderError::OutOfStock(vec!["widget"]));
+}
+
+#[test]
+fn discount_applied_correctly() {
+    let order = stocked_order(100_00); // price in cents
+    let receipt = core::finalize(&amp;order, Discount::Percent(15));
+    assert_eq!(receipt.final_price, 85_00);
+}
+<span class="boring">}</span></code></pre>
+<p>The async shell gets a thinner <em>integration</em> test that verifies the wiring, not the logic:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[tokio::test]
+async fn process_order_integration() {
+    let mock_inventory = mock_service(/* returns stock */);
+    let mock_discounts = mock_service(/* returns 10% */);
+    let receipt = process_order(sample_order()).await.unwrap();
+    assert!(receipt.final_price &gt; 0);
+    // Logic correctness is already proven by core tests above
+}
+<span class="boring">}</span></code></pre>
+<h3 id="why-this-matters"><a class="header" href="#why-this-matters">Why This Matters</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Concern</th><th>Async through the core</th><th>Sync core + async shell</th></tr>
+</thead>
+<tbody>
+<tr><td>Business rules testable without runtime</td><td>No</td><td><strong>Yes</strong></td></tr>
+<tr><td>Number of unit tests needing <code>#[tokio::test]</code></td><td>All of them</td><td><strong>Only integration tests</strong></td></tr>
+<tr><td>I/O failures entangled with logic errors</td><td>Yes — one <code>Result</code> type for both</td><td><strong>No</strong> — sync returns logic errors, shell handles I/O errors</td></tr>
+<tr><td><code>validate_order</code> reusable in CLI / WASM / batch</td><td>No — pulls in tokio transitively</td><td><strong>Yes</strong> — pure <code>fn</code></td></tr>
+<tr><td>Stack traces through business logic</td><td>Interleaved with runtime frames</td><td><strong>Clean</strong></td></tr>
+<tr><td>Can swap HTTP client for gRPC later</td><td>Requires changing core functions</td><td><strong>Shell change only</strong></td></tr>
+</tbody>
+</table>
+</div>
+<p>The key insight: <strong>the I/O calls in steps 2 and 4 don’t <em>need</em> to be inside the business logic. They’re inputs to it.</strong> The sync core takes <code>StockResult</code> and <code>Discount</code> as arguments. Where those values came from — HTTP, gRPC, a test fixture, a cache — is the shell’s concern.</p>
+<h2 id="the-spawn_blocking-smell"><a class="header" href="#the-spawn_blocking-smell">The <code>spawn_blocking</code> Smell</a></h2>
+<p>Chapter 12 introduced <code>spawn_blocking</code> as a fix for accidentally blocking the executor. That’s the right fix when you have a one-off blocking call — <code>std::fs::read</code>, a compression library, a legacy FFI function.</p>
+<p>But if you find yourself wrapping large sections of code in <code>spawn_blocking</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>async fn handler(req: Request) -&gt; Response {
+    // If this is your codebase, the boundary is in the wrong place
+    tokio::task::spawn_blocking(move || {
+        let validated = validate(&amp;req);       // sync
+        let enriched = enrich(validated);      // sync
+        let result = process(enriched);        // sync
+        let output = format_response(result);  // sync
+        output
+    }).await.unwrap()
+}
+<span class="boring">}</span></code></pre>
+<p>…that’s the codebase telling you: <strong>this logic was never async to begin with.</strong> You don’t need <code>spawn_blocking</code> — you need a sync module that the async handler calls directly:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>async fn handler(req: Request) -&gt; Response {
+    // validate → enrich → process → format are all sync.
+    // No spawn_blocking needed — they're fast and CPU-light.
+    let response = my_core::handle(req);
+    response
+}
+<span class="boring">}</span></code></pre>
+<p>Reserve <code>spawn_blocking</code> for genuinely heavy CPU work (parsing large payloads, image processing, compression) where the time cost would actually starve the executor. For ordinary business logic that runs in microseconds, a direct sync call is simpler and correct.</p>
+<h2 id="libraries-sync-first-async-wrapper-optional"><a class="header" href="#libraries-sync-first-async-wrapper-optional">Libraries: Sync First, Async Wrapper Optional</a></h2>
+<p>The boundary question is even more consequential for library authors. A sync library can be used from both sync and async callers:</p>
+<pre class="playground"><code class="language-rust">// A sync library — usable everywhere
+let report = my_lib::analyze(&amp;data);
+
+// Caller A: sync CLI
+fn main() {
+    let report = my_lib::analyze(&amp;data);
+    println!("{report}");
+}
+
+// Caller B: async handler, works fine
+async fn handler() -&gt; Json&lt;Report&gt; {
+    let report = my_lib::analyze(&amp;data); // sync call in async context — fine
+    Json(report)
+}
+
+// Caller C: heavy analysis — caller decides to offload
+async fn handler_heavy() -&gt; Json&lt;Report&gt; {
+    let data = data.clone();
+    let report = tokio::task::spawn_blocking(move || {
+        my_lib::analyze(&amp;data) // caller controls the async boundary
+    }).await.unwrap();
+    Json(report)
+}</code></pre>
+<p>An async library forces <em>all</em> callers into a runtime:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// An async library — only usable from async contexts
+let report = my_lib::analyze(&amp;data).await; // caller MUST be async
+
+// Sync caller? Now you need block_on — and hope there's no nested runtime
+let report = tokio::runtime::Runtime::new().unwrap().block_on(
+    my_lib::analyze(&amp;data)
+); // fragile, panic-prone if already inside a runtime
+<span class="boring">}</span></code></pre>
+<p><strong>Default to sync APIs.</strong> If your library does pure computation, data transformation, or parsing, there is no reason for it to be async. If it does I/O, consider offering a sync core with an optional async convenience layer behind a feature flag — let the caller own the boundary decision.</p>
+<h2 id="when-async-belongs-in-the-core"><a class="header" href="#when-async-belongs-in-the-core">When Async Belongs in the Core</a></h2>
+<p>Not everything can be cleanly separated. Async belongs in your core logic when:</p>
+<ul>
+<li>
+<p><strong>Fan-out/fan-in is the logic.</strong> If your business rule is “query 5 pricing services concurrently and return the cheapest,” the concurrency <em>is</em> the logic, not plumbing. Forcing this through sync + threads is reinventing a worse async.</p>
+</li>
+<li>
+<p><strong>Streaming is the logic.</strong> Processing a continuous event stream with backpressure — the stream management is non-trivial business logic, not just an I/O wrapper.</p>
+</li>
+<li>
+<p><strong>Long-lived stateful connections.</strong> WebSocket handlers, gRPC bidirectional streams, and protocol state machines have state transitions inherently tied to I/O events. The capstone project in <a href="ch17-capstone-project.html">ch17</a> — an async chat server — is exactly this case: concurrent connections, room-based fan-out, and graceful shutdown are fundamentally async work.</p>
+</li>
+</ul>
+<p><strong>The test:</strong> if removing <code>async</code> from a function would require replacing it with threads, channels, or manual polling, then async is pulling its weight. If removing <code>async</code> would just mean deleting the keyword with no other changes, it never needed to be async.</p>
+<h2 id="decision-rule"><a class="header" href="#decision-rule">Decision Rule</a></h2>
+<pre class="mermaid">graph TD
+    START["Should this function be async?"] --&gt; IO{"Does it do I/O?"}
+    IO --&gt;|No| SYNC["sync fn — always"]
+    IO --&gt;|Yes| BOUNDARY{"Is it at the boundary?&lt;br/&gt;handler, main loop, accept()"}
+    BOUNDARY --&gt;|Yes| ASYNC_SHELL["async fn — this is the shell"]
+    BOUNDARY --&gt;|No| CORE_IO{"Is the I/O the core logic?&lt;br/&gt;fan-out, streaming, stateful conn"}
+    CORE_IO --&gt;|Yes| ASYNC_CORE["async fn — justified"]
+    CORE_IO --&gt;|No| EXTRACT["Extract logic into sync fn.&lt;br/&gt;Pass I/O results in as arguments."]
+
+    style SYNC fill:#d4efdf,stroke:#27ae60,color:#000
+    style ASYNC_SHELL fill:#e8f4f8,stroke:#2980b9,color:#000
+    style ASYNC_CORE fill:#e8f4f8,stroke:#2980b9,color:#000
+    style EXTRACT fill:#d4efdf,stroke:#27ae60,color:#000
+</pre>
+
+<blockquote>
+<p><strong>Rule of thumb:</strong> Start sync. Add async only at the outermost I/O boundary. Pull it inward only when you can articulate <em>which concurrent I/O operations</em> justify the complexity tax.</p>
+</blockquote>
+<hr><details>
+<summary><strong>🏋️ Exercise: Extract the Sync Core</strong> (click to expand)</summary>
+<p>The following axum handler has async contamination — business logic mixed with I/O. Refactor it into a sync core module and a thin async shell.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use axum::{Json, extract::Path};
+
+async fn get_device_report(Path(device_id): Path&lt;String&gt;) -&gt; Result&lt;Json&lt;Report&gt;, AppError&gt; {
+    // Fetch raw telemetry from the device over HTTP
+    let raw = reqwest::get(format!("http://bmc-{device_id}/telemetry"))
+        .await?
+        .json::&lt;RawTelemetry&gt;()
+        .await?;
+
+    // Business logic: convert raw sensor readings to calibrated values
+    let mut readings = Vec::new();
+    for sensor in &amp;raw.sensors {
+        let calibrated = (sensor.raw_value as f64) * sensor.scale + sensor.offset;
+        if calibrated &lt; sensor.min_valid || calibrated &gt; sensor.max_valid {
+            return Err(AppError::SensorOutOfRange {
+                name: sensor.name.clone(),
+                value: calibrated,
+            });
+        }
+        readings.push(CalibratedReading {
+            name: sensor.name.clone(),
+            value: calibrated,
+            unit: sensor.unit.clone(),
+        });
+    }
+
+    // Business logic: classify device health
+    let critical_count = readings.iter()
+        .filter(|r| r.value &gt; 90.0)
+        .count();
+    let health = if critical_count &gt; 2 { Health::Critical }
+                 else if critical_count &gt; 0 { Health::Warning }
+                 else { Health::Ok };
+
+    // Fetch device metadata from inventory service
+    let meta = reqwest::get(format!("http://inventory/devices/{device_id}"))
+        .await?
+        .json::&lt;DeviceMetadata&gt;()
+        .await?;
+
+    Ok(Json(Report {
+        device_id,
+        device_name: meta.name,
+        health,
+        readings,
+        timestamp: chrono::Utc::now(),
+    }))
+}
+<span class="boring">}</span></code></pre>
+<p><strong>Your goals:</strong></p>
+<ol>
+<li>Create <code>core.rs</code> with sync functions: <code>calibrate_sensors</code>, <code>classify_health</code>, and <code>build_report</code></li>
+<li>Create <code>shell.rs</code> with a thin async handler that fetches, then calls the sync core</li>
+<li>Write <code>#[test]</code> (not <code>#[tokio::test]</code>) for: a sensor out of range, health classification thresholds, and a normal report</li>
+</ol>
+<p><strong>Hints:</strong></p>
+<ul>
+<li>The sync core should take <code>RawTelemetry</code> and <code>DeviceMetadata</code> as inputs — it should never know those came from HTTP.</li>
+<li>You’ll need to define small test helper functions (e.g., <code>raw_telemetry()</code>, <code>sensor()</code>, <code>reading()</code>, <code>device_meta()</code>) that construct test fixtures. Their signatures should be obvious from usage.</li>
+</ul>
+<details>
+<summary>🔑 Solution</summary>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// core.rs — zero async dependency
+
+pub fn calibrate_sensors(raw: &amp;RawTelemetry) -&gt; Result&lt;Vec&lt;CalibratedReading&gt;, AppError&gt; {
+    raw.sensors.iter().map(|sensor| {
+        let calibrated = (sensor.raw_value as f64) * sensor.scale + sensor.offset;
+        if calibrated &lt; sensor.min_valid || calibrated &gt; sensor.max_valid {
+            return Err(AppError::SensorOutOfRange {
+                name: sensor.name.clone(),
+                value: calibrated,
+            });
+        }
+        Ok(CalibratedReading {
+            name: sensor.name.clone(),
+            value: calibrated,
+            unit: sensor.unit.clone(),
+        })
+    }).collect()
+}
+
+pub fn classify_health(readings: &amp;[CalibratedReading]) -&gt; Health {
+    let critical_count = readings.iter()
+        .filter(|r| r.value &gt; 90.0)
+        .count();
+    if critical_count &gt; 2 { Health::Critical }
+    else if critical_count &gt; 0 { Health::Warning }
+    else { Health::Ok }
+}
+
+pub fn build_report(
+    device_id: String,
+    readings: Vec&lt;CalibratedReading&gt;,
+    meta: &amp;DeviceMetadata,
+) -&gt; Report {
+    Report {
+        device_id,
+        device_name: meta.name.clone(),
+        health: classify_health(&amp;readings),
+        readings,
+        timestamp: chrono::Utc::now(),
+    }
+}
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// shell.rs — async boundary only
+
+pub async fn get_device_report(
+    Path(device_id): Path&lt;String&gt;,
+) -&gt; Result&lt;Json&lt;Report&gt;, AppError&gt; {
+    let raw = reqwest::get(format!("http://bmc-{device_id}/telemetry"))
+        .await?
+        .json::&lt;RawTelemetry&gt;()
+        .await?;
+
+    let readings = core::calibrate_sensors(&amp;raw)?;
+
+    let meta = reqwest::get(format!("http://inventory/devices/{device_id}"))
+        .await?
+        .json::&lt;DeviceMetadata&gt;()
+        .await?;
+
+    Ok(Json(core::build_report(device_id, readings, &amp;meta)))
+}
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// core_tests.rs — no runtime needed
+
+// Test fixture helpers — construct data without any I/O
+fn sensor(name: &amp;str, raw_value: f64, valid_range: std::ops::Range&lt;f64&gt;) -&gt; RawSensor {
+    RawSensor {
+        name: name.into(),
+        raw_value,
+        scale: 1.0,
+        offset: 0.0,
+        min_valid: valid_range.start,
+        max_valid: valid_range.end,
+        unit: "unit".into(),
+    }
+}
+
+fn raw_telemetry(sensors: Vec&lt;RawSensor&gt;) -&gt; RawTelemetry {
+    RawTelemetry { sensors }
+}
+
+fn reading(name: &amp;str, value: f64) -&gt; CalibratedReading {
+    CalibratedReading { name: name.into(), value, unit: "unit".into() }
+}
+
+fn device_meta(name: &amp;str) -&gt; DeviceMetadata {
+    DeviceMetadata { name: name.into() }
+}
+
+#[test]
+fn sensor_out_of_range_rejected() {
+    let raw = raw_telemetry(vec![sensor("gpu_temp", 105.0, 0.0..100.0)]);
+    let result = core::calibrate_sensors(&amp;raw);
+    assert!(matches!(result, Err(AppError::SensorOutOfRange { .. })));
+}
+
+#[test]
+fn health_classification() {
+    let readings = vec![
+        reading("a", 50.0),  // ok
+        reading("b", 95.0),  // critical
+        reading("c", 91.0),  // critical
+        reading("d", 92.0),  // critical
+    ];
+    assert_eq!(core::classify_health(&amp;readings), Health::Critical);
+}
+
+#[test]
+fn normal_report() {
+    let raw = raw_telemetry(vec![sensor("fan_rpm", 3000.0, 0.0..10000.0)]);
+    let readings = core::calibrate_sensors(&amp;raw).unwrap();
+    let meta = device_meta("gpu-node-42");
+    let report = core::build_report("dev-1".into(), readings, &amp;meta);
+    assert_eq!(report.health, Health::Ok);
+    assert_eq!(report.readings.len(), 1);
+}
+<span class="boring">}</span></code></pre>
+<p><strong>What changed:</strong> The async handler went from 30 lines of mixed logic and I/O to 8 lines of pure orchestration. The business rules (calibration math, range validation, health thresholds) are now tested with <code>#[test]</code>, run in milliseconds, and have zero dependency on tokio, reqwest, or any HTTP mock server.</p>
+</details>
+</details>
+<hr>
+<blockquote>
+<p><strong>Key Takeaways:</strong></p>
+<ol>
+<li>Async is an <strong>I/O multiplexing optimization</strong>, not an application architecture. Most business logic is sync.</li>
+<li><strong>Sync core, async shell:</strong> keep business rules in pure sync functions that take I/O results as arguments. The async shell orchestrates fetches and calls the core.</li>
+<li>If you’re wrapping large blocks in <code>spawn_blocking</code>, <strong>the boundary is in the wrong place</strong> — refactor the logic into a sync module instead.</li>
+<li><strong>Libraries should default to sync APIs.</strong> An async library forces all callers into a runtime; a sync library lets the caller own the async boundary.</li>
+<li>Async earns its keep for <strong>fan-out/fan-in, streaming, and stateful connections</strong> — the cases where the concurrency <em>is</em> the business logic.</li>
+</ol>
+<p><strong>See also:</strong> <a href="ch12-common-pitfalls.html">Ch12 — Common Pitfalls</a> (spawn_blocking as a tactical fix) · <a href="ch13-production-patterns.html">Ch13 — Production Patterns</a> (backpressure, structured concurrency) · <a href="ch17-capstone-project.html">Ch17 — Capstone: Async Chat Server</a> (a case where async is the right architecture)</p>
+</blockquote>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch13-production-patterns.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch15-exercises.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch13-production-patterns.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch15-exercises.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

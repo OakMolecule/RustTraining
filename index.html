@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rust Training Books</title>
+  <style>
+    :root {
+      --bg: #1a1a2e;
+      --card-bg: #16213e;
+      --accent: #e94560;
+      --text: #eee;
+      --muted: #a8a8b3;
+      --clr-bridge: #4ade80;
+      --clr-deep-dive: #22d3ee;
+      --clr-advanced: #fbbf24;
+      --clr-expert: #c084fc;
+      --clr-practices: #2dd4bf;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3rem 1rem;
+    }
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    h1 span { color: var(--accent); }
+    .subtitle { color: var(--muted); font-size: 1.1rem; margin-bottom: 1.2rem; }
+
+    /* Legend */
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 0.6rem 1.4rem;
+      justify-content: center; margin-bottom: 2.2rem;
+      font-size: 0.8rem; color: var(--muted);
+    }
+    .legend-item { display: flex; align-items: center; gap: 0.35rem; }
+    .legend-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* Grid & Cards */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      max-width: 1000px;
+      width: 100%;
+    }
+    .card {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1.5rem 1.5rem 1.5rem 1.25rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.15s, box-shadow 0.15s;
+      border: 1px solid rgba(255,255,255,0.05);
+      border-left: 4px solid var(--stripe);
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px color-mix(in srgb, var(--stripe) 30%, transparent);
+      border-color: rgba(255,255,255,0.08);
+      border-left-color: var(--stripe);
+    }
+    .card h2 { font-size: 1.2rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+    .card p  { color: var(--muted); font-size: 0.9rem; line-height: 1.4; }
+
+    /* Category colours */
+    .cat-bridge     { --stripe: var(--clr-bridge); }
+    .cat-deep-dive  { --stripe: var(--clr-deep-dive); }
+    .cat-advanced   { --stripe: var(--clr-advanced); }
+    .cat-expert     { --stripe: var(--clr-expert); }
+    .cat-practices  { --stripe: var(--clr-practices); }
+
+    /* Label pill */
+    .label {
+      font-size: 0.55rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 0.15em 0.55em;
+      border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+      color: var(--bg); background: var(--stripe);
+    }
+
+    footer { margin-top: 3rem; color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <h1>🦀 <span>Rust</span> Training Books</h1>
+  <p class="subtitle">Pick the guide that matches your background</p>
+
+  <div class="legend">
+    <span class="legend-item"><span class="legend-dot" style="background:var(--clr-bridge)"></span> Bridge &mdash; learn Rust from another language</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--clr-deep-dive)"></span> Deep Dive</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--clr-advanced)"></span> Advanced</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--clr-expert)"></span> Expert</span>
+    <span class="legend-item"><span class="legend-dot" style="background:var(--clr-practices)"></span> Practices</span>
+  </div>
+
+  <div class="grid">
+    <a class="card cat-bridge" href="c-cpp-book/">
+      <h2>Rust for C/C++ Programmers <span class="label">Bridge</span></h2>
+      <p>Move semantics, RAII, FFI, embedded, no_std</p>
+    </a>
+    <a class="card cat-bridge" href="csharp-book/">
+      <h2>Rust for C# Programmers <span class="label">Bridge</span></h2>
+      <p>Best for Swift / C# / Java developers</p>
+    </a>
+    <a class="card cat-bridge" href="python-book/">
+      <h2>Rust for Python Programmers <span class="label">Bridge</span></h2>
+      <p>Dynamic → static typing, GIL-free concurrency</p>
+    </a>
+    <a class="card cat-deep-dive" href="async-book/">
+      <h2>Async Rust: From Futures to Production <span class="label">Deep Dive</span></h2>
+      <p>Tokio, streams, cancellation safety</p>
+    </a>
+    <a class="card cat-advanced" href="rust-patterns-book/">
+      <h2>Rust Patterns <span class="label">Advanced</span></h2>
+      <p>Pin, allocators, lock-free structures, unsafe</p>
+    </a>
+    <a class="card cat-expert" href="type-driven-correctness-book/">
+      <h2>Type-Driven Correctness <span class="label">Expert</span></h2>
+      <p>Type-state, phantom types, capability tokens</p>
+    </a>
+    <a class="card cat-practices" href="engineering-book/">
+      <h2>Rust Engineering Practices <span class="label">Practices</span></h2>
+      <p>Build scripts, cross-compilation, coverage, CI/CD</p>
+    </a>
+  </div>
+  <footer>Built with <a href="https://rust-lang.github.io/mdBook/" style="color:var(--accent)">mdBook</a></footer>
+</body>
+</html>

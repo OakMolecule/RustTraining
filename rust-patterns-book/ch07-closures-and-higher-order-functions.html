@@ -1,0 +1,651 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>7. Closures and Higher-Order Functions - Rust Patterns &amp; Engineering How-Tos</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-64960533.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-51b340c9.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Patterns &amp; Engineering How-Tos</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="7-closures-and-higher-order-functions-"><a class="header" href="#7-closures-and-higher-order-functions-">7. Closures and Higher-Order Functions 🟢</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong></p>
+<ul>
+<li>The three closure traits (<code>Fn</code>, <code>FnMut</code>, <code>FnOnce</code>) and how capture works</li>
+<li>Passing closures as parameters and returning them from functions</li>
+<li>Combinator chains and iterator adapters for functional-style programming</li>
+<li>Designing your own higher-order APIs with the right trait bounds</li>
+</ul>
+</blockquote>
+<h2 id="fn-fnmut-fnonce--the-closure-traits"><a class="header" href="#fn-fnmut-fnonce--the-closure-traits">Fn, FnMut, FnOnce — The Closure Traits</a></h2>
+<p>Every closure in Rust implements one or more of three traits, based on how it captures variables:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// FnOnce — consumes captured values (can only be called once)
+let name = String::from("Alice");
+let greet = move || {
+    println!("Hello, {name}!"); // Takes ownership of `name`
+    drop(name); // name is consumed
+};
+greet(); // ✅ First call
+// greet(); // ❌ Can't call again — `name` was consumed
+
+// FnMut — mutably borrows captured values (can be called many times)
+let mut count = 0;
+let mut increment = || {
+    count += 1; // Mutably borrows `count`
+};
+increment(); // count == 1
+increment(); // count == 2
+
+// Fn — immutably borrows captured values (can be called many times, concurrently)
+let prefix = "Result";
+let display = |x: i32| {
+    println!("{prefix}: {x}"); // Immutably borrows `prefix`
+};
+display(1);
+display(2);
+<span class="boring">}</span></code></pre>
+<p><strong>The hierarchy</strong>: <code>Fn</code> : <code>FnMut</code> : <code>FnOnce</code> — each is a subtrait of the next:</p>
+<pre><code class="language-text">FnOnce  ← everything can be called at least once
+ ↑
+FnMut   ← can be called repeatedly (may mutate state)
+ ↑
+Fn      ← can be called repeatedly and concurrently (no mutation)
+</code></pre>
+<p>If a closure implements <code>Fn</code>, it also implements <code>FnMut</code> and <code>FnOnce</code>.</p>
+<h3 id="closures-as-parameters-and-return-values"><a class="header" href="#closures-as-parameters-and-return-values">Closures as Parameters and Return Values</a></h3>
+<pre class="playground"><code class="language-rust">// --- Parameters ---
+
+// Static dispatch (monomorphized — fastest)
+fn apply_twice&lt;F: Fn(i32) -&gt; i32&gt;(f: F, x: i32) -&gt; i32 {
+    f(f(x))
+}
+
+// Also written with impl Trait:
+fn apply_twice_v2(f: impl Fn(i32) -&gt; i32, x: i32) -&gt; i32 {
+    f(f(x))
+}
+
+// Dynamic dispatch (trait object — flexible, slight overhead)
+fn apply_dyn(f: &amp;dyn Fn(i32) -&gt; i32, x: i32) -&gt; i32 {
+    f(x)
+}
+
+// --- Return Values ---
+
+// Can't return closures by value without boxing (they have anonymous types):
+fn make_adder(n: i32) -&gt; Box&lt;dyn Fn(i32) -&gt; i32&gt; {
+    Box::new(move |x| x + n)
+}
+
+// With impl Trait (simpler, monomorphized, but can't be dynamic):
+fn make_adder_v2(n: i32) -&gt; impl Fn(i32) -&gt; i32 {
+    move |x| x + n
+}
+
+fn main() {
+    let double = |x: i32| x * 2;
+    println!("{}", apply_twice(double, 3)); // 12
+
+    let add5 = make_adder(5);
+    println!("{}", add5(10)); // 15
+}</code></pre>
+<h3 id="combinator-chains-and-iterator-adapters"><a class="header" href="#combinator-chains-and-iterator-adapters">Combinator Chains and Iterator Adapters</a></h3>
+<p>Higher-order functions shine with iterators — this is idiomatic Rust:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// C-style loop (imperative):
+let data = vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+let mut result = Vec::new();
+for x in &amp;data {
+    if x % 2 == 0 {
+        result.push(x * x);
+    }
+}
+
+// Idiomatic Rust (functional combinator chain):
+let result: Vec&lt;i32&gt; = data.iter()
+    .filter(|&amp;&amp;x| x % 2 == 0)
+    .map(|&amp;x| x * x)
+    .collect();
+
+// Same performance — iterators are lazy and optimized by LLVM
+assert_eq!(result, vec![4, 16, 36, 64, 100]);
+<span class="boring">}</span></code></pre>
+<p><strong>Common combinators cheat sheet</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Combinator</th><th>What It Does</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr><td><code>.map(f)</code></td><td>Transform each element</td><td><code>.map(|x| x * 2)</code></td></tr>
+<tr><td><code>.filter(p)</code></td><td>Keep elements where predicate is true</td><td><code>.filter(|x| x &gt; &amp;5)</code></td></tr>
+<tr><td><code>.filter_map(f)</code></td><td>Map + filter in one step (returns <code>Option</code>)</td><td><code>.filter_map(|x| x.parse().ok())</code></td></tr>
+<tr><td><code>.flat_map(f)</code></td><td>Map then flatten nested iterators</td><td><code>.flat_map(|s| s.chars())</code></td></tr>
+<tr><td><code>.fold(init, f)</code></td><td>Reduce to single value (like <code>Aggregate</code> in C#)</td><td><code>.fold(0, |acc, x| acc + x)</code></td></tr>
+<tr><td><code>.any(p)</code> / <code>.all(p)</code></td><td>Short-circuit boolean check</td><td><code>.any(|x| x &gt; 100)</code></td></tr>
+<tr><td><code>.enumerate()</code></td><td>Add index</td><td><code>.enumerate().map(|(i, x)| ...)</code></td></tr>
+<tr><td><code>.zip(other)</code></td><td>Pair with another iterator</td><td><code>.zip(labels.iter())</code></td></tr>
+<tr><td><code>.take(n)</code> / <code>.skip(n)</code></td><td>First/skip N elements</td><td><code>.take(10)</code></td></tr>
+<tr><td><code>.chain(other)</code></td><td>Concatenate two iterators</td><td><code>.chain(extra.iter())</code></td></tr>
+<tr><td><code>.peekable()</code></td><td>Look ahead without consuming</td><td><code>.peek()</code></td></tr>
+<tr><td><code>.collect()</code></td><td>Gather into a collection</td><td><code>.collect::&lt;Vec&lt;_&gt;&gt;()</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="implementing-your-own-higher-order-apis"><a class="header" href="#implementing-your-own-higher-order-apis">Implementing Your Own Higher-Order APIs</a></h3>
+<p>Design APIs that accept closures for customization:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>/// Retry an operation with a configurable strategy
+fn retry&lt;T, E, F, S&gt;(
+    mut operation: F,
+    mut should_retry: S,
+    max_attempts: usize,
+) -&gt; Result&lt;T, E&gt;
+where
+    F: FnMut() -&gt; Result&lt;T, E&gt;,
+    S: FnMut(&amp;E, usize) -&gt; bool, // (error, attempt) → try again?
+{
+    for attempt in 1..=max_attempts {
+        match operation() {
+            Ok(val) =&gt; return Ok(val),
+            Err(e) if attempt &lt; max_attempts &amp;&amp; should_retry(&amp;e, attempt) =&gt; {
+                continue;
+            }
+            Err(e) =&gt; return Err(e),
+        }
+    }
+    unreachable!()
+}
+
+// Usage — caller controls retry logic:
+<span class="boring">}</span></code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span><span class="boring">fn connect_to_database() -&gt; Result&lt;(), String&gt; { Ok(()) }
+</span><span class="boring">fn http_get(_url: &amp;str) -&gt; Result&lt;String, String&gt; { Ok(String::new()) }
+</span><span class="boring">trait TransientError { fn is_transient(&amp;self) -&gt; bool; }
+</span><span class="boring">impl TransientError for String { fn is_transient(&amp;self) -&gt; bool { true } }
+</span><span class="boring">let url = "http://example.com";
+</span>let result = retry(
+    || connect_to_database(),
+    |err, attempt| {
+        eprintln!("Attempt {attempt} failed: {err}");
+        true // Always retry
+    },
+    3,
+);
+
+// Usage — retry only specific errors:
+let result = retry(
+    || http_get(url),
+    |err, _| err.is_transient(), // Only retry transient errors
+    5,
+);
+<span class="boring">}</span></code></pre>
+<h3 id="the-with-pattern--bracketed-resource-access"><a class="header" href="#the-with-pattern--bracketed-resource-access">The <code>with</code> Pattern — Bracketed Resource Access</a></h3>
+<p>Sometimes you need to guarantee that a resource is in a specific state for the
+duration of an operation, and restored afterward — regardless of how the caller’s
+code exits (early return, <code>?</code>, panic). Instead of exposing the resource directly
+and hoping callers remember to set up and tear down, <strong>lend it through a closure</strong>:</p>
+<pre><code class="language-text">set up → call closure with resource → tear down
+</code></pre>
+<p>The caller never touches setup or teardown. They can’t forget, can’t get it wrong,
+and can’t hold the resource beyond the closure’s scope.</p>
+<h4 id="example-gpio-pin-direction"><a class="header" href="#example-gpio-pin-direction">Example: GPIO Pin Direction</a></h4>
+<p>A GPIO controller manages pins that support bidirectional I/O. Some callers need
+the pin configured as input, others as output. Rather than exposing raw pin access
+and trusting callers to set direction correctly, the controller provides
+<code>with_pin_input</code> and <code>with_pin_output</code>:</p>
+<pre class="playground"><code class="language-rust">/// GPIO pin direction — not public, callers never set this directly.
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum Direction { In, Out }
+
+/// A GPIO pin handle lent to the closure. Cannot be stored or cloned —
+/// it exists only for the duration of the callback.
+pub struct GpioPin&lt;'a&gt; {
+    pin_number: u8,
+    _controller: &amp;'a GpioController,
+}
+
+impl GpioPin&lt;'_&gt; {
+    pub fn read(&amp;self) -&gt; bool {
+        // Read pin level from hardware register
+        println!("  reading pin {}", self.pin_number);
+        true // stub
+    }
+
+    pub fn write(&amp;self, high: bool) {
+        // Drive pin level via hardware register
+        println!("  writing pin {} = {high}", self.pin_number);
+    }
+}
+
+pub struct GpioController {
+    current_direction: std::cell::Cell&lt;Option&lt;Direction&gt;&gt;,
+}
+
+impl GpioController {
+    pub fn new() -&gt; Self {
+        GpioController {
+            current_direction: std::cell::Cell::new(None),
+        }
+    }
+
+    /// Configure pin as input, run the closure, restore state.
+    /// The caller receives a `GpioPin` that lives only for the callback.
+    pub fn with_pin_input&lt;R&gt;(
+        &amp;self,
+        pin: u8,
+        mut f: impl FnMut(&amp;GpioPin&lt;'_&gt;) -&gt; R,
+    ) -&gt; R {
+        let prev = self.current_direction.get();
+        self.set_direction(pin, Direction::In);
+        let handle = GpioPin { pin_number: pin, _controller: self };
+        let result = f(&amp;handle);
+        // Restore previous direction (or leave as-is — policy choice)
+        if let Some(dir) = prev {
+            self.set_direction(pin, dir);
+        }
+        result
+    }
+
+    /// Configure pin as output, run the closure, restore state.
+    pub fn with_pin_output&lt;R&gt;(
+        &amp;self,
+        pin: u8,
+        mut f: impl FnMut(&amp;GpioPin&lt;'_&gt;) -&gt; R,
+    ) -&gt; R {
+        let prev = self.current_direction.get();
+        self.set_direction(pin, Direction::Out);
+        let handle = GpioPin { pin_number: pin, _controller: self };
+        let result = f(&amp;handle);
+        if let Some(dir) = prev {
+            self.set_direction(pin, dir);
+        }
+        result
+    }
+
+    fn set_direction(&amp;self, pin: u8, dir: Direction) {
+        println!("  [hw] pin {pin} → {dir:?}");
+        self.current_direction.set(Some(dir));
+    }
+}
+
+fn main() {
+    let gpio = GpioController::new();
+
+    // Caller 1: needs input — doesn't know or care how direction is managed
+    let level = gpio.with_pin_input(4, |pin| {
+        pin.read()
+    });
+    println!("Pin 4 level: {level}");
+
+    // Caller 2: needs output — same API shape, different guarantee
+    gpio.with_pin_output(4, |pin| {
+        pin.write(true);
+        // do more work...
+        pin.write(false);
+    });
+
+    // Can't use the pin handle outside the closure:
+    // let escaped_pin = gpio.with_pin_input(4, |pin| pin);
+    // ❌ ERROR: borrowed value does not live long enough
+}</code></pre>
+<p><strong>What the <code>with</code> pattern guarantees:</strong></p>
+<ul>
+<li>Direction is <strong>always set before</strong> the caller’s code runs</li>
+<li>Direction is <strong>always restored after</strong>, even if the closure returns early</li>
+<li>The <code>GpioPin</code> handle <strong>cannot escape</strong> the closure — the borrow checker enforces
+this via the lifetime tied to the controller reference</li>
+<li>Callers never import <code>Direction</code>, never call <code>set_direction</code> — the API is
+impossible to misuse</li>
+</ul>
+<h4 id="where-this-pattern-appears"><a class="header" href="#where-this-pattern-appears">Where This Pattern Appears</a></h4>
+<p>The <code>with</code> pattern shows up throughout Rust’s standard library and ecosystem:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>API</th><th>Setup</th><th>Callback</th><th>Teardown</th></tr>
+</thead>
+<tbody>
+<tr><td><code>std::thread::scope</code></td><td>Create scope</td><td><code>|s| { s.spawn(...) }</code></td><td>Join all threads</td></tr>
+<tr><td><code>Mutex::lock</code></td><td>Acquire lock</td><td>Use <code>MutexGuard</code> (RAII, not closure, but same idea)</td><td>Release on drop</td></tr>
+<tr><td><code>tempfile::tempdir</code></td><td>Create temp directory</td><td>Use path</td><td>Delete on drop</td></tr>
+<tr><td><code>std::io::BufWriter::new</code></td><td>Buffer writes</td><td>Write operations</td><td>Flush on drop</td></tr>
+<tr><td>GPIO <code>with_pin_*</code> (above)</td><td>Set direction</td><td>Use pin handle</td><td>Restore direction</td></tr>
+</tbody>
+</table>
+</div>
+<p>The closure-based variant is strongest when:</p>
+<ul>
+<li><strong>Setup and teardown are paired</strong> and forgetting either is a bug</li>
+<li><strong>The resource shouldn’t outlive the operation</strong> — the borrow checker enforces
+this naturally</li>
+<li><strong>Multiple configurations exist</strong> (<code>with_pin_input</code> vs <code>with_pin_output</code>) — each
+<code>with_*</code> method encapsulates a different setup without exposing the configuration
+to the caller</li>
+</ul>
+<blockquote>
+<p><strong><code>with</code> vs RAII (Drop):</strong> Both guarantee cleanup. Use RAII / <code>Drop</code> when the
+caller needs to hold the resource across multiple statements and function calls.
+Use <code>with</code> when the operation is <strong>bracketed</strong> — one setup, one block of work,
+one teardown — and you don’t want the caller to be able to break the bracket.</p>
+</blockquote>
+<blockquote>
+<p><strong>FnMut vs Fn in API design</strong>: Use <code>FnMut</code> as the default bound — it’s
+the most flexible (callers can pass <code>Fn</code> or <code>FnMut</code> closures). Only
+require <code>Fn</code> if you need to call the closure concurrently (e.g., from
+multiple threads). Only require <code>FnOnce</code> if you call it exactly once.</p>
+</blockquote>
+<blockquote>
+<p><strong>Key Takeaways — Closures</strong></p>
+<ul>
+<li><code>Fn</code> borrows, <code>FnMut</code> borrows mutably, <code>FnOnce</code> consumes — accept the weakest bound your API needs</li>
+<li><code>impl Fn</code> in parameters, <code>Box&lt;dyn Fn&gt;</code> for storage, <code>impl Fn</code> in return (or <code>Box&lt;dyn Fn&gt;</code> if dynamic)</li>
+<li>Combinator chains (<code>map</code>, <code>filter</code>, <code>and_then</code>) compose cleanly and inline to tight loops</li>
+<li>The <code>with</code> pattern (bracketed access via closure) guarantees setup/teardown and prevents resource escape — use it when the caller shouldn’t manage configuration lifecycle</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>See also:</strong> <a href="ch02-traits-in-depth.html">Ch 2 — Traits In Depth</a> for how <code>Fn</code>/<code>FnMut</code>/<code>FnOnce</code> relate to trait objects. <a href="ch08-functional-vs-imperative-when-elegance-wins.html">Ch 8 — Functional vs. Imperative</a> for when to choose combinators over loops. <a href="ch15-crate-architecture-and-api-design.html">Ch 15 — API Design</a> for ergonomic parameter patterns.</p>
+</blockquote>
+<pre class="mermaid">graph TD
+    FnOnce["FnOnce&lt;br&gt;(can call once)"]
+    FnMut["FnMut&lt;br&gt;(can call many times,&lt;br&gt;may mutate captures)"]
+    Fn["Fn&lt;br&gt;(can call many times,&lt;br&gt;immutable captures)"]
+
+    Fn --&gt;|"implements"| FnMut
+    FnMut --&gt;|"implements"| FnOnce
+
+    style Fn fill:#d4efdf,stroke:#27ae60,color:#000
+    style FnMut fill:#fef9e7,stroke:#f1c40f,color:#000
+    style FnOnce fill:#fadbd8,stroke:#e74c3c,color:#000
+</pre>
+
+<blockquote>
+<p>Every <code>Fn</code> is also <code>FnMut</code>, and every <code>FnMut</code> is also <code>FnOnce</code>. Accept <code>FnMut</code> by default — it’s the most flexible bound for callers.</p>
+</blockquote>
+<hr>
+<h3 id="exercise-higher-order-combinator-pipeline--25-min"><a class="header" href="#exercise-higher-order-combinator-pipeline--25-min">Exercise: Higher-Order Combinator Pipeline ★★ (~25 min)</a></h3>
+<p>Create a <code>Pipeline</code> struct that chains transformations. It should support <code>.pipe(f)</code> to add a transformation and <code>.execute(input)</code> to run the full chain.</p>
+<details>
+<summary>🔑 Solution</summary>
+<pre class="playground"><code class="language-rust">struct Pipeline&lt;T&gt; {
+    transforms: Vec&lt;Box&lt;dyn Fn(T) -&gt; T&gt;&gt;,
+}
+
+impl&lt;T: 'static&gt; Pipeline&lt;T&gt; {
+    fn new() -&gt; Self {
+        Pipeline { transforms: Vec::new() }
+    }
+
+    fn pipe(mut self, f: impl Fn(T) -&gt; T + 'static) -&gt; Self {
+        self.transforms.push(Box::new(f));
+        self
+    }
+
+    fn execute(self, input: T) -&gt; T {
+        self.transforms.into_iter().fold(input, |val, f| f(val))
+    }
+}
+
+fn main() {
+    let result = Pipeline::new()
+        .pipe(|s: String| s.trim().to_string())
+        .pipe(|s| s.to_uppercase())
+        .pipe(|s| format!("&gt;&gt;&gt; {s} &lt;&lt;&lt;"))
+        .execute("  hello world  ".to_string());
+
+    println!("{result}"); // &gt;&gt;&gt; HELLO WORLD &lt;&lt;&lt;
+
+    let result = Pipeline::new()
+        .pipe(|x: i32| x * 2)
+        .pipe(|x| x + 10)
+        .pipe(|x| x * x)
+        .execute(5);
+
+    println!("{result}"); // (5*2 + 10)^2 = 400
+}</code></pre>
+</details>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch06-concurrency-vs-parallelism-vs-threads.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch08-functional-vs-imperative-when-elegance-wins.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch06-concurrency-vs-parallelism-vs-threads.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch08-functional-vs-imperative-when-elegance-wins.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

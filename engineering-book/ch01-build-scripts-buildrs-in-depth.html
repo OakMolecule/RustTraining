@@ -1,0 +1,852 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>1. Build Scripts — build.rs in Depth - Rust Engineering Practices — Beyond cargo build</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-e156d75f.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-3f61fb6d.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Engineering Practices — Beyond cargo build</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="build-scripts--buildrs-in-depth-"><a class="header" href="#build-scripts--buildrs-in-depth-">Build Scripts — <code>build.rs</code> in Depth 🟢</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong></p>
+<ul>
+<li>How <code>build.rs</code> fits into the Cargo build pipeline and when it runs</li>
+<li>Five production patterns: compile-time constants, C/C++ compilation, protobuf codegen, <code>pkg-config</code> linking, and feature detection</li>
+<li>Anti-patterns that slow builds or break cross-compilation</li>
+<li>How to balance traceability with reproducible builds</li>
+</ul>
+<p><strong>Cross-references:</strong> <a href="ch02-cross-compilation-one-source-many-target.html">Cross-Compilation</a> uses build scripts for target-aware builds · <a href="ch09-no-std-and-feature-verification.html"><code>no_std</code> &amp; Features</a> extends <code>cfg</code> flags set here · <a href="ch11-putting-it-all-together-a-production-cic.html">CI/CD Pipeline</a> orchestrates build scripts in automation</p>
+</blockquote>
+<p>Every Cargo package can include a file named <code>build.rs</code> at the crate root.
+Cargo compiles and executes this file <em>before</em> compiling your crate. The build
+script communicates back to Cargo through <code>println!</code> instructions on stdout.</p>
+<h3 id="what-buildrs-is-and-when-it-runs"><a class="header" href="#what-buildrs-is-and-when-it-runs">What build.rs Is and When It Runs</a></h3>
+<pre><code class="language-text">┌─────────────────────────────────────────────────────────┐
+│                    Cargo Build Pipeline                  │
+│                                                         │
+│  1. Resolve dependencies                                │
+│  2. Download crates                                     │
+│  3. Compile build.rs  ← ordinary Rust, runs on HOST     │
+│  4. Execute build.rs  ← stdout → Cargo instructions     │
+│  5. Compile the crate (using instructions from step 4)  │
+│  6. Link                                                │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+<p>Key facts:</p>
+<ul>
+<li><code>build.rs</code> runs on the <strong>host</strong> machine, not the target. During cross-compilation,
+the build script runs on your development machine even when the final binary targets
+a different architecture.</li>
+<li>The build script’s scope is limited to its own package. It cannot affect how
+other crates compile — unless the package declares a <code>links</code> key in <code>Cargo.toml</code>,
+which enables passing metadata to dependent crates via
+<code>cargo::metadata=KEY=VALUE</code>.</li>
+<li>It runs <strong>every time</strong> Cargo detects a change — unless you emit <code>cargo::rerun-if-changed</code>
+instructions to limit re-runs.</li>
+</ul>
+<blockquote>
+<p><strong>Note (Rust 1.71+)</strong>: Since Rust 1.71, Cargo fingerprints the compiled
+<code>build.rs</code> binary — if the binary is identical, it won’t re-run even if
+source timestamps changed. However, <code>cargo::rerun-if-changed=build.rs</code> is
+still valuable: without <em>any</em> <code>rerun-if-changed</code> instruction, Cargo re-runs
+<code>build.rs</code> whenever <strong>any file in the package</strong> changes (not just <code>build.rs</code>).
+Emitting <code>cargo::rerun-if-changed=build.rs</code> limits re-runs to only when
+<code>build.rs</code> itself changes — a significant compile-time saving in large crates.</p>
+</blockquote>
+<ul>
+<li>It can emit <em>cfg flags</em>, <em>environment variables</em>, <em>linker arguments</em>, and
+<em>file paths</em> that the main crate consumes.</li>
+</ul>
+<p>The minimal <code>Cargo.toml</code> entry:</p>
+<pre><code class="language-toml">[package]
+name = "my-crate"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"       # default — Cargo looks for build.rs automatically
+# build = "src/build.rs" # or put it elsewhere
+</code></pre>
+<h3 id="the-cargo-instruction-protocol"><a class="header" href="#the-cargo-instruction-protocol">The Cargo Instruction Protocol</a></h3>
+<p>Your build script communicates with Cargo by printing instructions to stdout.
+Since Rust 1.77, the preferred prefix is <code>cargo::</code> (replacing the older
+<code>cargo:</code> single-colon form).</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Instruction</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>cargo::rerun-if-changed=PATH</code></td><td>Only re-run build.rs when PATH changes</td></tr>
+<tr><td><code>cargo::rerun-if-env-changed=VAR</code></td><td>Only re-run when environment variable VAR changes</td></tr>
+<tr><td><code>cargo::rustc-link-lib=NAME</code></td><td>Link against native library NAME</td></tr>
+<tr><td><code>cargo::rustc-link-search=PATH</code></td><td>Add PATH to the library search path</td></tr>
+<tr><td><code>cargo::rustc-cfg=KEY</code></td><td>Set a <code>#[cfg(KEY)]</code> flag for conditional compilation</td></tr>
+<tr><td><code>cargo::rustc-cfg=KEY="VALUE"</code></td><td>Set a <code>#[cfg(KEY = "VALUE")]</code> flag</td></tr>
+<tr><td><code>cargo::rustc-env=KEY=VALUE</code></td><td>Set an environment variable accessible via <code>env!()</code></td></tr>
+<tr><td><code>cargo::rustc-cdylib-link-arg=FLAG</code></td><td>Pass FLAG to the linker for cdylib targets</td></tr>
+<tr><td><code>cargo::warning=MESSAGE</code></td><td>Display a warning during compilation</td></tr>
+<tr><td><code>cargo::metadata=KEY=VALUE</code></td><td>Store metadata readable by dependent crates</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust">// build.rs — minimal example
+fn main() {
+    // Only re-run if build.rs itself changes
+    println!("cargo::rerun-if-changed=build.rs");
+
+    // Set a compile-time environment variable
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs().to_string())
+        .unwrap_or_else(|_| "0".into());
+    println!("cargo::rustc-env=BUILD_TIMESTAMP={timestamp}");
+}</code></pre>
+<h3 id="pattern-1-compile-time-constants"><a class="header" href="#pattern-1-compile-time-constants">Pattern 1: Compile-Time Constants</a></h3>
+<p>The most common use case: baking build metadata into the binary so you can
+report it at runtime (git hash, build date, CI job ID).</p>
+<pre class="playground"><code class="language-rust">// build.rs
+use std::process::Command;
+
+fn main() {
+    println!("cargo::rerun-if-changed=.git/HEAD");
+    println!("cargo::rerun-if-changed=.git/refs");
+
+    // Git commit hash
+    let output = Command::new("git")
+        .args(["rev-parse", "--short", "HEAD"])
+        .output()
+        .expect("git not found");
+    let git_hash = String::from_utf8_lossy(&amp;output.stdout).trim().to_string();
+    println!("cargo::rustc-env=GIT_HASH={git_hash}");
+
+    // Build profile (debug or release)
+    let profile = std::env::var("PROFILE").unwrap_or_else(|_| "unknown".into());
+    println!("cargo::rustc-env=BUILD_PROFILE={profile}");
+
+    // Target triple
+    let target = std::env::var("TARGET").unwrap_or_else(|_| "unknown".into());
+    println!("cargo::rustc-env=BUILD_TARGET={target}");
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/main.rs — consuming the build-time values
+fn print_version() {
+    println!(
+        "{} {} (git:{} target:{} profile:{})",
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION"),
+        env!("GIT_HASH"),
+        env!("BUILD_TARGET"),
+        env!("BUILD_PROFILE"),
+    );
+}
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>Built-in Cargo environment variables</strong> you get for free, no build.rs needed:
+<code>CARGO_PKG_NAME</code>, <code>CARGO_PKG_VERSION</code>, <code>CARGO_PKG_AUTHORS</code>,
+<code>CARGO_PKG_DESCRIPTION</code>, <code>CARGO_MANIFEST_DIR</code>.
+See the <a href="https://doc.rust-lang.org/cargo/reference/environment-variables.html#environment-variables-cargo-sets-for-crates">full list</a>.</p>
+</blockquote>
+<h3 id="pattern-2-compiling-cc-code-with-the-cc-crate"><a class="header" href="#pattern-2-compiling-cc-code-with-the-cc-crate">Pattern 2: Compiling C/C++ Code with the <code>cc</code> Crate</a></h3>
+<p>When your Rust crate wraps a C library or needs a small C helper (common in
+hardware interfaces), the <a href="https://docs.rs/cc"><code>cc</code></a> crate simplifies
+compilation inside build.rs.</p>
+<pre><code class="language-toml"># Cargo.toml
+[build-dependencies]
+cc = "1.0"
+</code></pre>
+<pre class="playground"><code class="language-rust">// build.rs
+fn main() {
+    println!("cargo::rerun-if-changed=csrc/");
+
+    cc::Build::new()
+        .file("csrc/ipmi_raw.c")
+        .file("csrc/smbios_parser.c")
+        .include("csrc/include")
+        .flag("-Wall")
+        .flag("-Wextra")
+        .opt_level(2)
+        .compile("diag_helpers");
+    // This produces libdiag_helpers.a and emits the right
+    // cargo::rustc-link-lib and cargo::rustc-link-search instructions.
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/lib.rs — FFI bindings to the compiled C code
+extern "C" {
+    fn ipmi_raw_command(
+        netfn: u8,
+        cmd: u8,
+        data: *const u8,
+        data_len: usize,
+        response: *mut u8,
+        response_len: *mut usize,
+    ) -&gt; i32;
+}
+
+/// Safe wrapper around the raw IPMI command interface.
+/// Assumes: enum IpmiError { CommandFailed(i32), ... }
+pub fn send_ipmi_command(netfn: u8, cmd: u8, data: &amp;[u8]) -&gt; Result&lt;Vec&lt;u8&gt;, IpmiError&gt; {
+    let mut response = vec![0u8; 256];
+    let mut response_len: usize = response.len();
+
+    // SAFETY: response buffer is large enough and response_len is correctly initialized.
+    let rc = unsafe {
+        ipmi_raw_command(
+            netfn,
+            cmd,
+            data.as_ptr(),
+            data.len(),
+            response.as_mut_ptr(),
+            &amp;mut response_len,
+        )
+    };
+
+    if rc != 0 {
+        return Err(IpmiError::CommandFailed(rc));
+    }
+    response.truncate(response_len);
+    Ok(response)
+}
+<span class="boring">}</span></code></pre>
+<p>For C++ code, use <code>.cpp(true)</code> and <code>.flag("-std=c++17")</code>:</p>
+<pre class="playground"><code class="language-rust">// build.rs — C++ variant
+fn main() {
+    println!("cargo::rerun-if-changed=cppsrc/");
+
+    cc::Build::new()
+        .cpp(true)
+        .file("cppsrc/vendor_parser.cpp")
+        .flag("-std=c++17")
+        .flag("-fno-exceptions")    // match Rust's no-exception model
+        .compile("vendor_helpers");
+}</code></pre>
+<h3 id="pattern-3-protocol-buffers-and-code-generation"><a class="header" href="#pattern-3-protocol-buffers-and-code-generation">Pattern 3: Protocol Buffers and Code Generation</a></h3>
+<p>Build scripts excel at code generation — turning <code>.proto</code>, <code>.fbs</code>, or <code>.json</code>
+schema files into Rust source at compile time. Here’s the protobuf pattern
+using <a href="https://docs.rs/prost-build"><code>prost-build</code></a>:</p>
+<pre><code class="language-toml"># Cargo.toml
+[build-dependencies]
+prost-build = "0.13"
+</code></pre>
+<pre class="playground"><code class="language-rust">// build.rs
+fn main() {
+    println!("cargo::rerun-if-changed=proto/");
+
+    prost_build::compile_protos(
+        &amp;["proto/diagnostics.proto", "proto/telemetry.proto"],
+        &amp;["proto/"],
+    )
+    .expect("Failed to compile protobuf definitions");
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/lib.rs — include the generated code
+pub mod diagnostics {
+    include!(concat!(env!("OUT_DIR"), "/diagnostics.rs"));
+}
+
+pub mod telemetry {
+    include!(concat!(env!("OUT_DIR"), "/telemetry.rs"));
+}
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong><code>OUT_DIR</code></strong> is a Cargo-provided directory where build scripts should place
+generated files. Each crate gets its own <code>OUT_DIR</code> under <code>target/</code>.</p>
+</blockquote>
+<h3 id="pattern-4-linking-system-libraries-with-pkg-config"><a class="header" href="#pattern-4-linking-system-libraries-with-pkg-config">Pattern 4: Linking System Libraries with <code>pkg-config</code></a></h3>
+<p>For system libraries that provide <code>.pc</code> files (systemd, OpenSSL, libpci),
+the <a href="https://docs.rs/pkg-config"><code>pkg-config</code></a> crate probes the system and
+emits the right link instructions:</p>
+<pre><code class="language-toml"># Cargo.toml
+[build-dependencies]
+pkg-config = "0.3"
+</code></pre>
+<pre class="playground"><code class="language-rust">// build.rs
+fn main() {
+    // Probe for libpci (used for PCIe device enumeration)
+    pkg_config::Config::new()
+        .atleast_version("3.6.0")
+        .probe("libpci")
+        .expect("libpci &gt;= 3.6.0 not found — install pciutils-dev");
+
+    // Probe for libsystemd (optional — for sd_notify integration)
+    if pkg_config::probe_library("libsystemd").is_ok() {
+        println!("cargo::rustc-cfg=has_systemd");
+    }
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/lib.rs — conditional compilation based on pkg-config probing
+#[cfg(has_systemd)]
+mod systemd_notify {
+    extern "C" {
+        fn sd_notify(unset_environment: i32, state: *const std::ffi::c_char) -&gt; i32;
+    }
+
+    pub fn notify_ready() {
+        let state = std::ffi::CString::new("READY=1").unwrap();
+        // SAFETY: state is a valid null-terminated C string.
+        unsafe { sd_notify(0, state.as_ptr()) };
+    }
+}
+
+#[cfg(not(has_systemd))]
+mod systemd_notify {
+    pub fn notify_ready() {
+        // no-op on systems without systemd
+    }
+}
+<span class="boring">}</span></code></pre>
+<h3 id="pattern-5-feature-detection-and-conditional-compilation"><a class="header" href="#pattern-5-feature-detection-and-conditional-compilation">Pattern 5: Feature Detection and Conditional Compilation</a></h3>
+<p>Build scripts can probe the compilation environment and set cfg flags that
+the main crate uses for conditional code paths.</p>
+<p><strong>CPU architecture and OS detection</strong> (safe — these are compile-time constants):</p>
+<pre class="playground"><code class="language-rust">// build.rs — detect CPU features and OS capabilities
+fn main() {
+    println!("cargo::rerun-if-changed=build.rs");
+
+    let target = std::env::var("TARGET").unwrap();
+    let target_os = std::env::var("CARGO_CFG_TARGET_OS").unwrap();
+
+    // Enable AVX2-optimized paths on x86_64
+    if target.starts_with("x86_64") {
+        println!("cargo::rustc-cfg=has_x86_64");
+    }
+
+    // Enable ARM NEON paths on aarch64
+    if target.starts_with("aarch64") {
+        println!("cargo::rustc-cfg=has_aarch64");
+    }
+
+    // Detect if /dev/ipmi0 is available (build-time check)
+    if target_os == "linux" &amp;&amp; std::path::Path::new("/dev/ipmi0").exists() {
+        println!("cargo::rustc-cfg=has_ipmi_device");
+    }
+}</code></pre>
+<blockquote>
+<p>⚠️ <strong>Anti-pattern demonstration</strong> — The code below shows a tempting but
+problematic approach. <strong>Do not use this in production.</strong></p>
+</blockquote>
+<pre class="playground"><code class="language-rust">// build.rs — BAD: runtime hardware detection at build time
+fn main() {
+    // ANTI-PATTERN: Binary is baked to the BUILD machine's hardware.
+    // If you build on a machine with a GPU and deploy to one without,
+    // the binary silently assumes a GPU is present.
+    if std::process::Command::new("accel-query")
+        .arg("--query-gpu=name")
+        .arg("--format=csv,noheader")
+        .output()
+        .is_ok()
+    {
+        println!("cargo::rustc-cfg=has_accel_device");
+    }
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/gpu.rs — code that adapts based on build-time detection
+pub fn query_gpu_info() -&gt; GpuResult {
+    #[cfg(has_accel_device)]
+    {
+        run_accel_query()
+    }
+
+    #[cfg(not(has_accel_device))]
+    {
+        GpuResult::NotAvailable("accel-query not found at build time".into())
+    }
+}
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p>⚠️ <strong>Why this is wrong</strong>: Runtime device detection is almost always better than
+build-time detection for optional hardware. The binary produced above is
+<em>tied to the build machine’s hardware configuration</em> — it will behave differently
+on the deployment target. Use build-time detection only for capabilities that are
+truly fixed at compile time (architecture, OS, library availability).
+For hardware like GPUs, detect at runtime with <code>which accel-query</code> or <code>accel-mgmt</code> probing.</p>
+</blockquote>
+<h3 id="anti-patterns-and-pitfalls"><a class="header" href="#anti-patterns-and-pitfalls">Anti-Patterns and Pitfalls</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Anti-Pattern</th><th>Why It’s Bad</th><th>Fix</th></tr>
+</thead>
+<tbody>
+<tr><td>No <code>rerun-if-changed</code></td><td>build.rs runs on <em>every</em> build, slowing iteration</td><td>Always emit at least <code>cargo::rerun-if-changed=build.rs</code></td></tr>
+<tr><td>Network calls in build.rs</td><td>Builds fail offline, non-reproducible</td><td>Vendor files or use a separate fetch step</td></tr>
+<tr><td>Writing to <code>src/</code></td><td>Cargo doesn’t expect source to change during build</td><td>Write to <code>OUT_DIR</code> and use <code>include!()</code></td></tr>
+<tr><td>Heavy computation</td><td>Slows every <code>cargo build</code></td><td>Cache results in <code>OUT_DIR</code>, gate with <code>rerun-if-changed</code></td></tr>
+<tr><td>Ignoring cross-compilation</td><td>Using <code>Command::new("gcc")</code> without respecting <code>$CC</code></td><td>Use the <code>cc</code> crate which handles cross-compilation toolchains</td></tr>
+<tr><td>Panicking without context</td><td><code>unwrap()</code> gives opaque “build script failed” error</td><td>Use <code>.expect("descriptive message")</code> or print <code>cargo::warning=</code></td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="application-embedding-build-metadata"><a class="header" href="#application-embedding-build-metadata">Application: Embedding Build Metadata</a></h3>
+<p>The project currently uses <code>env!("CARGO_PKG_VERSION")</code> for version
+reporting. A build script would extend this with richer metadata:</p>
+<pre class="playground"><code class="language-rust">// build.rs — proposed addition
+fn main() {
+    println!("cargo::rerun-if-changed=.git/HEAD");
+    println!("cargo::rerun-if-changed=.git/refs");
+    println!("cargo::rerun-if-changed=build.rs");
+
+    // Embed git hash for traceability in diagnostic reports
+    if let Ok(output) = std::process::Command::new("git")
+        .args(["rev-parse", "--short=10", "HEAD"])
+        .output()
+    {
+        let hash = String::from_utf8_lossy(&amp;output.stdout).trim().to_string();
+        println!("cargo::rustc-env=APP_GIT_HASH={hash}");
+    } else {
+        println!("cargo::rustc-env=APP_GIT_HASH=unknown");
+    }
+
+    // Embed build timestamp for report correlation
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs().to_string())
+        .unwrap_or_else(|_| "0".into());
+    println!("cargo::rustc-env=APP_BUILD_EPOCH={timestamp}");
+
+    // Emit target triple — useful in multi-arch deployment
+    let target = std::env::var("TARGET").unwrap_or_else(|_| "unknown".into());
+    println!("cargo::rustc-env=APP_TARGET={target}");
+}</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/version.rs — consuming the metadata
+pub struct BuildInfo {
+    pub version: &amp;'static str,
+    pub git_hash: &amp;'static str,
+    pub build_epoch: &amp;'static str,
+    pub target: &amp;'static str,
+}
+
+pub const BUILD_INFO: BuildInfo = BuildInfo {
+    version: env!("CARGO_PKG_VERSION"),
+    git_hash: env!("APP_GIT_HASH"),
+    build_epoch: env!("APP_BUILD_EPOCH"),
+    target: env!("APP_TARGET"),
+};
+
+impl BuildInfo {
+    /// Parse the epoch at runtime when needed (const &amp;str → u64 is not
+    /// possible on stable Rust — there is no const fn for str-to-int).
+    pub fn build_epoch_secs(&amp;self) -&gt; u64 {
+        self.build_epoch.parse().unwrap_or(0)
+    }
+}
+
+impl std::fmt::Display for BuildInfo {
+    fn fmt(&amp;self, f: &amp;mut std::fmt::Formatter&lt;'_&gt;) -&gt; std::fmt::Result {
+        write!(
+            f,
+            "DiagTool v{} (git:{} target:{})",
+            self.version, self.git_hash, self.target
+        )
+    }
+}
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>Key insight from the project</strong>: The codebase has zero <code>build.rs</code> files
+across all many crates because it’s pure Rust with no C dependencies, no codegen,
+and no system library linking. When you need these, <code>build.rs</code> is the tool — but
+don’t add it “just because.” The absence of build scripts in a large codebase
+is a feature, not a gap. See <a href="ch06-dependency-management-and-supply-chain-s.html">Dependency Management</a>
+for how the project manages its supply chain without custom build logic.
+is a <em>positive</em> signal of a clean architecture.</p>
+</blockquote>
+<h3 id="try-it-yourself"><a class="header" href="#try-it-yourself">Try It Yourself</a></h3>
+<ol>
+<li>
+<p><strong>Embed git metadata</strong>: Create a <code>build.rs</code> that emits <code>APP_GIT_HASH</code> and
+<code>APP_BUILD_EPOCH</code> as environment variables. Consume them with <code>env!()</code> in
+<code>main.rs</code> and print the build info. Verify the hash changes after a commit.</p>
+</li>
+<li>
+<p><strong>Probe a system library</strong>: Write a <code>build.rs</code> that uses <code>pkg-config</code> to probe
+for <code>libz</code> (zlib). Emit <code>cargo::rustc-cfg=has_zlib</code> if found. In <code>main.rs</code>,
+conditionally print “zlib available” or “zlib not found” based on the cfg flag.</p>
+</li>
+<li>
+<p><strong>Trigger a build failure intentionally</strong>: Remove the <code>rerun-if-changed</code> line
+from your <code>build.rs</code> and observe how many times it reruns during <code>cargo build</code>
+and <code>cargo test</code>. Then add it back and compare.</p>
+</li>
+</ol>
+<h3 id="reproducible-builds"><a class="header" href="#reproducible-builds">Reproducible Builds</a></h3>
+<p>Chapter 1 teaches embedding timestamps and git hashes into binaries. This is
+useful for traceability, but it <strong>conflicts with reproducible builds</strong> — the
+property that building the same source always produces the same binary.</p>
+<p><strong>The tension:</strong></p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Goal</th><th>Achievement</th><th>Cost</th></tr>
+</thead>
+<tbody>
+<tr><td>Traceability</td><td><code>APP_BUILD_EPOCH</code> in binary</td><td>Every build is unique — can’t verify integrity</td></tr>
+<tr><td>Reproducibility</td><td><code>cargo build --locked</code> always produces same output</td><td>No build-time metadata</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>Practical resolution:</strong></p>
+<pre><code class="language-bash"># 1. Always use --locked in CI (ensures Cargo.lock is respected)
+cargo build --release --locked
+# Fails if Cargo.lock is missing or outdated — catches "works on my machine"
+
+# 2. For reproducibility-critical builds, set SOURCE_DATE_EPOCH
+SOURCE_DATE_EPOCH=$(git log -1 --format=%ct) cargo build --release --locked
+# Uses the last commit timestamp instead of "now" — same commit = same binary
+</code></pre>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// In build.rs: respect SOURCE_DATE_EPOCH for reproducibility
+let timestamp = std::env::var("SOURCE_DATE_EPOCH")
+    .unwrap_or_else(|_| {
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_secs().to_string())
+            .unwrap_or_else(|_| "0".into())
+    });
+println!("cargo::rustc-env=APP_BUILD_EPOCH={timestamp}");
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>Best practice</strong>: Use <code>SOURCE_DATE_EPOCH</code> in build scripts so release builds
+are reproducible (<code>git-hash + locked deps + deterministic timestamp = same binary</code>),
+while dev builds still get live timestamps for convenience.</p>
+</blockquote>
+<h3 id="build-pipeline-decision-diagram"><a class="header" href="#build-pipeline-decision-diagram">Build Pipeline Decision Diagram</a></h3>
+<pre class="mermaid">flowchart TD
+    START["Need compile-time work?"] --&gt;|No| SKIP["No build.rs needed"]
+    START --&gt;|Yes| WHAT{"What kind?"}
+    
+    WHAT --&gt;|"Embed metadata"| P1["Pattern 1&lt;br/&gt;Compile-Time Constants"]
+    WHAT --&gt;|"Compile C/C++"| P2["Pattern 2&lt;br/&gt;cc crate"]
+    WHAT --&gt;|"Code generation"| P3["Pattern 3&lt;br/&gt;prost-build / tonic-build"]
+    WHAT --&gt;|"Link system lib"| P4["Pattern 4&lt;br/&gt;pkg-config"]
+    WHAT --&gt;|"Detect features"| P5["Pattern 5&lt;br/&gt;cfg flags"]
+    
+    P1 --&gt; RERUN["Always emit&lt;br/&gt;cargo::rerun-if-changed"]
+    P2 --&gt; RERUN
+    P3 --&gt; RERUN
+    P4 --&gt; RERUN
+    P5 --&gt; RERUN
+    
+    style SKIP fill:#91e5a3,color:#000
+    style RERUN fill:#ffd43b,color:#000
+    style P1 fill:#e3f2fd,color:#000
+    style P2 fill:#e3f2fd,color:#000
+    style P3 fill:#e3f2fd,color:#000
+    style P4 fill:#e3f2fd,color:#000
+    style P5 fill:#e3f2fd,color:#000
+</pre>
+
+<h3 id="-exercises"><a class="header" href="#-exercises">🏋️ Exercises</a></h3>
+<h4 id="-exercise-1-version-stamp"><a class="header" href="#-exercise-1-version-stamp">🟢 Exercise 1: Version Stamp</a></h4>
+<p>Create a minimal crate with a <code>build.rs</code> that embeds the current git hash and build profile into environment variables. Print them from <code>main()</code>. Verify the output changes between debug and release builds.</p>
+<details>
+<summary>Solution</summary>
+<pre class="playground"><code class="language-rust">// build.rs
+fn main() {
+    println!("cargo::rerun-if-changed=.git/HEAD");
+    println!("cargo::rerun-if-changed=build.rs");
+
+    let hash = std::process::Command::new("git")
+        .args(["rev-parse", "--short", "HEAD"])
+        .output()
+        .map(|o| String::from_utf8_lossy(&amp;o.stdout).trim().to_string())
+        .unwrap_or_else(|_| "unknown".into());
+    println!("cargo::rustc-env=GIT_HASH={hash}");
+    println!("cargo::rustc-env=BUILD_PROFILE={}", std::env::var("PROFILE").unwrap_or_default());
+}</code></pre>
+<pre><code class="language-rust ignore">// src/main.rs
+fn main() {
+    println!("{} v{} (git:{} profile:{})",
+        env!("CARGO_PKG_NAME"),
+        env!("CARGO_PKG_VERSION"),
+        env!("GIT_HASH"),
+        env!("BUILD_PROFILE"),
+    );
+}</code></pre>
+<pre><code class="language-bash">cargo run          # shows profile:debug
+cargo run --release # shows profile:release
+</code></pre>
+</details>
+<h4 id="-exercise-2-conditional-system-library"><a class="header" href="#-exercise-2-conditional-system-library">🟡 Exercise 2: Conditional System Library</a></h4>
+<p>Write a <code>build.rs</code> that probes for both <code>libz</code> and <code>libpci</code> using <code>pkg-config</code>. Emit a <code>cfg</code> flag for each one found. In <code>main.rs</code>, print which libraries were detected at build time.</p>
+<details>
+<summary>Solution</summary>
+<pre><code class="language-toml"># Cargo.toml
+[build-dependencies]
+pkg-config = "0.3"
+</code></pre>
+<pre><code class="language-rust ignore">// build.rs
+fn main() {
+    println!("cargo::rerun-if-changed=build.rs");
+    if pkg_config::probe_library("zlib").is_ok() {
+        println!("cargo::rustc-cfg=has_zlib");
+    }
+    if pkg_config::probe_library("libpci").is_ok() {
+        println!("cargo::rustc-cfg=has_libpci");
+    }
+}</code></pre>
+<pre class="playground"><code class="language-rust">// src/main.rs
+fn main() {
+    #[cfg(has_zlib)]
+    println!("✅ zlib detected");
+    #[cfg(not(has_zlib))]
+    println!("❌ zlib not found");
+
+    #[cfg(has_libpci)]
+    println!("✅ libpci detected");
+    #[cfg(not(has_libpci))]
+    println!("❌ libpci not found");
+}</code></pre>
+</details>
+<h3 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h3>
+<ul>
+<li><code>build.rs</code> runs on the <strong>host</strong> at compile time — always emit <code>cargo::rerun-if-changed</code> to avoid unnecessary rebuilds</li>
+<li>Use the <code>cc</code> crate (not raw <code>gcc</code> commands) for C/C++ compilation — it handles cross-compilation toolchains correctly</li>
+<li>Write generated files to <code>OUT_DIR</code>, never to <code>src/</code> — Cargo doesn’t expect source to change during builds</li>
+<li>Prefer runtime detection over build-time detection for optional hardware</li>
+<li>Use <code>SOURCE_DATE_EPOCH</code> to make builds reproducible when embedding timestamps</li>
+</ul>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch00-introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch02-cross-compilation-one-source-many-target.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch00-introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch02-cross-compilation-one-source-many-target.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

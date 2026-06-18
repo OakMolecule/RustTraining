@@ -1,0 +1,844 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>11. Serialization, Zero-Copy, and Binary Data - Rust Patterns &amp; Engineering How-Tos</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-64960533.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-51b340c9.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Patterns &amp; Engineering How-Tos</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="11-serialization-zero-copy-and-binary-data-"><a class="header" href="#11-serialization-zero-copy-and-binary-data-">11. Serialization, Zero-Copy, and Binary Data 🟡</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong></p>
+<ul>
+<li>serde fundamentals: derive macros, attributes, and enum representations</li>
+<li>Zero-copy deserialization for high-performance read-heavy workloads</li>
+<li>The serde format ecosystem (JSON, TOML, bincode, MessagePack)</li>
+<li>Binary data handling with <code>repr(C)</code>, zerocopy, and <code>bytes::Bytes</code></li>
+</ul>
+</blockquote>
+<h2 id="serde-fundamentals"><a class="header" href="#serde-fundamentals">serde Fundamentals</a></h2>
+<p><code>serde</code> (SERialize/DEserialize) is the universal serialization framework for Rust.
+It separates <strong>data model</strong> (your structs) from <strong>format</strong> (JSON, TOML, binary):</p>
+<pre><code class="language-rust ignore">use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ServerConfig {
+    name: String,
+    port: u16,
+    #[serde(default)]                    // Use Default::default() if missing
+    max_connections: usize,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    tls_cert_path: Option&lt;String&gt;,
+}
+
+fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {
+    // Deserialize from JSON:
+    let json_input = r#"{
+        "name": "hw-diag",
+        "port": 8080
+    }"#;
+    let config: ServerConfig = serde_json::from_str(json_input)?;
+    println!("{config:?}");
+    // ServerConfig { name: "hw-diag", port: 8080, max_connections: 0, tls_cert_path: None }
+
+    // Serialize to JSON:
+    let output = serde_json::to_string_pretty(&amp;config)?;
+    println!("{output}");
+
+    // Same struct, different format — no code changes:
+    let toml_input = r#"
+        name = "hw-diag"
+        port = 8080
+    "#;
+    let config: ServerConfig = toml::from_str(toml_input)?;
+    println!("{config:?}");
+
+    Ok(())
+}</code></pre>
+<blockquote>
+<p><strong>Key insight</strong>: Your struct derives <code>Serialize</code> and <code>Deserialize</code> once.
+Then it works with <em>every</em> serde-compatible format — JSON, TOML, YAML,
+bincode, MessagePack, CBOR, postcard, and dozens more.</p>
+</blockquote>
+<h3 id="common-serde-attributes"><a class="header" href="#common-serde-attributes">Common serde Attributes</a></h3>
+<p>serde provides fine-grained control over serialization through field and container attributes:</p>
+<pre><code class="language-rust ignore">use serde::{Serialize, Deserialize};
+
+// --- Container attributes (on the struct/enum) ---
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]       // JSON convention: field_name → fieldName
+#[serde(deny_unknown_fields)]            // Reject extra keys — strict parsing
+struct DiagResult {
+    test_name: String,                   // Serialized as "testName"
+    pass_count: u32,                     // Serialized as "passCount"
+    fail_count: u32,                     // Serialized as "failCount"
+}
+
+// --- Field attributes ---
+#[derive(Serialize, Deserialize)]
+struct Sensor {
+    #[serde(rename = "sensor_id")]       // Override field name for serialization
+    id: u64,
+
+    #[serde(default)]                    // Use Default if missing from input
+    enabled: bool,
+
+    #[serde(default = "default_threshold")]
+    threshold: f64,
+
+    #[serde(skip)]                       // Never serialize or deserialize
+    cached_value: Option&lt;f64&gt;,
+
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    tags: Vec&lt;String&gt;,
+
+    #[serde(flatten)]                    // Inline nested struct fields
+    metadata: Metadata,
+
+    #[serde(with = "hex_bytes")]         // Custom ser/de module
+    raw_data: Vec&lt;u8&gt;,
+}
+
+fn default_threshold() -&gt; f64 { 1.0 }
+
+#[derive(Serialize, Deserialize)]
+struct Metadata {
+    vendor: String,
+    model: String,
+}
+// With #[serde(flatten)], the JSON looks like:
+// { "sensor_id": 1, "vendor": "Intel", "model": "X200", ... }
+// NOT: { "sensor_id": 1, "metadata": { "vendor": "Intel", ... } }</code></pre>
+<p><strong>Most-used attributes cheat sheet</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Attribute</th><th>Level</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr><td><code>rename_all = "camelCase"</code></td><td>Container</td><td>Rename all fields to camelCase/snake_case/SCREAMING_SNAKE_CASE</td></tr>
+<tr><td><code>deny_unknown_fields</code></td><td>Container</td><td>Error on unexpected keys (strict mode)</td></tr>
+<tr><td><code>default</code></td><td>Field</td><td>Use <code>Default::default()</code> when field missing</td></tr>
+<tr><td><code>rename = "..."</code></td><td>Field</td><td>Custom serialized name</td></tr>
+<tr><td><code>skip</code></td><td>Field</td><td>Exclude from ser/de entirely</td></tr>
+<tr><td><code>skip_serializing_if = "fn"</code></td><td>Field</td><td>Conditionally exclude (e.g., <code>Option::is_none</code>)</td></tr>
+<tr><td><code>flatten</code></td><td>Field</td><td>Inline a nested struct’s fields</td></tr>
+<tr><td><code>with = "module"</code></td><td>Field</td><td>Use custom serialize/deserialize functions</td></tr>
+<tr><td><code>alias = "..."</code></td><td>Field</td><td>Accept alternative names during deserialization</td></tr>
+<tr><td><code>deserialize_with = "fn"</code></td><td>Field</td><td>Custom deserialize function only</td></tr>
+<tr><td><code>untagged</code></td><td>Enum</td><td>Try each variant in order (no discriminant in output)</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="enum-representations"><a class="header" href="#enum-representations">Enum Representations</a></h3>
+<p>serde provides four representations for enums in formats like JSON:</p>
+<pre><code class="language-rust ignore">use serde::{Serialize, Deserialize};
+
+// 1. Externally tagged (DEFAULT):
+#[derive(Serialize, Deserialize)]
+enum Command {
+    Reboot,
+    RunDiag { test_name: String, timeout_secs: u64 },
+    SetFanSpeed(u8),
+}
+// "Reboot"                                          → Command::Reboot
+// {"RunDiag": {"test_name": "gpu", "timeout_secs": 60}}  → Command::RunDiag { ... }
+
+// 2. Internally tagged — #[serde(tag = "type")]:
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "type")]
+enum Event {
+    Start { timestamp: u64 },
+    Error { code: i32, message: String },
+    End   { timestamp: u64, success: bool },
+}
+// {"type": "Start", "timestamp": 1706000000}
+// {"type": "Error", "code": 42, "message": "timeout"}
+
+// 3. Adjacently tagged — #[serde(tag = "t", content = "c")]:
+#[derive(Serialize, Deserialize)]
+#[serde(tag = "t", content = "c")]
+enum Payload {
+    Text(String),
+    Binary(Vec&lt;u8&gt;),
+}
+// {"t": "Text", "c": "hello"}
+// {"t": "Binary", "c": [0, 1, 2]}
+
+// 4. Untagged — #[serde(untagged)]:
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+enum StringOrNumber {
+    Str(String),
+    Num(f64),
+}
+// "hello" → StringOrNumber::Str("hello")
+// 42.0    → StringOrNumber::Num(42.0)
+// ⚠️ Tried IN ORDER — first matching variant wins</code></pre>
+<blockquote>
+<p><strong>Which representation to choose</strong>: Use internally tagged (<code>tag = "type"</code>)
+for most JSON APIs — it’s the most readable and matches conventions in
+Go, Python, and TypeScript. Use untagged only for “union” types where the
+shape alone disambiguates.</p>
+</blockquote>
+<h3 id="zero-copy-deserialization"><a class="header" href="#zero-copy-deserialization">Zero-Copy Deserialization</a></h3>
+<p>serde can deserialize without allocating new strings — borrowing directly from
+the input buffer. This is the key to high-performance parsing:</p>
+<pre><code class="language-rust ignore">use serde::Deserialize;
+
+// --- Owned (allocating) ---
+// Each String field copies bytes from the input into new heap allocations.
+#[derive(Deserialize)]
+struct OwnedRecord {
+    name: String,           // Allocates a new String
+    value: String,          // Allocates another String
+}
+
+// --- Zero-copy (borrowing) ---
+// &amp;'de str fields borrow directly from the input — ZERO allocation.
+#[derive(Deserialize)]
+struct BorrowedRecord&lt;'a&gt; {
+    name: &amp;'a str,          // Points into the input buffer
+    value: &amp;'a str,         // Points into the input buffer
+}
+
+fn main() {
+    let input = r#"{"name": "cpu_temp", "value": "72.5"}"#;
+
+    // Owned: allocates two String objects
+    let owned: OwnedRecord = serde_json::from_str(input).unwrap();
+
+    // Zero-copy: `name` and `value` point into `input` — no allocation
+    let borrowed: BorrowedRecord = serde_json::from_str(input).unwrap();
+
+    // The output is lifetime-bound: borrowed can't outlive input
+    println!("{}: {}", borrowed.name, borrowed.value);
+}</code></pre>
+<p><strong>Understanding the lifetime</strong>:</p>
+<pre><code class="language-rust ignore">// Deserialize&lt;'de&gt; — the struct can borrow from data with lifetime 'de:
+//   struct BorrowedRecord&lt;'a&gt; where 'a == 'de
+//   Only works when the input buffer lives long enough
+
+// DeserializeOwned — the struct owns all its data, no borrowing:
+//   trait DeserializeOwned: for&lt;'de&gt; Deserialize&lt;'de&gt; {}
+//   Works with any input lifetime (the struct is independent)
+
+use serde::de::DeserializeOwned;
+
+// This function requires owned types — input can be temporary
+fn parse_owned&lt;T: DeserializeOwned&gt;(input: &amp;str) -&gt; T {
+    serde_json::from_str(input).unwrap()
+}
+
+// This function allows borrowing — more efficient but restricts lifetimes
+fn parse_borrowed&lt;'a, T: Deserialize&lt;'a&gt;&gt;(input: &amp;'a str) -&gt; T {
+    serde_json::from_str(input).unwrap()
+}</code></pre>
+<p><strong>When to use zero-copy</strong>:</p>
+<ul>
+<li>Parsing large files where you only need a few fields</li>
+<li>High-throughput pipelines (network packets, log lines)</li>
+<li>When the input buffer already lives long enough (e.g., memory-mapped file)</li>
+</ul>
+<p><strong>When NOT to use zero-copy</strong>:</p>
+<ul>
+<li>Input is ephemeral (network read buffer that’s reused)</li>
+<li>You need to store the result beyond the input’s lifetime</li>
+<li>Fields need transformation (escapes, normalization)</li>
+</ul>
+<blockquote>
+<p><strong>Practical tip</strong>: <code>Cow&lt;'a, str&gt;</code> gives you the best of both — borrow when
+possible, allocate when necessary (e.g., when JSON escape sequences need
+unescaping). serde supports Cow natively.</p>
+</blockquote>
+<h3 id="the-format-ecosystem"><a class="header" href="#the-format-ecosystem">The Format Ecosystem</a></h3>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Format</th><th>Crate</th><th style="text-align: center">Human-Readable</th><th style="text-align: center">Size</th><th style="text-align: center">Speed</th><th>Use Case</th></tr>
+</thead>
+<tbody>
+<tr><td>JSON</td><td><code>serde_json</code></td><td style="text-align: center">✅</td><td style="text-align: center">Large</td><td style="text-align: center">Good</td><td>Config files, REST APIs, logging</td></tr>
+<tr><td>TOML</td><td><code>toml</code></td><td style="text-align: center">✅</td><td style="text-align: center">Medium</td><td style="text-align: center">Good</td><td>Config files (Cargo.toml style)</td></tr>
+<tr><td>YAML</td><td><code>serde_yaml</code></td><td style="text-align: center">✅</td><td style="text-align: center">Medium</td><td style="text-align: center">Good</td><td>Config files (complex nesting)</td></tr>
+<tr><td>bincode</td><td><code>bincode</code></td><td style="text-align: center">❌</td><td style="text-align: center">Small</td><td style="text-align: center">Fast</td><td>IPC, caches, Rust-to-Rust</td></tr>
+<tr><td>postcard</td><td><code>postcard</code></td><td style="text-align: center">❌</td><td style="text-align: center">Tiny</td><td style="text-align: center">Very fast</td><td>Embedded systems, <code>no_std</code></td></tr>
+<tr><td>MessagePack</td><td><code>rmp-serde</code></td><td style="text-align: center">❌</td><td style="text-align: center">Small</td><td style="text-align: center">Fast</td><td>Cross-language binary protocol</td></tr>
+<tr><td>CBOR</td><td><code>ciborium</code></td><td style="text-align: center">❌</td><td style="text-align: center">Small</td><td style="text-align: center">Fast</td><td>IoT, constrained environments</td></tr>
+</tbody>
+</table>
+</div>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Same struct, many formats — serde's power:
+
+#[derive(serde::Serialize, serde::Deserialize, Debug)]
+struct DiagConfig {
+    name: String,
+    tests: Vec&lt;String&gt;,
+    timeout_secs: u64,
+}
+
+let config = DiagConfig {
+    name: "accel_diag".into(),
+    tests: vec!["memory".into(), "compute".into()],
+    timeout_secs: 300,
+};
+
+// JSON:   {"name":"accel_diag","tests":["memory","compute"],"timeout_secs":300}
+let json = serde_json::to_string(&amp;config).unwrap();       // 67 bytes
+
+// bincode: compact binary — ~40 bytes, no field names
+let bin = bincode::serialize(&amp;config).unwrap();            // Much smaller
+
+// postcard: even smaller, varint encoding — great for embedded
+// let post = postcard::to_allocvec(&amp;config).unwrap();
+<span class="boring">}</span></code></pre>
+<blockquote>
+<p><strong>Choose your format</strong>:</p>
+<ul>
+<li>Config files humans edit → TOML or JSON</li>
+<li>Rust-to-Rust IPC/caching → bincode (fast, compact, not cross-language)</li>
+<li>Cross-language binary → MessagePack or CBOR</li>
+<li>Embedded / <code>no_std</code> → postcard</li>
+</ul>
+</blockquote>
+<h3 id="binary-data-and-reprc"><a class="header" href="#binary-data-and-reprc">Binary Data and repr(C)</a></h3>
+<p>For hardware diagnostics, parsing binary protocol data is common. Rust provides
+tools for safe, zero-copy binary data handling:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// --- #[repr(C)]: Predictable memory layout ---
+// Ensures fields are laid out in declaration order with C padding rules.
+// Essential for matching hardware register layouts and protocol headers.
+
+#[repr(C)]
+#[derive(Debug, Clone, Copy)]
+struct IpmiHeader {
+    rs_addr: u8,
+    net_fn_lun: u8,
+    checksum: u8,
+    rq_addr: u8,
+    rq_seq_lun: u8,
+    cmd: u8,
+}
+
+// --- Safe binary parsing with manual deserialization ---
+impl IpmiHeader {
+    fn from_bytes(data: &amp;[u8]) -&gt; Option&lt;Self&gt; {
+        if data.len() &lt; size_of::&lt;Self&gt;() {
+            return None;
+        }
+        Some(IpmiHeader {
+            rs_addr:     data[0],
+            net_fn_lun:  data[1],
+            checksum:    data[2],
+            rq_addr:     data[3],
+            rq_seq_lun:  data[4],
+            cmd:         data[5],
+        })
+    }
+
+    fn net_fn(&amp;self) -&gt; u8 { self.net_fn_lun &gt;&gt; 2 }
+    fn lun(&amp;self)    -&gt; u8 { self.net_fn_lun &amp; 0x03 }
+}
+
+// --- Endianness-aware parsing ---
+fn read_u16_le(data: &amp;[u8], offset: usize) -&gt; u16 {
+    u16::from_le_bytes([data[offset], data[offset + 1]])
+}
+
+fn read_u32_be(data: &amp;[u8], offset: usize) -&gt; u32 {
+    u32::from_be_bytes([
+        data[offset], data[offset + 1],
+        data[offset + 2], data[offset + 3],
+    ])
+}
+
+// --- #[repr(C, packed)]: Remove padding (alignment = 1) ---
+#[repr(C, packed)]
+#[derive(Debug, Clone, Copy)]
+struct PcieCapabilityHeader {
+    cap_id: u8,        // Capability ID
+    next_cap: u8,      // Pointer to next capability
+    cap_reg: u16,      // Capability-specific register
+}
+// ⚠️ Packed structs: taking &amp;field creates an unaligned reference — UB.
+// Always copy fields out: let id = header.cap_id;  // OK (Copy)
+// Never do: let r = &amp;header.cap_reg;               // UB if unaligned
+<span class="boring">}</span></code></pre>
+<h3 id="zerocopy-and-bytemuck--safe-transmutation"><a class="header" href="#zerocopy-and-bytemuck--safe-transmutation">zerocopy and bytemuck — Safe Transmutation</a></h3>
+<p>Instead of <code>unsafe</code> transmute, use crates that verify layout safety at compile time:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// --- zerocopy: Compile-time checked zero-copy conversions ---
+// Cargo.toml: zerocopy = { version = "0.8", features = ["derive"] }
+
+use zerocopy::{FromBytes, IntoBytes, KnownLayout, Immutable};
+
+#[derive(FromBytes, IntoBytes, KnownLayout, Immutable, Debug)]
+#[repr(C)]
+struct SensorReading {
+    sensor_id: u16,
+    flags: u8,
+    _reserved: u8,
+    value: u32,     // Fixed-point: actual = value / 1000.0
+}
+
+fn parse_sensor(raw: &amp;[u8]) -&gt; Option&lt;&amp;SensorReading&gt; {
+    // Safe zero-copy: verifies alignment and size AT COMPILE TIME
+    SensorReading::ref_from_bytes(raw).ok()
+    // Returns &amp;SensorReading pointing INTO raw — no copy, no allocation
+}
+
+// --- bytemuck: Simple, battle-tested ---
+// Cargo.toml: bytemuck = { version = "1", features = ["derive"] }
+
+use bytemuck::{Pod, Zeroable};
+
+#[derive(Pod, Zeroable, Clone, Copy, Debug)]
+#[repr(C)]
+struct GpuRegister {
+    address: u32,
+    value: u32,
+}
+
+fn cast_registers(data: &amp;[u8]) -&gt; &amp;[GpuRegister] {
+    // Safe cast: Pod guarantees all bit patterns are valid
+    bytemuck::cast_slice(data)
+}
+<span class="boring">}</span></code></pre>
+<p><strong>When to use which</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Approach</th><th style="text-align: center">Safety</th><th style="text-align: center">Overhead</th><th>Use When</th></tr>
+</thead>
+<tbody>
+<tr><td>Manual field-by-field parsing</td><td style="text-align: center">✅ Safe</td><td style="text-align: center">Copy fields</td><td>Small structs, complex layouts</td></tr>
+<tr><td><code>zerocopy</code></td><td style="text-align: center">✅ Safe</td><td style="text-align: center">Zero-copy</td><td>Large buffers, many reads, compile-time checks</td></tr>
+<tr><td><code>bytemuck</code></td><td style="text-align: center">✅ Safe</td><td style="text-align: center">Zero-copy</td><td>Simple <code>Pod</code> types, casting slices</td></tr>
+<tr><td><code>unsafe { transmute() }</code></td><td style="text-align: center">❌ Unsafe</td><td style="text-align: center">Zero-copy</td><td>Last resort — avoid in application code</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="bytesbytes--reference-counted-buffers"><a class="header" href="#bytesbytes--reference-counted-buffers">bytes::Bytes — Reference-Counted Buffers</a></h3>
+<p>The <code>bytes</code> crate (used by tokio, hyper, tonic) provides zero-copy byte buffers
+with reference counting — <code>Bytes</code> is to <code>Vec&lt;u8&gt;</code> what <code>Arc&lt;[u8]&gt;</code> is to owned slices:</p>
+<pre class="playground"><code class="language-rust">use bytes::{Bytes, BytesMut, Buf, BufMut};
+
+fn main() {
+    // --- BytesMut: mutable buffer for building data ---
+    let mut buf = BytesMut::with_capacity(1024);
+    buf.put_u8(0x01);                    // Write a byte
+    buf.put_u16(0x1234);                 // Write u16 (big-endian)
+    buf.put_slice(b"hello");             // Write raw bytes
+    buf.put(&amp;b"world"[..]);              // Write from slice
+
+    // Freeze into immutable Bytes (zero cost):
+    let data: Bytes = buf.freeze();
+
+    // --- Bytes: immutable, reference-counted, cloneable ---
+    let data2 = data.clone();            // Cheap: increments refcount, NOT deep copy
+    let slice = data.slice(3..8);        // Zero-copy sub-slice (shares buffer)
+
+    // Read from Bytes using the Buf trait:
+    let mut reader = &amp;data[..];
+    let byte = reader.get_u8();          // 0x01
+    let short = reader.get_u16();        // 0x1234
+
+    // Split without copying:
+    let mut original = Bytes::from_static(b"HEADER\x00PAYLOAD");
+    let header = original.split_to(6);   // header = "HEADER", original = "\x00PAYLOAD"
+
+    println!("header: {:?}", &amp;header[..]);
+    println!("payload: {:?}", &amp;original[1..]);
+}</code></pre>
+<p><strong><code>bytes</code> vs <code>Vec&lt;u8&gt;</code></strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Feature</th><th><code>Vec&lt;u8&gt;</code></th><th><code>Bytes</code></th></tr>
+</thead>
+<tbody>
+<tr><td>Clone cost</td><td>O(n) deep copy</td><td>O(1) refcount increment</td></tr>
+<tr><td>Sub-slicing</td><td>Borrows with lifetime</td><td>Owned, refcount-tracked</td></tr>
+<tr><td>Thread safety</td><td>Not <code>Sync</code> (needs <code>Arc</code>)</td><td><code>Send + Sync</code> built in</td></tr>
+<tr><td>Mutability</td><td>Direct <code>&amp;mut</code></td><td>Split into <code>BytesMut</code> first</td></tr>
+<tr><td>Ecosystem</td><td>Standard library</td><td>tokio, hyper, tonic, axum</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>When to use bytes</strong>: Network protocols, packet parsing, any scenario where
+you receive a buffer and need to split it into parts that are processed by
+different components or threads. The zero-copy splitting is the killer feature.</p>
+</blockquote>
+<blockquote>
+<p><strong>Key Takeaways — Serialization &amp; Binary Data</strong></p>
+<ul>
+<li>serde’s derive macros handle 90% of cases; use attributes (<code>rename</code>, <code>skip</code>, <code>default</code>) for the rest</li>
+<li>Zero-copy deserialization (<code>&amp;'a str</code> in structs) avoids allocation for read-heavy workloads</li>
+<li><code>repr(C)</code> + <code>zerocopy</code>/<code>bytemuck</code> for hardware register layouts; <code>bytes::Bytes</code> for reference-counted buffers</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><strong>See also:</strong> <a href="ch10-error-handling-patterns.html">Ch 9 — Error Handling</a> for combining serde errors with <code>thiserror</code>. <a href="ch12-unsafe-rust-controlled-danger.html">Ch 11 — Unsafe</a> for <code>repr(C)</code> and FFI data layouts.</p>
+</blockquote>
+<pre class="mermaid">flowchart LR
+    subgraph Input
+        JSON["JSON"]
+        TOML["TOML"]
+        Bin["bincode"]
+        MsgP["MessagePack"]
+    end
+
+    subgraph serde["serde data model"]
+        Ser["Serialize"]
+        De["Deserialize"]
+    end
+
+    subgraph Output
+        Struct["Rust struct"]
+        Enum["Rust enum"]
+    end
+
+    JSON --&gt; De
+    TOML --&gt; De
+    Bin --&gt; De
+    MsgP --&gt; De
+    De --&gt; Struct
+    De --&gt; Enum
+    Struct --&gt; Ser
+    Enum --&gt; Ser
+    Ser --&gt; JSON
+    Ser --&gt; Bin
+
+    style JSON fill:#e8f4f8,stroke:#2980b9,color:#000
+    style TOML fill:#e8f4f8,stroke:#2980b9,color:#000
+    style Bin fill:#e8f4f8,stroke:#2980b9,color:#000
+    style MsgP fill:#e8f4f8,stroke:#2980b9,color:#000
+    style Ser fill:#fef9e7,stroke:#f1c40f,color:#000
+    style De fill:#fef9e7,stroke:#f1c40f,color:#000
+    style Struct fill:#d4efdf,stroke:#27ae60,color:#000
+    style Enum fill:#d4efdf,stroke:#27ae60,color:#000
+</pre>
+
+<hr>
+<h3 id="exercise-custom-serde-deserialization--45-min"><a class="header" href="#exercise-custom-serde-deserialization--45-min">Exercise: Custom serde Deserialization ★★★ (~45 min)</a></h3>
+<p>Design a <code>HumanDuration</code> wrapper that deserializes from human-readable strings like <code>"30s"</code>, <code>"5m"</code>, <code>"2h"</code> using a custom serde deserializer. It should also serialize back to the same format.</p>
+<details>
+<summary>🔑 Solution</summary>
+<pre><code class="language-rust ignore">use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use std::fmt;
+
+#[derive(Debug, Clone, PartialEq)]
+struct HumanDuration(std::time::Duration);
+
+impl HumanDuration {
+    fn from_str(s: &amp;str) -&gt; Result&lt;Self, String&gt; {
+        let s = s.trim();
+        if s.is_empty() { return Err("empty duration string".into()); }
+
+        let (num_str, suffix) = s.split_at(
+            s.find(|c: char| !c.is_ascii_digit()).unwrap_or(s.len())
+        );
+        let value: u64 = num_str.parse()
+            .map_err(|_| format!("invalid number: {num_str}"))?;
+
+        let duration = match suffix {
+            "s" | "sec"  =&gt; std::time::Duration::from_secs(value),
+            "m" | "min"  =&gt; std::time::Duration::from_secs(value * 60),
+            "h" | "hr"   =&gt; std::time::Duration::from_secs(value * 3600),
+            "ms"         =&gt; std::time::Duration::from_millis(value),
+            other        =&gt; return Err(format!("unknown suffix: {other}")),
+        };
+        Ok(HumanDuration(duration))
+    }
+}
+
+impl fmt::Display for HumanDuration {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
+        let secs = self.0.as_secs();
+        if secs == 0 {
+            write!(f, "{}ms", self.0.as_millis())
+        } else if secs % 3600 == 0 {
+            write!(f, "{}h", secs / 3600)
+        } else if secs % 60 == 0 {
+            write!(f, "{}m", secs / 60)
+        } else {
+            write!(f, "{}s", secs)
+        }
+    }
+}
+
+impl Serialize for HumanDuration {
+    fn serialize&lt;S: Serializer&gt;(&amp;self, serializer: S) -&gt; Result&lt;S::Ok, S::Error&gt; {
+        serializer.serialize_str(&amp;self.to_string())
+    }
+}
+
+impl&lt;'de&gt; Deserialize&lt;'de&gt; for HumanDuration {
+    fn deserialize&lt;D: Deserializer&lt;'de&gt;&gt;(deserializer: D) -&gt; Result&lt;Self, D::Error&gt; {
+        let s = String::deserialize(deserializer)?;
+        HumanDuration::from_str(&amp;s).map_err(serde::de::Error::custom)
+    }
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+struct Config {
+    timeout: HumanDuration,
+    retry_interval: HumanDuration,
+}
+
+fn main() {
+    let json = r#"{ "timeout": "30s", "retry_interval": "5m" }"#;
+    let config: Config = serde_json::from_str(json).unwrap();
+
+    assert_eq!(config.timeout.0, std::time::Duration::from_secs(30));
+    assert_eq!(config.retry_interval.0, std::time::Duration::from_secs(300));
+
+    let serialized = serde_json::to_string(&amp;config).unwrap();
+    assert!(serialized.contains("30s"));
+    println!("Config: {serialized}");
+}</code></pre>
+</details>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch10-error-handling-patterns.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch12-unsafe-rust-controlled-danger.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch10-error-handling-patterns.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch12-unsafe-rust-controlled-danger.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>

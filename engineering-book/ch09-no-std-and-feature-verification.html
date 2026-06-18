@@ -1,0 +1,681 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>9. no_std and Feature Verification - Rust Engineering Practices — Beyond cargo build</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-0392ca55.css">
+        <link rel="stylesheet" href="css/chrome-fc474251.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "ayu";
+            window.path_to_searchindex_js = "searchindex-e156d75f.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-3f61fb6d.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">Rust Engineering Practices — Beyond cargo build</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/microsoft/RustTraining" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="no_std-and-feature-verification-"><a class="header" href="#no_std-and-feature-verification-"><code>no_std</code> and Feature Verification 🔴</a></h1>
+<blockquote>
+<p><strong>What you’ll learn:</strong></p>
+<ul>
+<li>Verifying feature combinations systematically with <code>cargo-hack</code></li>
+<li>The three layers of Rust: <code>core</code> vs <code>alloc</code> vs <code>std</code> and when to use each</li>
+<li>Building <code>no_std</code> crates with custom panic handlers and allocators</li>
+<li>Testing <code>no_std</code> code on host and with QEMU</li>
+</ul>
+<p><strong>Cross-references:</strong> <a href="ch10-windows-and-conditional-compilation.html">Windows &amp; Conditional Compilation</a> — the platform half of this topic · <a href="ch02-cross-compilation-one-source-many-target.html">Cross-Compilation</a> — cross-compiling to ARM and embedded targets · <a href="ch05-miri-valgrind-and-sanitizers-verifying-u.html">Miri and Sanitizers</a> — verifying <code>unsafe</code> code in <code>no_std</code> environments · <a href="ch01-build-scripts-buildrs-in-depth.html">Build Scripts</a> — <code>cfg</code> flags emitted by <code>build.rs</code></p>
+</blockquote>
+<p>Rust runs everywhere from 8-bit microcontrollers to cloud servers. This chapter
+covers the foundation: stripping the standard library with <code>#![no_std]</code> and
+verifying that your feature combinations actually compile.</p>
+<h3 id="verifying-feature-combinations-with-cargo-hack"><a class="header" href="#verifying-feature-combinations-with-cargo-hack">Verifying Feature Combinations with <code>cargo-hack</code></a></h3>
+<p><a href="https://github.com/taiki-e/cargo-hack"><code>cargo-hack</code></a> tests all feature
+combinations systematically — essential for crates with <code>#[cfg(...)]</code> code:</p>
+<pre><code class="language-bash"># Install
+cargo install cargo-hack
+
+# Check that every feature compiles individually
+cargo hack check --each-feature --workspace
+
+# The nuclear option: test ALL feature combinations (exponential!)
+# Only practical for crates with &lt;8 features.
+cargo hack check --feature-powerset --workspace
+
+# Practical compromise: test each feature alone + all features + no features
+cargo hack check --each-feature --workspace --no-dev-deps
+cargo check --workspace --all-features
+cargo check --workspace --no-default-features
+</code></pre>
+<p><strong>Why this matters for the project:</strong></p>
+<p>If you add platform features (<code>linux</code>, <code>windows</code>, <code>direct-ipmi</code>, <code>direct-accel-api</code>),
+<code>cargo-hack</code> catches combinations that break:</p>
+<pre><code class="language-toml"># Example: features that gate platform code
+[features]
+default = ["linux"]
+linux = []                          # Linux-specific hardware access
+windows = ["dep:windows-sys"]       # Windows-specific APIs
+direct-ipmi = []                    # unsafe IPMI ioctl (ch05)
+direct-accel-api = []                    # unsafe accel-mgmt FFI (ch05)
+</code></pre>
+<pre><code class="language-bash"># Verify all features compile in isolation AND together
+cargo hack check --each-feature -p diag_tool
+# Catches: "feature 'windows' doesn't compile without 'direct-ipmi'"
+# Catches: "#[cfg(feature = \"linux\")] has a typo — it's 'lnux'"
+</code></pre>
+<p><strong>CI integration:</strong></p>
+<pre><code class="language-yaml"># Add to CI pipeline (fast — just compilation checks)
+- name: Feature matrix check
+  run: cargo hack check --each-feature --workspace --no-dev-deps
+</code></pre>
+<blockquote>
+<p><strong>Rule of thumb</strong>: Run <code>cargo hack check --each-feature</code> in CI for any crate
+with 2+ features. Run <code>--feature-powerset</code> only for core library crates with
+&lt;8 features — it’s exponential ($2^n$ combinations).</p>
+</blockquote>
+<h3 id="no_std--when-and-why"><a class="header" href="#no_std--when-and-why"><code>no_std</code> — When and Why</a></h3>
+<p><code>#![no_std]</code> tells the compiler: “don’t link the standard library.” Your
+crate can only use <code>core</code> (and optionally <code>alloc</code>). Why would you want this?</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Scenario</th><th>Why <code>no_std</code></th></tr>
+</thead>
+<tbody>
+<tr><td>Embedded firmware (ARM Cortex-M, RISC-V)</td><td>No OS, no heap, no file system</td></tr>
+<tr><td>UEFI diagnostics tool</td><td>Pre-boot environment, no OS APIs</td></tr>
+<tr><td>Kernel modules</td><td>Kernel space can’t use userspace <code>std</code></td></tr>
+<tr><td>WebAssembly (WASM)</td><td>Minimize binary size, no OS dependencies</td></tr>
+<tr><td>Bootloaders</td><td>Run before any OS exists</td></tr>
+<tr><td>Shared library with C interface</td><td>Avoid Rust runtime in callers</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>For hardware diagnostics</strong>, <code>no_std</code> becomes relevant when building:</p>
+<ul>
+<li>UEFI-based pre-boot diagnostic tools (before the OS loads)</li>
+<li>BMC firmware diagnostics (resource-constrained ARM SoCs)</li>
+<li>Kernel-level PCIe diagnostics (kernel module or eBPF probe)</li>
+</ul>
+<h3 id="core-vs-alloc-vs-std--the-three-layers"><a class="header" href="#core-vs-alloc-vs-std--the-three-layers"><code>core</code> vs <code>alloc</code> vs <code>std</code> — The Three Layers</a></h3>
+<pre><code class="language-text">┌─────────────────────────────────────────────────────────────┐
+│ std                                                         │
+│  Everything in core + alloc, PLUS:                          │
+│  • File I/O (std::fs, std::io)                              │
+│  • Networking (std::net)                                    │
+│  • Threads (std::thread)                                    │
+│  • Time (std::time)                                         │
+│  • Environment (std::env)                                   │
+│  • Process (std::process)                                   │
+│  • OS-specific (std::os::unix, std::os::windows)            │
+├─────────────────────────────────────────────────────────────┤
+│ alloc          (available with #![no_std] + extern crate    │
+│                 alloc, if you have a global allocator)       │
+│  • String, Vec, Box, Rc, Arc                                │
+│  • BTreeMap, BTreeSet                                       │
+│  • format!() macro                                          │
+│  • Collections and smart pointers that need heap            │
+├─────────────────────────────────────────────────────────────┤
+│ core           (always available, even in #![no_std])        │
+│  • Primitive types (u8, bool, char, etc.)                    │
+│  • Option, Result                                           │
+│  • Iterator, slice, array, str (slices, not String)         │
+│  • Traits: Clone, Copy, Debug, Display, From, Into          │
+│  • Atomics (core::sync::atomic)                             │
+│  • Cell, RefCell (core::cell)  — Pin (core::pin)            │
+│  • core::fmt (formatting without allocation)                │
+│  • core::mem, core::ptr (low-level memory operations)       │
+│  • Math: core::num, basic arithmetic                        │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>What you lose without <code>std</code>:</strong></p>
+<ul>
+<li>No <code>HashMap</code> (requires a hasher — use <code>BTreeMap</code> from <code>alloc</code>, or <code>hashbrown</code>)</li>
+<li>No <code>println!()</code> (requires stdout — use <code>core::fmt::Write</code> to a buffer)</li>
+<li>No <code>std::error::Error</code> (stabilized in <code>core</code> since Rust 1.81, but many
+ecosystems haven’t migrated)</li>
+<li>No file I/O, no networking, no threads (unless provided by a platform HAL)</li>
+<li>No <code>Mutex</code> (use <code>spin::Mutex</code> or platform-specific locks)</li>
+</ul>
+<h3 id="building-a-no_std-crate"><a class="header" href="#building-a-no_std-crate">Building a <code>no_std</code> Crate</a></h3>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// src/lib.rs — a no_std library crate
+#![no_std]
+
+// Optionally use heap allocation
+extern crate alloc;
+use alloc::string::String;
+use alloc::vec::Vec;
+use core::fmt;
+
+/// Temperature reading from a thermal sensor.
+/// This struct works in any environment — bare metal to Linux.
+#[derive(Clone, Copy, Debug)]
+pub struct Temperature {
+    /// Raw sensor value (0.0625°C per LSB for typical I2C sensors)
+    raw: u16,
+}
+
+impl Temperature {
+    pub const fn from_raw(raw: u16) -&gt; Self {
+        Self { raw }
+    }
+
+    /// Convert to degrees Celsius (fixed-point, no FPU required)
+    pub const fn millidegrees_c(&amp;self) -&gt; i32 {
+        (self.raw as i32) * 625 / 10 // 0.0625°C resolution
+    }
+
+    pub fn degrees_c(&amp;self) -&gt; f32 {
+        self.raw as f32 * 0.0625
+    }
+}
+
+impl fmt::Display for Temperature {
+    fn fmt(&amp;self, f: &amp;mut fmt::Formatter&lt;'_&gt;) -&gt; fmt::Result {
+        let md = self.millidegrees_c();
+        // Handle sign correctly for values between -0.999°C and -0.001°C
+        // where md / 1000 == 0 but the value is negative.
+        if md &lt; 0 &amp;&amp; md &gt; -1000 {
+            write!(f, "-0.{:03}°C", (-md) % 1000)
+        } else {
+            write!(f, "{}.{:03}°C", md / 1000, (md % 1000).abs())
+        }
+    }
+}
+
+/// Parse space-separated temperature values.
+/// Uses alloc — requires a global allocator.
+pub fn parse_temperatures(input: &amp;str) -&gt; Vec&lt;Temperature&gt; {
+    input
+        .split_whitespace()
+        .filter_map(|s| s.parse::&lt;u16&gt;().ok())
+        .map(Temperature::from_raw)
+        .collect()
+}
+
+/// Format without allocation — writes directly to a buffer.
+/// Works in `core`-only environments (no alloc, no heap).
+pub fn format_temp_into(temp: &amp;Temperature, buf: &amp;mut [u8]) -&gt; usize {
+    use core::fmt::Write;
+    struct SliceWriter&lt;'a&gt; {
+        buf: &amp;'a mut [u8],
+        pos: usize,
+    }
+    impl&lt;'a&gt; Write for SliceWriter&lt;'a&gt; {
+        fn write_str(&amp;mut self, s: &amp;str) -&gt; fmt::Result {
+            let bytes = s.as_bytes();
+            let remaining = self.buf.len() - self.pos;
+            if bytes.len() &gt; remaining {
+                // Buffer full — signal the error instead of silently truncating.
+                // Callers can check the returned pos for partial writes.
+                return Err(fmt::Error);
+            }
+            self.buf[self.pos..self.pos + bytes.len()].copy_from_slice(bytes);
+            self.pos += bytes.len();
+            Ok(())
+        }
+    }
+    let mut w = SliceWriter { buf, pos: 0 };
+    let _ = write!(w, "{}", temp);
+    w.pos
+}
+<span class="boring">}</span></code></pre>
+<pre><code class="language-toml"># Cargo.toml for a no_std crate
+[package]
+name = "thermal-sensor"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = ["alloc"]
+alloc = []    # Enable Vec, String, etc.
+std = []      # Enable full std (implies alloc)
+
+[dependencies]
+# Use no_std-compatible crates
+serde = { version = "1.0", default-features = false, features = ["derive"] }
+# ↑ default-features = false drops std dependency!
+</code></pre>
+<blockquote>
+<p><strong>Key crate pattern</strong>: Many popular crates (serde, log, rand, embedded-hal)
+support <code>no_std</code> via <code>default-features = false</code>. Always check whether a
+dependency requires <code>std</code> before using it in a <code>no_std</code> context. Note that
+some crates (e.g., <code>regex</code>) require at least <code>alloc</code> and don’t work in
+<code>core</code>-only environments.</p>
+</blockquote>
+<h3 id="custom-panic-handlers-and-allocators"><a class="header" href="#custom-panic-handlers-and-allocators">Custom Panic Handlers and Allocators</a></h3>
+<p>In <code>#![no_std]</code> binaries (not libraries), you must provide a panic handler
+and optionally a global allocator:</p>
+<pre class="playground"><code class="language-rust">// src/main.rs — a no_std binary (e.g., UEFI diagnostic)
+#![no_std]
+#![no_main]
+
+extern crate alloc;
+
+use core::panic::PanicInfo;
+
+// Required: what to do on panic (no stack unwinding available)
+#[panic_handler]
+fn panic(info: &amp;PanicInfo) -&gt; ! {
+    // In embedded: blink an LED, write to UART, hang
+    // In UEFI: write to console, halt
+    // Minimal: just loop forever
+    loop {
+        core::hint::spin_loop();
+    }
+}
+
+// Required if using alloc: provide a global allocator
+use alloc::alloc::{GlobalAlloc, Layout};
+
+struct BumpAllocator {
+    // Simple bump allocator for embedded/UEFI
+    // In practice, use a crate like `linked_list_allocator` or `embedded-alloc`
+}
+
+// WARNING: This is a non-functional placeholder! Calling alloc() will return
+// null, causing immediate UB (the global allocator contract requires non-null
+// returns for non-zero-sized allocations). In real code, use an established
+// allocator crate:
+//   - embedded-alloc (embedded targets)
+//   - linked_list_allocator (UEFI / OS kernels)
+//   - talc (general-purpose no_std)
+unsafe impl GlobalAlloc for BumpAllocator {
+    /// # Safety
+    /// Layout must have non-zero size. Returns null (placeholder — will crash).
+    unsafe fn alloc(&amp;self, _layout: Layout) -&gt; *mut u8 {
+        // PLACEHOLDER — will crash! Replace with real allocation logic.
+        core::ptr::null_mut()
+    }
+    /// # Safety
+    /// `_ptr` must have been returned by `alloc` with a compatible layout.
+    unsafe fn dealloc(&amp;self, _ptr: *mut u8, _layout: Layout) {
+        // No-op for bump allocator
+    }
+}
+
+#[global_allocator]
+static ALLOCATOR: BumpAllocator = BumpAllocator {};
+
+// Entry point (platform-specific, not fn main)
+// For UEFI: #[entry] or efi_main
+// For embedded: #[cortex_m_rt::entry]</code></pre>
+<h3 id="testing-no_std-code"><a class="header" href="#testing-no_std-code">Testing <code>no_std</code> Code</a></h3>
+<p>Tests run on the host machine, which has <code>std</code>. The trick: your library is
+<code>no_std</code>, but your test harness uses <code>std</code>:</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// Your crate: #![no_std] in src/lib.rs
+// But tests run under std automatically:
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    // std is available here — println!, assert!, Vec all work
+
+    #[test]
+    fn test_temperature_conversion() {
+        let temp = Temperature::from_raw(800); // 50.0°C
+        assert_eq!(temp.millidegrees_c(), 50000);
+        assert!((temp.degrees_c() - 50.0).abs() &lt; 0.01);
+    }
+
+    #[test]
+    fn test_format_into_buffer() {
+        let temp = Temperature::from_raw(800);
+        let mut buf = [0u8; 32];
+        let len = format_temp_into(&amp;temp, &amp;mut buf);
+        let s = core::str::from_utf8(&amp;buf[..len]).unwrap();
+        assert_eq!(s, "50.000°C");
+    }
+}
+<span class="boring">}</span></code></pre>
+<p><strong>Testing on the actual target</strong> (when <code>std</code> isn’t available at all):</p>
+<pre><code class="language-bash"># Use defmt-test for on-device testing (embedded ARM)
+# Use uefi-test-runner for UEFI targets
+# Use QEMU for cross-architecture tests without hardware
+
+# Run no_std library tests on host (always works):
+cargo test --lib
+
+# Verify no_std compilation against a no_std target:
+cargo check --target thumbv7em-none-eabihf  # ARM Cortex-M
+cargo check --target riscv32imac-unknown-none-elf  # RISC-V
+</code></pre>
+<h3 id="no_std-decision-tree"><a class="header" href="#no_std-decision-tree"><code>no_std</code> Decision Tree</a></h3>
+<pre class="mermaid">flowchart TD
+    START["Does your code need&lt;br/&gt;the standard library?"] --&gt; NEED_FS{"File system,&lt;br/&gt;network, threads?"}
+    NEED_FS --&gt;|"Yes"| USE_STD["Use std&lt;br/&gt;Normal application"]
+    NEED_FS --&gt;|"No"| NEED_HEAP{"Need heap allocation?&lt;br/&gt;Vec, String, Box"}
+    NEED_HEAP --&gt;|"Yes"| USE_ALLOC["#![no_std]&lt;br/&gt;extern crate alloc"]
+    NEED_HEAP --&gt;|"No"| USE_CORE["#![no_std]&lt;br/&gt;core only"]
+    
+    USE_ALLOC --&gt; VERIFY["cargo-hack&lt;br/&gt;--each-feature"]
+    USE_CORE --&gt; VERIFY
+    USE_STD --&gt; VERIFY
+    VERIFY --&gt; TARGET{"Target has OS?"}
+    TARGET --&gt;|"Yes"| HOST_TEST["cargo test --lib&lt;br/&gt;Standard testing"]
+    TARGET --&gt;|"No"| CROSS_TEST["QEMU / defmt-test&lt;br/&gt;On-device testing"]
+    
+    style USE_STD fill:#91e5a3,color:#000
+    style USE_ALLOC fill:#ffd43b,color:#000
+    style USE_CORE fill:#ff6b6b,color:#000
+</pre>
+
+<h3 id="-exercises"><a class="header" href="#-exercises">🏋️ Exercises</a></h3>
+<h4 id="-exercise-1-feature-combination-verification"><a class="header" href="#-exercise-1-feature-combination-verification">🟡 Exercise 1: Feature Combination Verification</a></h4>
+<p>Install <code>cargo-hack</code> and run <code>cargo hack check --each-feature --workspace</code> on a project with multiple features. Does it find any broken combinations?</p>
+<details>
+<summary>Solution</summary>
+<pre><code class="language-bash">cargo install cargo-hack
+
+# Check each feature individually
+cargo hack check --each-feature --workspace --no-dev-deps
+
+# If a feature combination fails:
+# error[E0433]: failed to resolve: use of undeclared crate or module `std`
+# → This means a feature gate is missing a #[cfg] guard
+
+# Check all features + no features + each individually:
+cargo hack check --each-feature --workspace
+cargo check --workspace --all-features
+cargo check --workspace --no-default-features
+</code></pre>
+</details>
+<h4 id="-exercise-2-build-a-no_std-library"><a class="header" href="#-exercise-2-build-a-no_std-library">🔴 Exercise 2: Build a <code>no_std</code> Library</a></h4>
+<p>Create a library crate that compiles with <code>#![no_std]</code>. Implement a simple stack-allocated ring buffer. Verify it compiles for <code>thumbv7em-none-eabihf</code> (ARM Cortex-M).</p>
+<details>
+<summary>Solution</summary>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// lib.rs
+#![no_std]
+
+pub struct RingBuffer&lt;const N: usize&gt; {
+    data: [u8; N],
+    head: usize,
+    len: usize,
+}
+
+impl&lt;const N: usize&gt; RingBuffer&lt;N&gt; {
+    pub const fn new() -&gt; Self {
+        Self { data: [0; N], head: 0, len: 0 }
+    }
+
+    pub fn push(&amp;mut self, byte: u8) -&gt; bool {
+        if self.len == N { return false; }
+        let idx = (self.head + self.len) % N;
+        self.data[idx] = byte;
+        self.len += 1;
+        true
+    }
+
+    pub fn pop(&amp;mut self) -&gt; Option&lt;u8&gt; {
+        if self.len == 0 { return None; }
+        let byte = self.data[self.head];
+        self.head = (self.head + 1) % N;
+        self.len -= 1;
+        Some(byte)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn push_pop() {
+        let mut rb = RingBuffer::&lt;4&gt;::new();
+        assert!(rb.push(1));
+        assert!(rb.push(2));
+        assert_eq!(rb.pop(), Some(1));
+        assert_eq!(rb.pop(), Some(2));
+        assert_eq!(rb.pop(), None);
+    }
+}
+<span class="boring">}</span></code></pre>
+<pre><code class="language-bash">rustup target add thumbv7em-none-eabihf
+cargo check --target thumbv7em-none-eabihf
+# ✅ Compiles for bare-metal ARM
+</code></pre>
+</details>
+<h3 id="key-takeaways"><a class="header" href="#key-takeaways">Key Takeaways</a></h3>
+<ul>
+<li><code>cargo-hack --each-feature</code> is essential for any crate with conditional compilation — run it in CI</li>
+<li><code>core</code> → <code>alloc</code> → <code>std</code> are layered: each adds capabilities but requires more runtime support</li>
+<li>Custom panic handlers and allocators are required for bare-metal <code>no_std</code> binaries</li>
+<li>Test <code>no_std</code> libraries on the host with <code>cargo test --lib</code> — no hardware needed</li>
+<li>Run <code>--feature-powerset</code> only for core libraries with &lt;8 features — it’s $2^n$ combinations</li>
+</ul>
+<hr>
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="ch08-compile-time-and-developer-tools.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="ch10-windows-and-conditional-compilation.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="ch08-compile-time-and-developer-tools.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="ch10-windows-and-conditional-compilation.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+        <script>
+            window.playground_line_numbers = true;
+        </script>
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+        <script src="ace-2a3cd908.js"></script>
+        <script src="mode-rust-2c9d5c9a.js"></script>
+        <script src="editor-16ca416c.js"></script>
+        <script src="theme-dawn-4493f9c8.js"></script>
+        <script src="theme-tomorrow_night-9dbe62a9.js"></script>
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-c22b7243.js"></script>
+
+        <!-- Custom JS scripts -->
+        <script src="mermaid-eefea253.min.js"></script>
+        <script src="mermaid-init-ccf746f1.js"></script>
+
+
+
+    </div>
+    </body>
+</html>
