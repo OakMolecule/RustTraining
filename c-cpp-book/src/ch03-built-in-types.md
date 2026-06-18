@@ -15,7 +15,7 @@
 - Rust 允许在数字中任意使用 ```_``` 以提高可读性
 ----
 ### Rust 类型指定与赋值 {#rust-type-specification-and-assignment}
-- Rust 使用 ```let``` 关键字为变量赋值。变量类型可在 ```:``` 后可选指定
+- Rust 使用 ```let``` 关键字为变量赋值。变量的类型可以选择性地在冒号 ```:``` 后面显式指定。
 ```rust
 fn main() {
     let x : i32 = 42;
